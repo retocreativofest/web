@@ -217,4 +217,20 @@ function wireForms(){
   }));
 }
 
-wireMenu(); wireLinks(); wireForms(); wireCart(); wireFloat(); wireCanal(); renderAll();
+/* ---------- seguidores de Instagram y TikTok (Bazar creativo) ----------
+   data/redes.json: TikTok lo actualiza solo .github/workflows/redes.yml; Instagram se edita a mano si la lectura falla. */
+function wireRedes(){
+  if (!$('#igTotal')) return;
+  const fmt = n => Math.floor(n / 100) * 100;
+  const es = n => n.toLocaleString('es-VE');
+  fetch('data/redes.json', {cache:'no-store'}).then(r => r.ok ? r.json() : Promise.reject()).then(d => {
+    [['ig','instagram'],['tt','tiktok']].forEach(([k, red]) => {
+      const rcf = +d[red]?.retocreativofest?.seguidores || 0, mm = +d[red]?.mentemilenial?.seguidores || 0;
+      if (rcf) $('#' + k + 'Rcf').textContent = es(fmt(rcf));
+      if (mm) $('#' + k + 'Mm').textContent = es(fmt(mm));
+      if (rcf + mm) $('#' + k + 'Total').textContent = '+' + es(fmt(rcf + mm));
+    });
+  }).catch(() => {});
+}
+
+wireMenu(); wireLinks(); wireForms(); wireCart(); wireFloat(); wireCanal(); wireRedes(); renderAll();

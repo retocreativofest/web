@@ -457,3 +457,5 @@ mark{background:var(--yellow);border-radius:3px;padding:0 2px}
 .gsteps b{font-family:var(--display);font-size:22px;color:var(--cyan)}
 .gsteps span{font-size:15px;color:#E9E4F0}
 @media (max-width:860px){.guard-card{grid-template-columns:1fr}}
+.kpi .kd{display:grid;gap:2px;margin-top:10px;padding-top:8px;border-top:2px solid rgba(11,11,15,.25);font-size:13px;font-weight:600;color:var(--ink)}
+.kpi .kd b{display:inline;font-family:var(--body);font-size:13px;font-variant-numeric:tabular-nums}
