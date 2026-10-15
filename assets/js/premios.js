@@ -80,6 +80,10 @@
   render(window.RCF_PREMIOS || []);
   if (CONFIG.premiosCSV){
     fetch(CONFIG.premiosCSV, {cache:'no-store'}).then(r => r.ok ? r.text() : Promise.reject())
-      .then(t => { const rows = csvRows(t); if (rows.length > 10) render(rows); }).catch(() => {});
+      .then(t => {
+        const rows = csvRows(t);
+        const roto = rows.some(r => r.some(c => /^#(ERROR|N\/A|REF|VALUE|NAME|DIV)/i.test(c)));
+        if (rows.length > 10 && !roto && rows.some(r => r[0] === 'Reglas en 30 segundos')) render(rows);   // si la hoja tiene errores, se queda la copia guardada
+      }).catch(() => {});
   }
 })();
