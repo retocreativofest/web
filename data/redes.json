@@ -1,10 +1,26 @@
 {
   "instagram": {
-    "retocreativofest": {"seguidores": 3100, "actualizado": "2026-10-15", "fuente": "manual"},
-    "mentemilenial": {"seguidores": 15200, "actualizado": "2026-10-15", "fuente": "manual"}
+    "retocreativofest": {
+      "seguidores": 3100,
+      "actualizado": "2026-10-15",
+      "fuente": "manual"
+    },
+    "mentemilenial": {
+      "seguidores": 15200,
+      "actualizado": "2026-10-15",
+      "fuente": "manual"
+    }
   },
   "tiktok": {
-    "retocreativofest": {"seguidores": 7600, "actualizado": "2026-10-15", "fuente": "manual"},
-    "mentemilenial": {"seguidores": 8000, "actualizado": "2026-10-15", "fuente": "manual"}
+    "retocreativofest": {
+      "seguidores": 8043,
+      "actualizado": "2026-10-15",
+      "fuente": "automática"
+    },
+    "mentemilenial": {
+      "seguidores": 7586,
+      "actualizado": "2026-10-15",
+      "fuente": "automática"
+    }
   }
 }
