@@ -3,7 +3,7 @@
 const CONFIG = {
   whatsapp: '584120390423',                 // número para pedidos y consultas (sin + ni espacios)
   canalWhatsApp: 'https://whatsapp.com/channel/0029Vb0wgM92P59bPnVm2E2I',
-  formularios: '',                          // URL de la Apps Script que guarda los formularios en Google Sheets
+  formularios: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',                          // URL de la Apps Script que guarda los formularios en Google Sheets
   premiosCSV: '',                           // hoja «Así van los premios» publicada como CSV en Google Sheets
   inscripcion: 'https://forms.gle/i2NMCytXbv9Qxoen6',
   padlet: 'https://padlet.com/retocreativofest/ii-retomentemilenial-de-ilustracion-semanal-2da-temporada-dz5ha872s9ow904h',
