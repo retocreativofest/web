@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-hashes' 'sha256-1jAmyYXcRq6zFldLe/GCgIDJBiOONdXjTLgEFMDnDSM='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://script.google.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Reto Creativo Fest 2026 · Dibuja. Conecta. Celebra.</title>
 <meta name="description" content="Festival de ilustración en Caracas: concurso de dibujo en vivo, charlas, bazar creativo y premiación del #RetoMenteMilenial. Sábado 5 de diciembre en FACES-UCV. Entrada gratuita.">
 <link rel="canonical" href="https://retocreativofest.com/">
@@ -12,22 +14,24 @@
 <meta property="og:url" content="https://retocreativofest.com/">
 <meta property="og:image" content="https://retocreativofest.com/assets/img/og-rcf.jpg">
 <meta name="theme-color" content="#0B0B0F">
-<link rel="icon" type="image/png" href="assets/img/logo-rcf.png">
+<link rel="icon" type="image/png" href="assets/img/logo-rcf-64.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Quicksand:wght@500;600;700&display=swap">
-<link rel="stylesheet" href="assets/css/rcf.css?v=20261015">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Quicksand:wght@500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Quicksand:wght@500;600;700&display=swap"></noscript>
+<link rel="stylesheet" href="assets/css/rcf.css?v=20261019e">
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
 <header class="top"><div class="wrap">
-  <a class="brand" href="index.html"><img src="assets/img/logo-rcf.png" alt="Reto Creativo Fest · inicio" width="595" height="595"></a>
+  <a class="brand" href="index.html"><img src="assets/img/logo-rcf-128.webp" alt="Reto Creativo Fest · inicio" width="54" height="54" fetchpriority="high"></a>
   <nav class="nav" id="nav" aria-label="Principal"><a href="index.html" aria-current="page">Inicio</a><a href="concurso.html">Concurso</a><a href="reto-semanal.html">Reto semanal</a><a href="tienda.html">Tienda</a><a href="bazar-creativo.html">Bazar creativo</a><a href="mente-milenial.html">Sobre Mente Milenial</a><a href="preguntas-frecuentes.html">Preguntas Frecuentes</a></nav>
   <button class="cartbtn" type="button" aria-haspopup="dialog"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6.2"/><circle cx="10" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg><span class="lbl">Carrito</span> <span class="n">0</span></button>
   <button class="menubtn" id="menuBtn" type="button" aria-expanded="false" aria-controls="nav" aria-label="Abrir menú"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
 </div></header>
 <main id="main">
-<section class="hero-photo home-hero" style="background-image:url(assets/img/galeria-ruta-creativa.webp)">
+<a class="appbar" href="reto-semanal.html#app"><span class="appbar-tag">Nuevo</span><span data-app-soon>La app del #RetoMenteMilenial llega en diciembre: tu reto, tu racha y tus puntajes en el teléfono.</span><span data-app-live hidden>Ya salió la app del #RetoMenteMilenial: instálala gratis.</span><b>Conócela →</b></a>
+<section class="hero-photo home-hero"><img class="hero-bg" src="assets/img/galeria-ruta-creativa-800.webp" srcset="assets/img/galeria-ruta-creativa-800.webp 800w, assets/img/galeria-ruta-creativa.webp 1600w" sizes="100vw" alt="" fetchpriority="high" decoding="async">
   <svg class="spark" style="--s:96px;top:44px;right:7%" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 2 C54 34 66 46 98 50 C66 54 54 66 50 98 C46 66 34 54 2 50 C34 46 46 34 50 2Z" fill="#F0479B"/></svg><svg class="spark" style="--s:46px;top:56%;left:7.5%" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 2 C54 34 66 46 98 50 C66 54 54 66 50 98 C46 66 34 54 2 50 C34 46 46 34 50 2Z" fill="#FFD60A"/></svg>
   <div class="wrap">
     <span class="pill p-cyan">Inscripciones abiertas · 4.ª edición</span>
@@ -42,13 +46,13 @@
 </div></section>
 <section class="sec" aria-label="Tienda"><div class="wrap"><div class="pgrid" data-products></div></div></section>
 <section class="sec" style="padding-top:24px"><div class="wrap split">
-  <figure class="polaroid" style="--c:var(--purple);--tape:transparent;--rot:-3deg;margin:0"><img src="assets/img/galeria-ruta-cajas.webp" alt="Ganadores del #RetoMenteMilenial con sus premios en el Reto Creativo Fest" loading="lazy" width="1600" height="1200"></figure>
+  <figure class="polaroid" style="--c:var(--purple);--tape:transparent;--rot:-3deg;margin:0"><img src="assets/img/galeria-ruta-cajas-800.webp" srcset="assets/img/galeria-ruta-cajas-800.webp 800w, assets/img/galeria-ruta-cajas.webp 1600w" sizes="(max-width: 900px) 100vw, 50vw" decoding="async" alt="Ganadores del #RetoMenteMilenial con sus premios en el Reto Creativo Fest" loading="lazy" width="1600" height="1200"></figure>
   <div class="txt"><span class="pill p-purple">#RetoMenteMilenial</span><h2>Un reto de dibujo cada semana, todo el año</h2>
     <p class="lead">Casi 3.000 artistas participan en el reto semanal por WhatsApp, Instagram y TikTok. Los resultados se publican cada miércoles y suman para los premios del festival.</p>
     <div class="ctas"><a class="btn b-ink" href="reto-semanal.html">Ver puntajes</a><a class="btn b-cyan" style="background:var(--cyansoft);border-color:var(--ink)" data-link="canal" href="#">Unirme al canal</a></div></div>
 </div></section>
 <section class="sec" style="padding-top:24px"><div class="wrap split rev">
-  <figure class="polaroid" style="--c:var(--cyan);--rot:-2deg;margin:0"><img src="assets/img/galeria-pintura-en-vivo.webp" alt="Artista pintando en vivo durante el Reto Creativo Fest" loading="lazy" width="1600" height="1600" style="aspect-ratio:4/3"></figure>
+  <figure class="polaroid" style="--c:var(--cyan);--rot:-2deg;margin:0"><img src="assets/img/galeria-pintura-en-vivo-800.webp" srcset="assets/img/galeria-pintura-en-vivo-800.webp 800w, assets/img/galeria-pintura-en-vivo.webp 1600w" sizes="(max-width: 900px) 100vw, 50vw" decoding="async" alt="Artista pintando en vivo durante el Reto Creativo Fest" loading="lazy" width="1600" height="1600" style="aspect-ratio:4/3"></figure>
   <div class="txt"><span class="pill p-yellow">Concurso de dibujo en vivo</span><h2>45 minutos para dibujar la Navidad venezolana</h2>
     <p class="lead">Tema: «Luces de Navidad en Venezuela: el brillo que habita en nuestra memoria». Técnica tradicional (4 ganadores).</p>
     <div class="lead">Premios:<ul><li>Un kit de arte</li><li>Beca del 50% en el programa de un año en la Academia Olivares</li></ul></div>
@@ -83,13 +87,13 @@
 </main>
 <footer class="foot"><div class="wrap">
   <div class="fgrid">
-    <div><img src="assets/img/logo-rcf.png" alt="Reto Creativo Fest" width="595" height="595" loading="lazy"><p>4.ª edición · Sábado 5 de diciembre<br>FACES, Universidad Central de Venezuela</p></div>
+    <div><img src="assets/img/logo-rcf-128.webp" alt="Reto Creativo Fest" width="64" height="64" loading="lazy"><p>4.ª edición · Sábado 5 de diciembre<br>FACES, Universidad Central de Venezuela</p></div>
     <div><h3>Festival</h3><ul><li><a href="concurso.html">Concurso</a></li><li><a href="index.html#programa">Cronograma</a></li><li><a href="bazar-creativo.html">Bazar creativo</a></li><li><a href="tienda.html">Tienda</a></li></ul></div>
     <div><h3>Comunidad</h3><ul><li><a href="reto-semanal.html">Reto semanal</a></li><li><a data-link="canal" href="#">Canal de WhatsApp</a></li><li><a data-link="patreon" href="#">Patreon</a></li></ul></div>
-    <div><h3>Contacto</h3><ul><li><a href="mailto:retocreativofest@gmail.com">retocreativofest@gmail.com</a></li><li><a href="mente-milenial.html">Sobre Mente Milenial</a></li><li><a href="preguntas-frecuentes.html">Preguntas y respuestas</a></li><li><a href="bases.html">Bases y condiciones</a></li><li><a href="privacidad.html">Privacidad</a></li></ul></div>
+    <div><h3>Contacto</h3><ul><li><a href="mailto:retocreativofest@gmail.com">retocreativofest@gmail.com</a></li><li><a href="mente-milenial.html">Sobre Mente Milenial</a></li><li><a href="bazar-creativo.html#prensa">Acreditación de prensa</a></li><li><a href="preguntas-frecuentes.html">Preguntas y respuestas</a></li><li><a href="bases.html">Bases y condiciones</a></li><li><a href="privacidad.html">Privacidad</a></li></ul></div>
   </div>
   <p class="fbase">Un proyecto de Mente Milenial</p>
 </div></footer>
-<script src="assets/js/rcf.js?v=20261015"></script>
+<script src="assets/js/rcf.js?v=20261019e" defer></script>
 </body>
 </html>
