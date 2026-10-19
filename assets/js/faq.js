@@ -1,5 +1,17 @@
 /* Preguntas frecuentes: para agregar o cambiar una pregunta, edita FAQ. */
 const FAQ = [
+ {id:'categorias', t:'Categorías y cómo clasificar', c:'#FFD60A', q:[
+  ['Ilustrador estrella: ¿cómo se gana?', `<p><b>Categoría principal · 1 ganador.</b> Para quien acumula más puestos de honor en los resultados semanales.</p><p><b>Cómo se clasifica:</b> cada 1.er lugar suma 3 puntos y cada 2.º o 3.er lugar suma 1. Gana quien tenga más puntos.</p><a class="act" href="reto-semanal.html">Ver «Así van los puntajes»</a>`],
+  ['Ilustradores destacados: ¿cómo se gana?', `<p><b>Categoría principal · 3 ganadores.</b></p><p><b>Cómo se clasifica:</b> los tres con más puestos de honor (1.º, 2.º y 3.º), sin contar al ilustrador estrella.</p>`],
+  ['Relámpago creativo: ¿cómo se gana?', `<p><b>Categoría principal · 1 ganador.</b></p><p><b>Cómo se clasifica:</b> quien más veces fue la primera persona en publicar cada semana.</p>`],
+  ['Mejor ilustración digital: ¿cómo se gana?', `<p><b>Categoría principal · 4 nominados · 1 ganador.</b></p><p><b>Cómo se clasifica:</b> marca tu técnica como Digital al publicar. Las 4 ilustraciones digitales con más me gusta quedan nominadas y el jurado elige la ganadora.</p>`],
+  ['Mejor ilustración tradicional: ¿cómo se gana?', `<p><b>Categoría principal · 4 nominados · 1 ganador.</b></p><p><b>Cómo se clasifica:</b> marca tu técnica como Tradicional al publicar. Las 4 ilustraciones tradicionales con más me gusta quedan nominadas y el jurado elige la ganadora.</p>`],
+  ['Premio a la constancia: ¿cómo se gana?', `<p><b>Categoría principal · 1 ganador · rotativa por año.</b> No se puede sumar a otra categoría: quien la gana no gana otra. Es rotativa por año: quien la ganó no puede volver a ganarla en la siguiente edición del mismo año.</p><p><b>Cómo se clasifica:</b> quien participó en más semanas del periodo, seguidas o no.</p>`],
+  ['Ilustración más interactiva: ¿cómo se gana?', `<p><b>Se puede sumar a otro premio · 1 ganador · rotativa por año.</b> Quien la ganó no puede volver a ganarla en la siguiente edición del mismo año.</p><p><b>Cómo se clasifica:</b> la ilustración con más me gusta del Padlet. Los votos se revisan para confirmar que son reales.</p>`],
+  ['Elección de la comunidad: ¿cómo se gana?', `<p>Se vota el día del evento.</p>`],
+  ['¿Puedo ganar más de una categoría?', `<p>Cada persona gana solo una categoría principal: Estrella, Destacados, Relámpago, Digital, Tradicional o Premio a la constancia.</p><p>Solo la <b>Ilustración más interactiva</b> se puede ganar además de una categoría principal. El Premio a la constancia y la Ilustración más interactiva son rotativas por año.</p>`],
+  ['¿Qué pasa si hay un empate?', `<p>Gana quien tenga más primeros lugares; si sigue el empate, más segundos y terceros; luego, más me gusta.</p>`]
+ ]},
  {id:'evento', t:'El evento', c:'#FFD60A', q:[
   ['¿Cuándo y dónde es el Reto Creativo Fest?', `<p>El <b>sábado 5 de diciembre</b>, de 10:00 a. m. a 4:00 p. m., en la Facultad de Ciencias Económicas y Sociales (FACES) de la Universidad Central de Venezuela, Caracas.</p><a class="act" href="index.html#programa">Ver el programa</a>`],
   ['¿La entrada tiene costo?', `<p>No. La entrada al festival es <b>gratuita</b>.</p><p>Para entrar a las <b>charlas con propósito</b> necesitas donar al menos <b>2 insumos nuevos de primera necesidad</b> (juguetes, alimentos, medicinas o material de arte) o adquirir la <b>Ruta creativa</b>.</p><a class="act" href="tienda.html">Comprar la Ruta creativa</a>`],
@@ -17,6 +29,7 @@ const FAQ = [
  {id:'reto', t:'Reto semanal', c:'#AA57F7', q:[
   ['¿Cómo participo en el #RetoMenteMilenial?', `<p>Sube tu dibujo al Padlet de la semana antes del cierre: <b>lunes, 8:00 p. m.</b> Es importante que te registres con una <b>única cuenta</b>. Al publicar, agrega tus redes sociales y si tu técnica es digital o tradicional.</p><a class="act" data-link="padlet" href="#">Ir al Padlet</a>`],
   ['¿Quién puede ganar los premios?', `<p>Personas <b>venezolanas residentes en Venezuela</b>, con <b>una sola cuenta</b> por participante.</p>`],
+  ['Soy menor de edad, ¿puedo participar en el reto semanal?', `<p>Sí. Los menores de 18 años participan con la <b>autorización de su representante</b>: debe llenar el formulario y confirmar el correo que le llega. Sin autorización puedes publicar, pero no puedes quedar entre las finalistas ni recibir premios.</p><p>Publica solo tu <b>nombre de pila y tu usuario</b>: nunca tu colegio, tu dirección ni fotos tuyas.</p><a class="act" data-link="autorizacion" href="#">Formulario de autorización</a>`],
   ['¿Cómo se eligen los ganadores?', `<p>Algunas categorías se ganan por puntos según tus puestos de cada semana, otras por me gusta, y Digital y Tradicional las decide el jurado.</p><a class="act" href="reto-semanal.html">Ver «Así van los puntajes»</a>`],
   ['¿Puedo usar IA, calcar o copiar?', `<p>No. Los <b>Guardianes del arte</b> revisan cada dibujo del Padlet para evitar IA, plagios y copias.</p>`],
   ['Gané en julio, ¿puedo volver a ganar?', `<p>Sí, en otra categoría. No puedes repetir la misma categoría que ganaste en julio.</p>`]
@@ -36,12 +49,15 @@ const FAQ = [
  {id:'comunidad', t:'Comunidad', c:'#C5A6D9', q:[
   ['¿Dónde veo los streams de @mentemilenial?', `<p>Lunes, miércoles y viernes a las <b>8:30 p. m. (hora de Venezuela)</b>, en TikTok, Twitch, YouTube y Kick.</p><a class="act" href="mente-milenial.html">Ver la semana en vivo</a>`],
   ['¿Cómo entro al Discord?', `<p>El Discord de Mente Milenial es exclusivo para miembros del Patreon de Reto Mente Milenial. Ahí puedes hablar con el equipo durante los streams, conocer el reto 24 horas antes y ver master class exclusivas.</p><a class="act" data-link="patreon" href="#">Ir a Patreon</a>`],
+  ['Soy periodista o medio, ¿cómo me acredito?', `<p>Completa el formulario de <b>acreditación de prensa</b>. Revisamos cada solicitud y te confirmamos por correo y WhatsApp.</p><a class="act" href="bazar-creativo.html#prensa">Solicitar acreditación</a>`],
   ['¿Cómo puedo patrocinar el evento?', `<p>Tenemos paquetes desde <b>$20</b>, que puedes combinar con productos o servicios de tu marca.</p><a class="act" data-wa="¡Hola! Quiero conocer los paquetes de patrocinio del Reto Creativo Fest." href="#">Ver paquetes de patrocinio</a>`]
  ]}
 ];
 
 /* Buscador con sinónimos: cada grupo reúne palabras que la gente usa para lo mismo. */
 const SINONIMOS = [
+  ['categoria','categorias','clasificar','clasifica','clasificacion','ranking','nominados'],
+  ['prensa','periodista','medio','medios','acreditacion','acreditar','cobertura','entrevista'],
   ['fecha','cuando','dia','sabado','diciembre','hora','horario','horas','empieza','comienza','termina','programa','cronograma','agenda'],
   ['donde','lugar','ubicacion','direccion','sede','queda','ucv','faces','universidad','llegar','caracas'],
   ['costo','cuesta','precio','precios','pagar','pago','pagos','gratis','gratuita','gratuito','entrada','cobran','valor','tarifa','dolares','bolivares'],

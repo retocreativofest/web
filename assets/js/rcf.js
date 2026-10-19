@@ -6,16 +6,18 @@ const CONFIG = {
   formularios: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',                          // URL de la Apps Script que guarda los formularios en Google Sheets
   premiosCSV: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRoZ3sjeDuqzJDcDGxVUPK02-uyf00qhaPcX6RXMR8n_ZcGunndTPLGgq5SRBAPp3bQrXWn3fa0nwFd/pub?gid=1238618466&single=true&output=csv',                           // hoja «Así van los premios» publicada como CSV en Google Sheets
   inscripcion: 'https://forms.gle/i2NMCytXbv9Qxoen6',
-  padlet: 'https://padlet.com/retocreativofest/ii-retomentemilenial-de-ilustracion-semanal-2da-temporada-dz5ha872s9ow904h',
-  patreon: 'https://www.patreon.com/RetoMenteMilenial'
+  padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
+  autorizacion: 'https://docs.google.com/forms/d/e/1FAIpQLSeTf_vZNjg5LU_mMs1X9tqmrgBddUGMDKuzvqV9U7NuXeXW7A/viewform', // Google Forms «Autorización del representante»
+  patreon: 'https://www.patreon.com/RetoMenteMilenial',
+  app: ''                                   // enlace de la app (PWA). Vacío = «Llega en diciembre». Al lanzarla, pega aquí la URL y la web cambia sola a «Instálala».
 };
 
 const PRODUCTOS = [
-  {id:'stickers', nombre:'Set de stickers RCF', desc:'Vinil autoadhesivo (10,8 × 14 cm).', precio:1.5, cat:'Papelería', modo:'disponible', color:'#0B0B0F', img:'assets/img/tienda-stickers.webp'},
-  {id:'ruta', nombre:'Ruta creativa', desc:'Recorre el evento haciendo retos de dibujo y participa en un increíble sorteo con premios. Actividad apta para todo público.', precio:3, cat:'Actividades', modo:'disponible', color:'#FFFFFF', img:'assets/img/tienda-ruta-creativa.webp', imgStyle:'inset:auto;left:-4%;top:13%;width:92%;height:auto;object-fit:contain'},
-  {id:'guante', nombre:'Guante y lápiz de dibujo', desc:'El combo perfecto para artistas digitales y tradicionales: evita las manchas de grasa en tus dibujos. Diferentes colores y tallas.', precio:8, cat:'Para dibujar', modo:'disponible', color:'#FFFFFF', img:'assets/img/tienda-guante.webp',
+  {id:'stickers', nombre:'Set de stickers RCF', desc:'Vinil autoadhesivo (10,8 × 14 cm).', precio:1.5, cat:'Papelería', modo:'disponible', color:'#0B0B0F', img:'assets/img/tienda-stickers-640.webp'},
+  {id:'ruta', nombre:'Ruta creativa', desc:'Recorre el evento haciendo retos de dibujo y participa en un increíble sorteo con premios. Actividad apta para todo público.', precio:3, cat:'Actividades', modo:'disponible', color:'#FFFFFF', img:'assets/img/tienda-ruta-creativa-640.webp', imgStyle:'inset:auto;left:-4%;top:13%;width:92%;height:auto;object-fit:contain'},
+  {id:'guante', nombre:'Guante y lápiz de dibujo', desc:'El combo perfecto para artistas digitales y tradicionales: evita las manchas de grasa en tus dibujos. Diferentes colores y tallas.', precio:8, cat:'Para dibujar', modo:'disponible', color:'#FFFFFF', img:'assets/img/tienda-guante-640.webp',
     opciones:{Color:['Lila','Verde menta','Negro'], Mano:['Diestro','Zurdo'], Talla:['Regular','Grande']}},
-  {id:'franela', nombre:'Franela y totebag RCF', desc:'El outfit ideal para el Reto Creativo Fest. Tallas S, M y L.', precio:25, cat:'Ropa', modo:'encargo', color:'#FFFFFF', img:'assets/img/tienda-franela-totebag.webp',
+  {id:'franela', nombre:'Franela y totebag RCF', desc:'El outfit ideal para el Reto Creativo Fest. Tallas S, M y L.', precio:25, cat:'Ropa', modo:'encargo', color:'#FFFFFF', img:'assets/img/tienda-franela-totebag-640.webp',
     opciones:{Talla:['S','M','L']}}
 ];
 const ENCARGO = 'Bajo pedido · ~1 semana';
@@ -36,9 +38,16 @@ function wireLinks(){
   $$('[data-link]').forEach(a => {
     const k = a.dataset.link;
     if (k === 'canal' && !CONFIG.canalWhatsApp){ a.href = waLink('¡Hola! Quiero unirme al canal de WhatsApp del #RetoMenteMilenial.'); }
-    else a.href = ({canal:CONFIG.canalWhatsApp, inscripcion:CONFIG.inscripcion, padlet:CONFIG.padlet, patreon:CONFIG.patreon})[k] || '#';
+    else a.href = ({canal:CONFIG.canalWhatsApp, inscripcion:CONFIG.inscripcion, padlet:CONFIG.padlet, patreon:CONFIG.patreon, app:CONFIG.app, autorizacion:CONFIG.autorizacion})[k] || '#';
     a.target = '_blank'; a.rel = 'noopener';
   });
+}
+
+/* ---------- app: «próximamente» o «instálala» según CONFIG.app ---------- */
+function wireApp(){
+  const live = !!CONFIG.app;
+  $$('[data-app-soon]').forEach(el => el.hidden = live);
+  $$('[data-app-live]').forEach(el => el.hidden = !live);
 }
 
 /* ---------- menú en celular ---------- */
@@ -51,6 +60,11 @@ function wireMenu(){
 /* ---------- carrito ---------- */
 let cart = store.get('rcf-cart2', []);          // [{id, q, op:{Talla:'M'}}]
 if (!Array.isArray(cart)) cart = [];
+/* Seguridad: solo se aceptan productos que existen, cantidades enteras y opciones válidas (el carrito guardado se puede manipular). */
+cart = cart.filter(l => l && PRODUCTOS.some(p => p.id === l.id) && Number.isInteger(l.q) && l.q > 0 && l.q <= 99)
+  .map(l => { const p = PRODUCTOS.find(x => x.id === l.id), op = {};
+    Object.entries(p.opciones || {}).forEach(([k, vals]) => { op[k] = vals.includes(l.op && l.op[k]) ? l.op[k] : vals[0]; });
+    return {id:l.id, q:l.q, op}; });
 const byId = id => PRODUCTOS.find(p => p.id === id);
 const defaults = p => Object.fromEntries(Object.entries(p.opciones || {}).map(([k, v]) => [k, v[0]]));
 const qtyOf = id => cart.filter(l => l.id === id).reduce((s, l) => s + l.q, 0);
@@ -94,7 +108,7 @@ function removeOne(id){
 
 function productCard(p){
   const q = qtyOf(p.id);
-  return `<article class="prod" data-cat="${esc(p.cat)}"><div class="pic" style="--pc:${p.color}"><img src="${p.img}" alt="${esc(p.nombre)}" loading="lazy" width="600" height="600"${p.imgStyle ? ` style="${p.imgStyle}"` : ''}><span class="badge ${p.modo==='encargo'?'enc':''}">${p.modo==='encargo'?ENCARGO:'Disponible'}</span></div>
+  return `<article class="prod" data-cat="${esc(p.cat)}"><div class="pic" style="--pc:${p.color}"><img src="${p.img}" alt="${esc(p.nombre)}" loading="lazy" decoding="async" width="600" height="600"${p.imgStyle ? ` style="${p.imgStyle}"` : ''}><span class="badge ${p.modo==='encargo'?'enc':''}">${p.modo==='encargo'?ENCARGO:'Disponible'}</span></div>
     <div class="b"><h3>${esc(p.nombre)}</h3><p>${esc(p.desc)}</p>
     <div class="row"><span class="price">${money(p.precio)}<small>USD BCV</small></span>${q
       ? `<div class="qty" aria-label="Cantidad de ${esc(p.nombre)} en el carrito"><button type="button" data-a="-" data-id="${p.id}" aria-label="Quitar uno">−</button><span>${q}</span><button type="button" data-a="+" data-id="${p.id}" aria-label="Agregar uno">+</button></div>`
@@ -133,7 +147,7 @@ function renderCart(){
   const box = $('#items'); if (!box) return;
   box.innerHTML = cart.length ? cart.map((l, i) => { const p = byId(l.id); if (!p) return '';
     const opts = Object.entries(p.opciones || {}).map(([k, vals]) => `<label><span class="sr">${esc(k)} de ${esc(p.nombre)}</span><select data-i="${i}" data-k="${esc(k)}" aria-label="${esc(k)}">${vals.map(v => `<option${l.op && l.op[k]===v?' selected':''}>${esc(v)}</option>`).join('')}</select></label>`).join('');
-    return `<div class="item"><img class="thumb" src="${p.img}" alt="" style="background:${p.color}"><div><h3>${esc(p.nombre)}</h3><small>${money(p.precio)} c/u${p.modo==='encargo' ? ' · ' + ENCARGO : ''}</small></div>
+    return `<div class="item"><img class="thumb" src="${p.img}" alt="" loading="lazy" width="56" height="56" style="background:${p.color}"><div><h3>${esc(p.nombre)}</h3><small>${money(p.precio)} c/u${p.modo==='encargo' ? ' · ' + ENCARGO : ''}</small></div>
       <div class="r"><div class="qty"><button type="button" data-c="-" data-i="${i}" aria-label="Quitar uno">−</button><span>${l.q}</span><button type="button" data-c="+" data-i="${i}" aria-label="Agregar uno">+</button></div><button class="rm" type="button" data-rm="${i}">Eliminar</button></div>
       ${opts ? `<div class="opts">${opts}${p.opciones ? `<button class="rm" type="button" data-dup="${i}">+ Agregar otro con distintas opciones</button>` : ''}</div>` : ''}</div>`; }).join('')
     : '<p class="empty">Tu carrito está vacío.<br>Agrega productos para armar tu pedido.</p>';
@@ -191,6 +205,8 @@ function wireCanal(){
    Envían los datos a CONFIG.formularios (Apps Script → Google Sheets).
    Mientras no exista esa URL, el envío abre WhatsApp con los datos escritos. */
 function wireForms(){
+  /* Formularios con fecha de cierre (data-cierre): después de esa fecha se ocultan y se muestra el aviso de cierre. */
+  $$('form[data-cierre]').forEach(f => { if (Date.now() >= Date.parse(f.dataset.cierre)){ f.hidden = true; const c = f.parentElement.querySelector('.press-closed'); if (c) c.hidden = false; } });
   $$('form[data-form]').forEach(f => f.addEventListener('submit', async e => {
     e.preventDefault();
     const err = $('.ferr', f), ok = $('.fok', f), btn = $('button[type=submit]', f);
@@ -233,4 +249,4 @@ function wireRedes(){
   }).catch(() => {});
 }
 
-wireMenu(); wireLinks(); wireForms(); wireCart(); wireFloat(); wireCanal(); wireRedes(); renderAll();
+wireMenu(); wireLinks(); wireApp(); wireForms(); wireCart(); wireFloat(); wireCanal(); wireRedes(); renderAll();
