@@ -1,0 +1,18 @@
+{
+  "id": "/app/",
+  "name": "#RetoMenteMilenial",
+  "short_name": "Reto MM",
+  "description": "El reto semanal de dibujo de Mente Milenial: el reto de la semana, tu dibujo en el Padlet y tu racha.",
+  "lang": "es",
+  "start_url": "/app/",
+  "scope": "/app/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBF9FF",
+  "theme_color": "#0B0B0F",
+  "icons": [
+    { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
