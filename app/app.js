@@ -710,8 +710,8 @@ function vistaClub(error, escribiendo) {
     </header>
     <main class="cont">
       <div class="estrellas" aria-label="Tu estrella crece con tus meses en el Club">
-        <span><img src="img/estrella-1.webp" alt="" width="56" height="56">Menos de 3 meses</span>
-        <span><img src="img/estrella-3.webp" alt="" width="64" height="56">De 3 a 5 meses</span>
+        <span><img src="img/estrella-1.webp" alt="" width="64" height="56">Menos de 3 meses</span>
+        <span><img src="img/estrella-3.webp" alt="" width="56" height="56">De 3 a 5 meses</span>
         <span><img src="img/estrella-6.webp" alt="" width="58" height="56">6 meses o más</span>
       </div>
       ${c.activo ? `<div class="club-yo"><img src="img/estrella-${c.estrella}.webp" alt="" width="54" height="54"><div><b>✓ Club activo hasta el ${fechaCorta(c.hasta)}</b><span>Llevas ${c.meses} ${c.meses === 1 ? 'mes' : 'meses'} · ${c.protectores} protectores este mes</span></div></div>` : ''}
