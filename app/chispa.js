@@ -30,6 +30,7 @@ export function chispasDeLaSemana() {   // cuántas hiciste desde el lunes
   const desde = lunes.toISOString().slice(0, 10);
   return hechas.filter(d => d >= desde).length;
 }
+export function chispaHechaHoy() { return (leerLS('chispas') || []).indexOf(diaCaracas()) >= 0; }
 function marcarHecha() {
   const dia = diaCaracas(), hechas = (leerLS('chispas') || []).filter(d => d !== dia);
   hechas.push(dia); guardarLS('chispas', hechas.slice(-21));

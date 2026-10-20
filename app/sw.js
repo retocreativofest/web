@@ -1,8 +1,8 @@
 /* #RetoMenteMilenial · funciona sin conexión para la parte visual. Los datos siempre se piden en línea. */
-const VERSION = 'rmm-app-v8';
-const BASE = ['./', 'index.html', 'app.css?v=8', 'app.js?v=8', 'manifest.webmanifest',
+const VERSION = 'rmm-app-v9';
+const BASE = ['./', 'index.html', 'app.css?v=9', 'app.js?v=9', 'manifest.webmanifest',
   'img/digi.webp', 'img/tradi.webp', 'img/digi-cara.webp', 'img/tradi-cara.webp', 'img/icon-192.png',
-  'img/sticker-1.webp', 'img/sticker-2.webp', 'img/sticker-3.webp', 'chispa.js?v=1',
+  'img/sticker-1.webp', 'img/sticker-2.webp', 'img/sticker-3.webp', 'chispa.js?v=2',
   'img/estrella-1.webp', 'img/estrella-3.webp', 'img/estrella-6.webp'];
 
 self.addEventListener('install', e => {
