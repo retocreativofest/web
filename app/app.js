@@ -84,7 +84,7 @@ const textoError = e => ERRORES[e] || ERRORES.servidor;
 /* ---------- estado ---------- */
 const E = {
   sesion: leer('sesion'), correo: leer('correo'), perfil: leer('perfil'),
-  guia: leer('guia') || 'digi', borrador: {}, hoy: leer('hoy'), semana: leer('semana'), subida: {}, instalar: null
+  guia: leer('guia') || 'digi', borrador: {}, hoy: leer('hoy'), semana: leer('semana'), progreso: leer('progreso'), ranking: null, subida: {}, instalar: null
 };
 const imgGuia = g => 'img/' + (g === 'tradi' ? 'tradi' : 'digi') + '.webp';
 const caraGuia = g => 'img/' + (g === 'tradi' ? 'tradi' : 'digi') + '-cara.webp';
@@ -312,7 +312,9 @@ function conNav(activa, cuerpo, alPintar) {
 }
 function cabecera(titulo) {
   const ini = esc((nombreCorto() || '?').charAt(0).toUpperCase());
-  return `<header class="top"><button type="button" class="avatar" data-ir="yo" aria-label="Mi perfil">${ini}</button><h1>${esc(titulo)}</h1><a class="redondo" href="${CONFIG.web}/preguntas-frecuentes.html" target="_blank" rel="noopener" aria-label="Preguntas frecuentes">?</a></header>`;
+  const pr = E.progreso, racha = pr ? pr.racha : 0;
+  const fuego = pr ? `<span class="racha ${pr.enRiesgo ? 'riesgo' : ''}" aria-label="Racha de ${racha} ${racha === 1 ? 'semana' : 'semanas'}">🔥 ${racha}</span>` : '';
+  return `<header class="top"><button type="button" class="avatar" data-ir="yo" aria-label="Mi perfil">${ini}</button><h1>${esc(titulo)}</h1><span class="top-der">${fuego}<a class="redondo" href="${CONFIG.web}/preguntas-frecuentes.html" target="_blank" rel="noopener" aria-label="Preguntas frecuentes">?</a></span></header>`;
 }
 
 let reloj, desfase = 0;   // diferencia entre la hora del servidor y la del teléfono
@@ -336,14 +338,18 @@ async function vistaHoy() {
   E.hoy = r; guardar('hoy', r);   // la próxima vez se muestra al instante
   desfase = new Date(r.ahora) - Date.now();
   if (estaEn === 'hoy') dibujarHoy(r);
-  if (r.actual) {
-    const m = await api('mi_semana', { sesion: E.sesion });
-    if (m.ok) {
-      E.semana = { id: semanaId(r.actual), subido: !!m.subido, padlet: m.padlet || '' };
-      guardar('semana', E.semana);
-      if (estaEn === 'hoy') dibujarHoy(E.hoy);
-    } else if (m.error === 'sesion') cerrarSesion(true);
-  }
+  const m = await api('mi_semana', { sesion: E.sesion });
+  if (m.ok) {
+    if (r.actual) { E.semana = { id: semanaId(r.actual), subido: !!m.subido, padlet: m.padlet || '' }; guardar('semana', E.semana); }
+    if (m.progreso) { E.progreso = m.progreso; guardar('progreso', E.progreso); }
+    if (estaEn === 'hoy') dibujarHoy(E.hoy);
+  } else if (m.error === 'sesion') cerrarSesion(true);
+}
+function burbujaHoy(nom, a) {
+  const pr = E.progreso, hola = '¡Hola' + (nom ? ', ' + nom : '') + '! ';
+  if (yaSubio()) return hola + (pr && pr.racha > 1 ? `🔥 Tu racha va en <b>${pr.racha} semanas</b>. ¡Sigue así!` : '🎉 Ya subiste tu dibujo de esta semana.');
+  if (pr && pr.enRiesgo) return hola + `😱 Tu racha de <b>${pr.racha} ${pr.racha === 1 ? 'semana' : 'semanas'}</b> está en riesgo. El reto cierra en <b>${cuantoFalta(a.cierre)}</b>.`;
+  return hola + `👋 El reto cierra en <b>${cuantoFalta(a.cierre)}</b>.`;
 }
 const semanaId = a => a.temporada + '|' + a.semana;
 const yaSubio = () => !!(E.hoy && E.hoy.actual && E.semana && E.semana.id === semanaId(E.hoy.actual) && E.semana.subido);
@@ -361,7 +367,7 @@ function dibujarHoy(h, error) {
     cuerpo = `
       ${h.prueba ? '<div class="prueba">MODO PRUEBA · las fechas son de ejemplo</div>' : ''}
       <div class="progreso"><div class="t"><span>${esc(a.temporada)} · semana ${a.semana} de ${total - 1}</span><span>Premiación: ${premio}</span></div><div class="b"><i style="width:${pct}%"></i></div></div>
-      <div class="saludo"><img src="${imgGuia(E.guia)}" alt="${E.guia === 'tradi' ? 'Tradi' : 'Digi'} dibujando" width="112" height="108"><div class="burbuja">¡Hola${nom ? ', ' + nom : ''}! 👋 El reto cierra en <b>${cuantoFalta(a.cierre)}</b>.</div></div>
+      <div class="saludo"><img src="${imgGuia(E.guia)}" alt="${E.guia === 'tradi' ? 'Tradi' : 'Digi'} dibujando" width="112" height="108"><div class="burbuja">${burbujaHoy(nom, a)}</div></div>
       <section class="reto" aria-labelledby="reto-h">
         <span class="pill">Reto de la semana ${a.semana}</span>
         <h2 id="reto-h">${esc(a.tema || 'Reto de la semana')}</h2>
@@ -548,6 +554,30 @@ function vistaCelebracion(r) {
     </div>`, root => { activarCompartir(root); on('#hoy', 'click', () => ir('hoy')); });
 }
 
+async function vistaRanking() {
+  dibujarRanking(E.ranking);
+  const r = await api('ranking', { sesion: E.sesion });
+  if (r.ok) { E.ranking = r; if (estaEn === 'ranking') dibujarRanking(r); }
+  else if (r.error === 'sesion') cerrarSesion(true);
+  else if (!E.ranking && estaEn === 'ranking') dibujarRanking(null, textoError(r.error));
+}
+
+function dibujarRanking(r, error) {
+  let cuerpo;
+  if (!r) cuerpo = error ? `<div class="error" role="alert">${esc(error)}</div>` : '<div class="cargando" role="status"><span class="spin" aria-hidden="true"></span>Buscando los puntajes…</div>';
+  else {
+    const mios = r.mios && r.mios.length
+      ? `<div class="caja crema"><strong class="t">¡Estás en la tabla! 🎉</strong>${r.mios.map(m => esc(m.estado) + ' en <b>' + esc(m.categoria) + '</b> (' + esc(m.valor) + ')').join('<br>')}</div>`
+      : `<div class="caja agua">Todavía no apareces entre los primeros. Cada semana que subes tu dibujo suma para la constancia, y los me gusta suman para las demás categorías.</div>`;
+    cuerpo = `${r.lead ? `<p class="nota izq" style="margin:0">${esc(r.lead)}</p>` : ''}${mios}
+      ${r.cats.map(c => `<section class="cat-app"><h2>${esc(c.nombre)}</h2>${c.def ? `<p>${esc(c.def)}</p>` : ''}<ol>${c.items.map(it =>
+        `<li class="${it.yo ? 'yo' : ''} ${it.estado === 'Va ganando' ? 'gana' : ''}"><span><b>${esc(it.nombre)}${it.yo ? ' (tú)' : ''}</b>${it.red ? `<small>${esc(it.red)}</small>` : ''}</span><em>${esc(it.valor)}</em></li>`).join('')}</ol></section>`).join('')}
+      ${r.legal ? `<p class="nota izq">${esc(r.legal)}</p>` : ''}
+      <a class="btn blanco chico" href="${CONFIG.web}/reto-semanal.html" target="_blank" rel="noopener">Ver la tabla completa en la web</a>`;
+  }
+  conNav('ranking', cabecera('Ranking') + `<main class="cont con-nav">${cuerpo}</main>`);
+}
+
 function vistaPronto(cual) {
   const T = {
     ranking: ['Ranking', 'Tu posición en cada categoría, tus puntos y las estrellas del Club.'],
@@ -557,11 +587,21 @@ function vistaPronto(cual) {
 }
 
 /* ---------- Yo ---------- */
+function progresoHtml() {
+  const pr = E.progreso;
+  if (!pr) return '';
+  const punto = w => `<span class="dia ${w.estado}" title="${esc(w.temporada)} · semana ${w.semana}"><i></i>${w.semana}</span>`;
+  return `<section class="progreso-yo" aria-label="Tu progreso">
+    <div class="stats"><div><b>🔥 ${pr.racha}</b><span>racha actual</span></div><div><b>${pr.mejor}</b><span>mejor racha</span></div><div><b>${pr.semanas}</b><span>semanas con dibujo</span></div></div>
+    ${pr.historial.length ? `<div class="hist" aria-label="Últimas semanas">${pr.historial.map(punto).join('')}</div>` : '<p class="nota" style="margin:0">Tu racha empieza con tu primer dibujo de la temporada.</p>'}
+  </section>`;
+}
 function vistaYo() {
   const p = E.perfil || {}, ini = esc((nombreCorto() || '?').charAt(0).toUpperCase());
   const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent), instalada = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
   conNav('yo', cabecera('Yo') + `<main class="cont con-nav">
       <div class="perfil"><span class="avatar">${ini}</span><div style="min-width:0"><h2>${esc(p.nombre || '')}</h2><span>@${esc(p.usuario || '')}</span></div></div>
+      ${progresoHtml()}
       <div class="lista">
         ${p.correo ? `<div><span>Correo</span><span>${esc(p.correo)}</span></div>` : ''}
         <div><span>Edad</span><span>${p.mayor === 'Sí' ? '18 años o más' : 'Menor de edad'}</span></div>
@@ -593,8 +633,8 @@ function vistaYo() {
 
 async function cerrarSesion(vencida) {
   const s = E.sesion;
-  E.sesion = E.correo = E.perfil = E.hoy = E.semana = null; E.borrador = {}; E.subida = {};
-  ['sesion', 'correo', 'perfil', 'hoy', 'semana'].forEach(k => guardar(k, null));
+  E.sesion = E.correo = E.perfil = E.hoy = E.semana = E.progreso = E.ranking = null; E.borrador = {}; E.subida = {};
+  ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso'].forEach(k => guardar(k, null));
   if (s && vencida !== true) api('salir', { sesion: s });
   vistaBienvenida(vencida === true ? ERRORES.sesion : '');
 }
@@ -608,6 +648,7 @@ function ir(donde) {
   if (donde === 'subir') { if (E.hoy && E.hoy.actual && !yaSubio()) return vistaSubir(); if (yaSubio()) aviso(ERRORES.ya_subiste); estaEn = 'hoy'; donde = 'hoy'; }
   if (donde === 'hoy') return vistaHoy();
   if (donde === 'yo') return vistaYo();
+  if (donde === 'ranking') return vistaRanking();
   return vistaPronto(donde);
 }
 
