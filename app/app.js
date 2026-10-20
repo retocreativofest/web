@@ -3,7 +3,8 @@ const CONFIG = {
   api: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
   autorizacion: 'https://docs.google.com/forms/d/e/1FAIpQLSeTf_vZNjg5LU_mMs1X9tqmrgBddUGMDKuzvqV9U7NuXeXW7A/viewform',
-  web: 'https://retocreativofest.com'
+  web: 'https://retocreativofest.com',
+  whatsapp: '584120390423'   // para pedir correcciones
 };
 
 /* ---------- utilidades ---------- */
@@ -367,7 +368,7 @@ function dibujarHoy(h, error) {
         ${a.descripcion ? `<p>${esc(a.descripcion)}</p>` : ''}
         <div class="tiempo"><span id="cd">${cuenta(a.cierre)}</span><span>Cierra el ${fecha(a.cierre)}, ${hora(a.cierre)}</span></div>
         ${yaSubio()
-          ? `<a class="btn blanco" href="${esc(E.semana.padlet || CONFIG.padlet)}" target="_blank" rel="noopener">✓ YA SUBISTE TU DIBUJO · VERLO</a>`
+          ? `<div class="caja" style="text-align:center;background:var(--white)">✓ Ya subiste tu dibujo de esta semana</div>${botonesCompartir(E.semana.padlet || CONFIG.padlet)}`
           : '<button type="button" class="btn amarillo" id="subir">SUBIR MI DIBUJO</button>'}
       </section>`;
   } else {
@@ -387,6 +388,7 @@ function dibujarHoy(h, error) {
     </main>`, root => {
     on('#re', 'click', vistaHoy);
     on('#subir', 'click', () => ir('subir'));
+    activarCompartir(root);
     const cd = root.querySelector('#cd');
     if (cd && h) {
       const fin = h.actual ? h.actual.cierre : h.proximo && h.proximo.publica;
@@ -395,16 +397,38 @@ function dibujarHoy(h, error) {
   });
 }
 
-function ventana(html, alPintar) {
+function ventana(html, alPintar, sinCerrar) {
   const velo = document.createElement('div');
   velo.className = 'velo';
-  velo.innerHTML = `<div class="ventana" role="dialog" aria-modal="true" aria-labelledby="v-h">${html}<button type="button" class="enlace" data-cerrar>Cerrar</button></div>`;
+  velo.innerHTML = `<div class="ventana" role="dialog" aria-modal="true" aria-labelledby="v-h">${html}${sinCerrar ? '' : '<button type="button" class="enlace" data-cerrar>Cerrar</button>'}</div>`;
   const cerrar = () => velo.remove();
   velo.addEventListener('click', e => { if (e.target === velo || e.target.hasAttribute('data-cerrar')) cerrar(); });
   document.addEventListener('keydown', function k(e) { if (e.key === 'Escape') { cerrar(); document.removeEventListener('keydown', k); } });
   document.body.appendChild(velo);
   velo.querySelector('h2').focus();
   if (alPintar) alPintar(velo, cerrar);
+}
+
+/* ---------- compartir el dibujo ---------- */
+const mensajeCompartir = url => '¡Dale me gusta a mi dibujo del #RetoMenteMilenial! 💜 ' + url;
+async function copiarEnlace(url) {
+  const texto = mensajeCompartir(url);
+  try { await navigator.clipboard.writeText(texto); aviso('¡Enlace copiado! Pégalo en WhatsApp o en tus redes'); }
+  catch (e) {
+    ventana(`<h2 id="v-h" tabindex="-1">Copia tu enlace</h2><p>Mantén presionado el texto y elige «Copiar».</p><textarea readonly rows="3" style="width:100%;font:inherit;font-size:15px;border:3px solid var(--ink);border-radius:12px;padding:10px">${esc(texto)}</textarea>`,
+      v => { const t = v.querySelector('textarea'); t.focus(); t.select(); });
+  }
+}
+async function compartirEnlace(url) {
+  try { await navigator.share({ text: mensajeCompartir(url) }); } catch (e) { if (e && e.name !== 'AbortError') copiarEnlace(url); }
+}
+const botonesCompartir = url => `
+  <button type="button" class="btn amarillo" data-copiar="${esc(url)}">📋 COPIAR MI ENLACE</button>
+  ${navigator.share ? `<button type="button" class="btn turquesa chico" data-compartir="${esc(url)}">📲 Compartir por WhatsApp o redes</button>` : ''}
+  <a class="enlace" style="text-align:center" href="${esc(url)}" target="_blank" rel="noopener">Ver mi dibujo en el Padlet ↗</a>`;
+function activarCompartir(root) {
+  root.querySelectorAll('[data-copiar]').forEach(b => b.addEventListener('click', () => copiarEnlace(b.dataset.copiar)));
+  root.querySelectorAll('[data-compartir]').forEach(b => b.addEventListener('click', () => compartirEnlace(b.dataset.compartir)));
 }
 
 /* ---------- subir el dibujo ---------- */
@@ -487,6 +511,17 @@ function vistaSubir(error) {
       leerCampos();
       const falta = !S.base64 ? 'foto' : !S.tecnica ? 'tecnica' : S.descripcion.trim().length < 3 ? 'descripcion' : !S.propio ? 'propio' : '';
       if (falta) return vistaSubir(ERRORES[falta]);
+      const confirmado = await new Promise(listo => ventana(`
+        <h2 id="v-h" tabindex="-1">¿Así está bien?</h2>
+        <p style="font-size:14px">Revísalo bien: <b>después de publicar no se puede cambiar ni subir otro dibujo esta semana</b>.</p>
+        <div class="tarjeta-prev"><img src="${S.vista}" alt="Tu dibujo"><div><b>${esc(titulo)}</b><p>${esc(S.descripcion.trim())}</p><span class="tag">${esc(S.tecnica)}</span></div></div>
+        <button type="button" class="btn amarillo" id="si">SÍ, PUBLICAR</button>
+        <button type="button" class="btn blanco chico" data-cerrar id="no">Corregir</button>`,
+        (v, cerrar) => {
+          v.querySelector('#si').addEventListener('click', () => { cerrar(); listo(true); });
+          v.addEventListener('click', e => { if (e.target === v || e.target.hasAttribute('data-cerrar')) listo(false); });
+        }, true));
+      if (!confirmado) return;
       const ok = root.querySelector('#ok'); ok.disabled = true; ok.textContent = 'Publicando… no cierres la app';
       const r = await api('subir', { sesion: E.sesion, imagen: S.base64, tecnica: S.tecnica, descripcion: S.descripcion.trim(), propio: true });
       if (r.ok || r.error === 'ya_subiste') {
@@ -507,10 +542,10 @@ function vistaCelebracion(r) {
       <img src="${imgGuia(E.guia)}" alt="" width="170" height="164" style="animation:bob 2.6s ease-in-out infinite">
       <h1 style="margin:0;font-family:var(--display);font-size:28px">¡Dibujo publicado! 🎉</h1>
       <p style="margin:0;font-size:16px;line-height:1.45">Ya está en el Padlet, en la sección <b>Semana ${r.semana}</b>, con el título <b>${esc(r.titulo)}</b>.</p>
-      <div class="caja agua" style="text-align:left">Comparte el enlace para que te den me gusta. Los 5 dibujos con más me gusta van a la votación del canal de WhatsApp.</div>
-      <a class="btn amarillo" href="${esc(r.padlet || CONFIG.padlet)}" target="_blank" rel="noopener">VER MI DIBUJO EN EL PADLET ↗</a>
+      <div class="caja agua" style="text-align:left">Manda el enlace a tus amigos para que te den me gusta. Los 5 dibujos con más me gusta van a la votación del canal de WhatsApp.</div>
+      ${botonesCompartir(r.padlet || CONFIG.padlet)}
       <button type="button" class="btn blanco chico" id="hoy">Volver a Hoy</button>
-    </div>`, () => on('#hoy', 'click', () => ir('hoy')));
+    </div>`, root => { activarCompartir(root); on('#hoy', 'click', () => ir('hoy')); });
 }
 
 function vistaPronto(cual) {

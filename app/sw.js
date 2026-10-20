@@ -1,6 +1,6 @@
 /* #RetoMenteMilenial · funciona sin conexión para la parte visual. Los datos siempre se piden en línea. */
-const VERSION = 'rmm-app-v3';
-const BASE = ['./', 'index.html', 'app.css?v=3', 'app.js?v=3', 'manifest.webmanifest',
+const VERSION = 'rmm-app-v5';
+const BASE = ['./', 'index.html', 'app.css?v=5', 'app.js?v=5', 'manifest.webmanifest',
   'img/digi.webp', 'img/tradi.webp', 'img/digi-cara.webp', 'img/tradi-cara.webp', 'img/icon-192.png'];
 
 self.addEventListener('install', e => {
