@@ -70,7 +70,7 @@ const textoError = e => ERRORES[e] || ERRORES.servidor;
 /* ---------- estado ---------- */
 const E = {
   sesion: leer('sesion'), correo: leer('correo'), perfil: leer('perfil'),
-  guia: leer('guia') || 'digi', borrador: {}, hoy: null, instalar: null
+  guia: leer('guia') || 'digi', borrador: {}, hoy: leer('hoy'), instalar: null
 };
 const imgGuia = g => 'img/' + (g === 'tradi' ? 'tradi' : 'digi') + '.webp';
 const caraGuia = g => 'img/' + (g === 'tradi' ? 'tradi' : 'digi') + '-cara.webp';
@@ -319,7 +319,7 @@ async function vistaHoy() {
   dibujarHoy(E.hoy);
   const r = await api('hoy');
   if (!r.ok) { if (!E.hoy) dibujarHoy(null, textoError(r.error)); return; }
-  E.hoy = r;
+  E.hoy = r; guardar('hoy', r);   // la próxima vez se muestra al instante
   desfase = new Date(r.ahora) - Date.now();
   if (estaEn === 'hoy') dibujarHoy(r);
 }
@@ -441,7 +441,7 @@ function vistaYo() {
 async function cerrarSesion(vencida) {
   const s = E.sesion;
   E.sesion = E.correo = E.perfil = E.hoy = null; E.borrador = {};
-  ['sesion', 'correo', 'perfil'].forEach(k => guardar(k, null));
+  ['sesion', 'correo', 'perfil', 'hoy'].forEach(k => guardar(k, null));
   if (s && vencida !== true) api('salir', { sesion: s });
   vistaBienvenida(vencida === true ? ERRORES.sesion : '');
 }
