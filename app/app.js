@@ -1,10 +1,12 @@
-/* #RetoMenteMilenial · app (bloque 1: entrar, registro, edad y país, Hoy y Yo) */
+/* #RetoMenteMilenial · app: entrar, registro, Hoy, subir al Padlet, rachas, ranking, amigos, Chispa del día y Club Estrella */
+import { abrirChispa, chispaDeHoy, chispasDeLaSemana } from './chispa.js?v=1';
 const CONFIG = {
   api: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
   autorizacion: 'https://docs.google.com/forms/d/e/1FAIpQLSeTf_vZNjg5LU_mMs1X9tqmrgBddUGMDKuzvqV9U7NuXeXW7A/viewform',
   web: 'https://retocreativofest.com',
-  whatsapp: '584120390423'   // para pedir correcciones
+  whatsapp: '584120390423',   // pagos del Club por Pago Móvil, Binance o Zinli
+  patreon: 'https://www.patreon.com/RetoMenteMilenial'
 };
 
 /* ---------- utilidades ---------- */
@@ -85,14 +87,18 @@ const ERRORES = {
   max_amigos: 'Llegaste al máximo de 50 amigos.',
   no_amigos: 'Solo puedes dar toques a tus amigos.',
   toque_hoy: 'Ya le diste un toque hoy. Mañana puedes darle otro.',
-  sticker: 'Elige un sticker.'
+  sticker: 'Elige un sticker.',
+  codigo_club: 'Ese no es el código de este mes. Lo encuentras en Patreon y en el Discord del Club.',
+  club: 'Esto es del Club Estrella.',
+  sin_protectores: 'Ya usaste tus 2 protectores de este mes.',
+  ya_protegida: 'Esta semana ya está protegida.'
 };
 const textoError = e => ERRORES[e] || ERRORES.servidor;
 
 /* ---------- estado ---------- */
 const E = {
   sesion: leer('sesion'), correo: leer('correo'), perfil: leer('perfil'),
-  guia: leer('guia') || 'digi', borrador: {}, hoy: leer('hoy'), semana: leer('semana'), progreso: leer('progreso'), novedades: null, amigos: null, ranking: null, subida: {}, instalar: null
+  guia: leer('guia') || 'digi', borrador: {}, hoy: leer('hoy'), semana: leer('semana'), progreso: leer('progreso'), novedades: null, amigos: null, ranking: null, club: leer('club'), subida: {}, instalar: null
 };
 const imgGuia = g => 'img/' + (g === 'tradi' ? 'tradi' : 'digi') + '.webp';
 const caraGuia = g => 'img/' + (g === 'tradi' ? 'tradi' : 'digi') + '-cara.webp';
@@ -342,7 +348,7 @@ function cuantoFalta(iso) {
 async function vistaHoy() {
   clearInterval(reloj);
   dibujarHoy(E.hoy);
-  const r = await api('hoy');
+  const r = await api('hoy', { sesion: E.sesion });
   if (!r.ok) { if (!E.hoy) dibujarHoy(null, textoError(r.error)); return; }
   E.hoy = r; guardar('hoy', r);   // la próxima vez se muestra al instante
   desfase = new Date(r.ahora) - Date.now();
@@ -352,6 +358,7 @@ async function vistaHoy() {
     if (r.actual) { E.semana = { id: semanaId(r.actual), subido: !!m.subido, padlet: m.padlet || '' }; guardar('semana', E.semana); }
     if (m.progreso) { E.progreso = m.progreso; guardar('progreso', E.progreso); }
     E.novedades = m.novedades || null;
+    if (m.club) { E.club = m.club; guardar('club', E.club); }
     if (estaEn === 'hoy') {
       dibujarHoy(E.hoy);
       if (toqueNuevo()) api('toques_vistos', { sesion: E.sesion });   // se muestra una vez; luego desaparece
@@ -385,13 +392,16 @@ function dibujarHoy(h, error) {
       <div class="progreso"><div class="t"><span>${esc(a.temporada)} · semana ${a.semana} de ${total - 1}</span><span>Premiación: ${premio}</span></div><div class="b"><i style="width:${pct}%"></i></div></div>
       <div class="saludo">${toqueNuevo() ? `<img src="${(STICKERS[toqueNuevo().sticker] || STICKERS[0])[0]}" alt="Sticker de ${esc(toqueNuevo().nombre)}" width="112" height="112">` : `<img src="${imgGuia(E.guia)}" alt="${E.guia === 'tradi' ? 'Tradi' : 'Digi'} dibujando" width="112" height="108">`}<div class="burbuja">${burbujaHoy(nom, a)}</div></div>
       <section class="reto" aria-labelledby="reto-h">
-        <span class="pill">Reto de la semana ${a.semana}</span>
+        <span class="pill">Reto de la semana ${a.semana}</span>${h.clubAnticipado ? '<span class="pill-club">★ Club: lo ves 24 h antes que todos</span>' : ''}
         <h2 id="reto-h">${esc(a.tema || 'Reto de la semana')}</h2>
         ${a.descripcion ? `<p>${esc(a.descripcion)}</p>` : ''}
         <div class="tiempo"><span id="cd">${cuenta(a.cierre)}</span><span>Cierra el ${fecha(a.cierre)}, ${hora(a.cierre)}</span></div>
         ${yaSubio()
           ? `<div class="caja" style="text-align:center;background:var(--white)">✓ Ya subiste tu dibujo de esta semana</div>${botonesCompartir(E.semana.padlet || CONFIG.padlet)}`
           : '<button type="button" class="btn amarillo" id="subir">SUBIR MI DIBUJO</button>'}
+        ${!yaSubio() && E.progreso && E.progreso.enRiesgo ? (E.club && E.club.activo
+          ? (E.club.protectores > 0 ? `<button type="button" class="btn blanco chico" id="proteger">🛡️ Usar un protector de racha (te quedan ${E.club.protectores})</button>` : '<p class="nota">Ya usaste tus 2 protectores de este mes.</p>')
+          : '<button type="button" class="enlace" data-ir="club" style="font-size:13px">🛡️ Con el Club Estrella tienes 2 protectores al mes para que tu racha no se apague</button>') : ''}
       </section>`;
   } else {
     const p = h.proximo;
@@ -406,10 +416,17 @@ function dibujarHoy(h, error) {
       </section>`;
   }
   conNav('hoy', cabecera('Hoy') + `<main class="cont con-nav">${cuerpo}
-      <section class="prox" aria-label="Chispa del día"><span class="ico">${ICO.chispa}</span><div style="flex:1;min-width:0"><h3>Chispa del día</h3><span>Un mini reto de 3 minutos</span></div><span class="tag">Muy pronto</span></section>
+      <section class="prox" aria-label="Chispa del día"><span class="ico">${ICO.chispa}</span><div style="flex:1;min-width:0"><h3>Chispa del día</h3><span>¿Qué te tocará hoy?</span><small class="sem-ch">Chispas de esta semana: ${chispasDeLaSemana()} de 7 · no afecta tu racha</small></div><button type="button" class="btn turquesa chico mini" data-ir="chispa">¡Hacerla!<br><small>3 min</small></button></section>
     </main>`, root => {
     on('#re', 'click', vistaHoy);
     on('#subir', 'click', () => ir('subir'));
+    on('#proteger', 'click', async ev => {
+      ev.currentTarget.disabled = true;
+      const r = await api('protector', { sesion: E.sesion });
+      if (!r.ok) return aviso(textoError(r.error));
+      E.club = r.club; E.progreso = r.progreso; guardar('club', E.club); guardar('progreso', E.progreso);
+      aviso('🛡️ ¡Racha protegida esta semana!'); dibujarHoy(E.hoy);
+    });
     activarCompartir(root);
     const cd = root.querySelector('#cd');
     if (cd && h) {
@@ -587,7 +604,7 @@ function dibujarRanking(r, error) {
       : `<div class="caja agua">Todavía no apareces entre los primeros. Cada semana que subes tu dibujo suma para la constancia, y los me gusta suman para las demás categorías.</div>`;
     cuerpo = `${r.lead ? `<p class="nota izq" style="margin:0">${esc(r.lead)}</p>` : ''}${mios}
       ${r.cats.map(c => `<section class="cat-app"><h2>${esc(c.nombre)}</h2>${c.def ? `<p>${esc(c.def)}</p>` : ''}<ol>${c.items.map(it =>
-        `<li class="${it.yo ? 'yo' : ''} ${it.estado === 'Va ganando' ? 'gana' : ''}"><span><b>${esc(it.nombre)}${it.yo ? ' (tú)' : ''}</b>${it.red ? `<small>${esc(it.red)}</small>` : ''}</span><em>${esc(it.valor)}</em></li>`).join('')}</ol></section>`).join('')}
+        `<li class="${it.yo ? 'yo' : ''} ${it.estado === 'Va ganando' ? 'gana' : ''}"><span><b>${esc(it.nombre)}${it.estrella ? ` <img class="estrella-mini" src="img/estrella-${it.estrella}.webp" alt="Club Estrella">` : ''}${it.yo ? ' (tú)' : ''}</b>${it.red ? `<small>${esc(it.red)}</small>` : ''}</span><em>${esc(it.valor)}</em></li>`).join('')}</ol></section>`).join('')}
       ${r.legal ? `<p class="nota izq">${esc(r.legal)}</p>` : ''}
       <a class="btn blanco chico" href="${CONFIG.web}/reto-semanal.html" target="_blank" rel="noopener">Ver la tabla completa en la web</a>`;
   }
@@ -666,6 +683,62 @@ function ventanaToque(usuario, nombre) {
   });
 }
 
+/* ---------- Club Estrella ---------- */
+const fechaCorta = iso => { if (!iso) return ''; const [y, m, d] = iso.split('-').map(Number); return d + ' de ' + MESES[m - 1]; };
+const PERKS = [
+  ['Reto 24 h antes', 'Un día extra para pensar tu idea'], ['Discord privado', 'Comunidad y feedback de artistas'],
+  ['2 protectores al mes', 'Tu llama no se apaga'], ['Insignia en el ranking', 'Tu estrella junto a tu nombre: crece con los meses que sumas en el Club'],
+  ['Prioridad en preventas', 'Del concurso de dibujo en vivo y la Ruta creativa'], ['Masterclass pregrabadas', 'Para marcas creativas'],
+  ['Chispa del día Pro', 'Pincel en 3 tamaños, cubeta, cambiar la chispa 1 vez al día, video acelerado y marcos especiales', 'ancho'],
+  ['Mención en nuestro podcast', 'Sales en los créditos y en cada capítulo sorteamos 3 dibujos de miembros', 'pronto']
+];
+function vistaClub(error, escribiendo) {
+  const c = E.club || {};
+  const pago = encodeURIComponent('Hola. Quiero unirme al Club Estrella del #RetoMenteMilenial pagando con Pago Móvil, Binance o Zinli.');
+  pintar(`
+    <header class="barra club-barra">
+      <button type="button" class="volver" id="v" aria-label="Volver">${ICO.volver}</button>
+      <div style="flex:1"><h1>Club Estrella</h1><span class="sub">Apoya el reto y desbloquea más · 5,50 $ al mes</span></div>
+    </header>
+    <main class="cont">
+      <div class="estrellas" aria-label="Tu estrella crece con tus meses en el Club">
+        <span><img src="img/estrella-1.webp" alt="" width="56" height="56">Menos de 3 meses</span>
+        <span><img src="img/estrella-3.webp" alt="" width="64" height="56">De 3 a 5 meses</span>
+        <span><img src="img/estrella-6.webp" alt="" width="58" height="56">6 meses o más</span>
+      </div>
+      ${c.activo ? `<div class="club-yo"><img src="img/estrella-${c.estrella}.webp" alt="" width="54" height="54"><div><b>✓ Club activo hasta el ${fechaCorta(c.hasta)}</b><span>Llevas ${c.meses} ${c.meses === 1 ? 'mes' : 'meses'} · ${c.protectores} protectores este mes</span></div></div>` : ''}
+      <ul class="perks">${PERKS.map((p, i) => `<li class="perk p${i} ${p[2] || ''}">${p[2] === 'pronto' ? '<span class="pronto-tag">PRÓXIMAMENTE</span>' : ''}<strong>${esc(p[0])}</strong><span>${esc(p[1])}</span></li>`).join('')}</ul>
+      ${c.activo ? '' : `
+        <a class="btn amarillo" href="${CONFIG.patreon}" target="_blank" rel="noopener">UNIRME POR PATREON</a>
+        <a class="btn blanco chico" href="https://wa.me/${CONFIG.whatsapp}?text=${pago}" target="_blank" rel="noopener">Pagar con Pago Móvil, Binance o Zinli</a>
+        ${escribiendo ? `<form class="fila-ag" id="fc"><input id="cod-club" type="text" autocapitalize="characters" autocomplete="off" placeholder="Código del mes" aria-label="Código del mes" style="border:3px solid var(--ink);border-radius:12px;padding:10px;font-size:16px;font-weight:700"><button type="submit" class="btn turquesa chico mini">Desbloquear</button></form>
+          <span class="nota">El código cambia cada mes. Lo encuentras en Patreon y en el Discord del Club.</span>`
+        : '<button type="button" class="enlace" id="ya">Ya soy miembro: escribir el código del mes</button>'}`}
+      ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}
+      <span class="nota">Participar y ganar premios es gratis siempre. El Club no da puntos.</span>
+    </main>`, root => {
+    on('#v', 'click', () => ir(E.volverA && E.volverA !== 'club' ? E.volverA : 'hoy'));
+    on('#ya', 'click', () => vistaClub('', true));
+    const inp = root.querySelector('#cod-club'); if (inp) inp.focus();
+    on('#fc', 'submit', async ev => {
+      ev.preventDefault();
+      const b = root.querySelector('#fc button'); b.disabled = true;
+      const r = await api('club_codigo', { sesion: E.sesion, codigo: inp.value });
+      if (!r.ok) return vistaClub(textoError(r.error), true);
+      E.club = r.club; guardar('club', E.club); E.hoy = null;
+      aviso('★ ¡Bienvenid@ al Club Estrella!'); vistaClub();
+    });
+  });
+}
+
+let cerrarChispa = null;
+function vistaChispa() {
+  pintar('<div id="chispa"></div>', root => {
+    cerrarChispa = abrirChispa({ root: root.querySelector('#chispa'), esc, club: !!(E.club && E.club.activo), icoVolver: ICO.volver,
+      volver: () => ir('hoy'), irClub: () => ir('club') });
+  });
+}
+
 function vistaPronto(cual) {
   const T = {
     ranking: ['Ranking', 'Tu posición en cada categoría, tus puntos y las estrellas del Club.'],
@@ -702,6 +775,9 @@ function vistaYo() {
         <button type="button" class="guia-btn" data-guia="digi" aria-pressed="${E.guia !== 'tradi'}"><strong>Digi</strong> <span>digital</span></button>
         <button type="button" class="guia-btn" data-guia="tradi" aria-pressed="${E.guia === 'tradi'}"><strong>Tradi</strong> <span>tradicional</span></button>
       </div>
+      ${E.club && E.club.activo
+        ? `<div class="club-yo"><img src="img/estrella-${E.club.estrella}.webp" alt="" width="54" height="54"><div><b>Club Estrella activo</b><span>Hasta el ${fechaCorta(E.club.hasta)} · llevas ${E.club.meses} ${E.club.meses === 1 ? 'mes' : 'meses'}${E.club.protectores ? ' · ' + E.club.protectores + ' protectores' : ''}</span></div></div>`
+        : '<button type="button" class="btn blanco chico" data-ir="club">★ Conocer el Club Estrella</button>'}
       ${instalada ? '' : `<button type="button" class="btn amarillo chico" id="instalar">📲 Instalar la app en mi teléfono</button>`}
       <a class="btn blanco chico" href="${CONFIG.web}/preguntas-frecuentes.html" target="_blank" rel="noopener">Preguntas frecuentes</a>
       <button type="button" class="enlace" id="salir">Cerrar sesión</button>
@@ -721,8 +797,8 @@ function vistaYo() {
 
 async function cerrarSesion(vencida) {
   const s = E.sesion;
-  E.sesion = E.correo = E.perfil = E.hoy = E.semana = E.progreso = E.ranking = E.amigos = E.novedades = null; E.borrador = {}; E.subida = {};
-  ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso'].forEach(k => guardar(k, null));
+  E.sesion = E.correo = E.perfil = E.hoy = E.semana = E.progreso = E.ranking = E.amigos = E.novedades = E.club = null; E.borrador = {}; E.subida = {};
+  ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso', 'club'].forEach(k => guardar(k, null));
   if (s && vencida !== true) api('salir', { sesion: s });
   vistaBienvenida(vencida === true ? ERRORES.sesion : '');
 }
@@ -732,10 +808,14 @@ let estaEn = '';
 function ir(donde) {
   if (!E.sesion) return vistaBienvenida();
   if (!E.perfil || !E.perfil.completo) { E.borrador = { nombre: (E.perfil || {}).nombre || '', usuario: (E.perfil || {}).usuario || '' }; return vistaPerfil(); }
+  if ((donde === 'club' || donde === 'chispa') && estaEn !== donde) E.volverA = estaEn || 'hoy';
   estaEn = donde;
   if (donde === 'subir') { if (E.hoy && E.hoy.actual && !yaSubio()) return vistaSubir(); if (yaSubio()) aviso(ERRORES.ya_subiste); estaEn = 'hoy'; donde = 'hoy'; }
   if (donde === 'hoy') return vistaHoy();
   if (donde === 'yo') return vistaYo();
+  if (cerrarChispa) { cerrarChispa(); cerrarChispa = null; }
+  if (donde === 'club') return vistaClub();
+  if (donde === 'chispa') return vistaChispa();
   if (donde === 'ranking') return vistaRanking();
   if (donde === 'amigos') return vistaAmigos();
   return vistaPronto(donde);

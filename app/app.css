@@ -196,3 +196,51 @@ legend{font-weight:700;font-size:14px;padding:0;margin-bottom:6px}
 .sticker{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--white);border:3px solid var(--ink);border-radius:14px;padding:6px;cursor:pointer;font-size:12px;font-weight:800}
 .sticker img{width:72px;height:72px;object-fit:contain}
 .sticker[aria-pressed="true"]{background:var(--amarillo);box-shadow:0 3px 0 var(--ink)}
+
+/* Chispa del día y Club (bloque 5) */
+.sem-ch{display:block;font-size:11px;font-weight:700;color:var(--morado)}
+.prox .mini small{font-size:10px}
+.pill-club{align-self:flex-start;background:var(--ink);color:var(--amarillo);border-radius:999px;padding:2px 10px;font-weight:800;font-size:11px;margin-top:-4px}
+.dia.protegida i{background:var(--agua);border-style:double;border-width:4px}
+.estrella-mini{width:18px;height:18px;vertical-align:-3px}
+.club-yo{display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--white);border:3px solid var(--ink);border-radius:16px;padding:10px 12px}
+.club-yo img{width:54px;height:54px;object-fit:contain;flex:none}
+.club-yo b{display:block;color:var(--amarillo);font-family:var(--display);font-size:15px}
+.club-yo span{font-size:12px}
+.club-barra{background:var(--ink);color:var(--white)}
+.club-barra .sub{color:var(--amarillo)}
+.estrellas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;text-align:center;font-size:11px;font-weight:800}
+.estrellas span{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--white);border:3px solid var(--ink);border-radius:14px;padding:8px 4px}
+.estrellas img{height:56px;width:auto;object-fit:contain}
+.perks{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.perk{border:3px solid var(--ink);border-radius:14px;padding:9px 10px;display:flex;flex-direction:column;gap:3px;font-size:12px}
+.perk strong{font-family:var(--display);font-size:14px}
+.perk.ancho,.perk.pronto{grid-column:1/-1}
+.perk.pronto{border-style:dashed;opacity:.85}
+.pronto-tag{align-self:flex-start;background:var(--ink);color:var(--white);border-radius:999px;padding:1px 8px;font-size:10px;font-weight:800}
+.p0{background:var(--amarillo)} .p1{background:var(--cian)} .p2{background:#F7A8CD} .p3{background:#D6B4FA} .p4{background:#9FE3DF} .p5{background:var(--lila-2)} .p6{background:#FFD2AE} .p7{background:var(--crema)}
+.ch{gap:10px;padding-top:10px}
+.reloj-ch{flex:none;font-family:var(--display);font-weight:800;font-size:20px;background:var(--amarillo);border:3px solid var(--ink);border-radius:14px;padding:4px 10px;min-width:64px;text-align:center;font-variant-numeric:tabular-nums}
+.reloj-ch.poco{background:#F0479B;animation:bob 1s ease-in-out infinite}
+.ch-tit{display:flex;flex-direction:column;gap:4px}
+.pill-ch{align-self:flex-start;background:var(--ink);color:var(--amarillo);border-radius:999px;padding:2px 10px;font-size:11px;font-weight:800}
+.ch-tit h2{margin:0;font-family:var(--display);font-size:21px;line-height:1.15}
+.lienzo{position:relative;border:3px solid var(--ink);border-radius:12px;overflow:hidden;background:#fff}
+.lienzo canvas{display:block;width:100%;height:auto;aspect-ratio:648/700;touch-action:none;cursor:crosshair}
+.ch-empezar{position:absolute;inset:auto 0 12px;text-align:center;font-weight:800;font-size:14px;color:var(--muted);pointer-events:none}
+.ch-tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tool{font-weight:800;font-size:12px;background:var(--white);border:2px solid var(--ink);border-radius:10px;box-shadow:0 2px 0 var(--ink);padding:6px 8px;cursor:pointer;min-height:36px}
+.tool[aria-pressed="true"]{background:var(--amarillo)}
+.tams{display:flex;gap:4px;margin-left:auto}
+.tam{width:34px;height:34px;display:grid;place-items:center;padding:0;background:var(--white);border:2px solid var(--ink);border-radius:8px;cursor:pointer}
+.tam i{display:block;border-radius:50%;background:var(--ink)}
+.tam[aria-pressed="true"]{background:var(--amarillo)}
+.paleta{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:4px}
+.col{aspect-ratio:1;border:2px solid var(--ink);border-radius:6px;cursor:pointer;padding:0;min-width:0}
+.col[aria-pressed="true"]{border:3px solid #F0479B;transform:scale(1.12)}
+.ch-lock{background:var(--crema);border:3px solid var(--ink);border-radius:12px;padding:8px 10px;font-size:13px;font-weight:700}
+.marcos{display:flex;gap:6px;flex-wrap:wrap}
+.marco{font-size:13px;font-weight:800;border:2px solid var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer;min-height:36px}
+.marco[aria-pressed="true"]{outline:3px solid var(--ink);outline-offset:2px}
+.club-barra .volver{color:var(--ink)}
+.ch .fila-t{margin:4px 0 0}
