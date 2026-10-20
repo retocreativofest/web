@@ -88,7 +88,10 @@ const ERRORES = {
   no_amigos: 'Solo puedes dar toques a tus amigos.',
   toque_hoy: 'Ya le diste un toque hoy. Mañana puedes darle otro.',
   sticker: 'Elige un sticker.',
-  codigo_club: 'Ese no es el código de este mes. Lo encuentras en Patreon y en el Discord del Club.',
+  codigo_club: 'Ese código no es válido.',
+  patreon: 'Patreon no confirmó tu cuenta. Intenta otra vez.',
+  patreon_usado: 'Ese Patreon ya está vinculado con otra cuenta de la app.',
+  patreon_vencido: 'El enlace de Patreon venció. Toca otra vez «Vincular mi Patreon».',
   club: 'Esto es del Club Estrella.',
   sin_protectores: 'Ya usaste tus 2 protectores de este mes.',
   ya_protegida: 'Esta semana ya está protegida.',
@@ -713,17 +716,32 @@ function vistaClub(error, escribiendo) {
       </div>
       ${c.activo ? `<div class="club-yo"><img src="img/estrella-${c.estrella}.webp" alt="" width="54" height="54"><div><b>✓ Club activo hasta el ${fechaCorta(c.hasta)}</b><span>Llevas ${c.meses} ${c.meses === 1 ? 'mes' : 'meses'} · ${c.protectores} protectores este mes</span></div></div>` : ''}
       <ul class="perks">${PERKS.map((p, i) => `<li class="perk p${i} ${p[2] || ''}">${p[2] === 'pronto' ? '<span class="pronto-tag">PRÓXIMAMENTE</span>' : ''}<strong>${esc(p[0])}</strong><span>${esc(p[1])}</span></li>`).join('')}</ul>
-      ${c.activo ? '' : `
+      ${c.activo ? (c.patreon ? '<span class="nota">✓ Vinculado con Patreon. Se revisa solo cada día.</span>' : '') : `
         <a class="btn amarillo" href="${CONFIG.patreon}" target="_blank" rel="noopener">UNIRME POR PATREON</a>
+        <button type="button" class="btn turquesa chico" id="vincular">${c.patreon ? 'Vincular otra cuenta de Patreon' : 'Ya soy miembro: vincular mi Patreon'}</button>
+        ${c.patreon ? '<button type="button" class="enlace" id="revisar">Revisar mi membresía</button>' : ''}
         <a class="btn blanco chico" href="https://wa.me/${CONFIG.whatsapp}?text=${pago}" target="_blank" rel="noopener">Pagar con Pago Móvil, Binance o Zinli</a>
-        ${escribiendo ? `<form class="fila-ag" id="fc"><input id="cod-club" type="text" autocapitalize="characters" autocomplete="off" placeholder="Código del mes" aria-label="Código del mes" style="border:3px solid var(--ink);border-radius:12px;padding:10px;font-size:16px;font-weight:700"><button type="submit" class="btn turquesa chico mini">Desbloquear</button></form>
-          <span class="nota">El código cambia cada mes. Lo encuentras en Patreon y en el Discord del Club.</span>`
-        : '<button type="button" class="enlace" id="ya">Ya soy miembro: escribir el código del mes</button>'}`}
+        <span class="nota">Si pagaste por Pago Móvil, Binance o Zinli, te activamos el Club en menos de 24 horas. Luego toca «Revisar mi membresía» o vuelve a abrir la app.</span>
+        ${escribiendo ? `<form class="fila-ag" id="fc"><input id="cod-club" type="text" autocapitalize="characters" autocomplete="off" placeholder="Código" aria-label="Código del Club" style="border:3px solid var(--ink);border-radius:12px;padding:10px;font-size:16px;font-weight:700"><button type="submit" class="btn turquesa chico mini">Desbloquear</button></form>`
+        : '<button type="button" class="enlace" id="ya" style="font-size:12px">Tengo un código del Club</button>'}`}
       ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}
       <span class="nota">Participar y ganar premios es gratis siempre. El Club no da puntos.</span>
     </main>`, root => {
     on('#v', 'click', () => ir(E.volverA && E.volverA !== 'club' ? E.volverA : 'hoy'));
     on('#ya', 'click', () => vistaClub('', true));
+    on('#vincular', 'click', async () => {
+      const b = root.querySelector('#vincular'); b.disabled = true; b.textContent = 'Abriendo Patreon…';
+      const r = await api('club_codigo', { sesion: E.sesion, patreon: 'inicio' });
+      if (!r.ok || !r.url) { if (r.error === 'sesion') return cerrarSesion(true); return vistaClub(textoError(r.error)); }
+      location.href = r.url;   // Patreon vuelve a /app/patreon.html
+    });
+    on('#revisar', 'click', async () => {
+      const b = root.querySelector('#revisar'); b.disabled = true; b.textContent = 'Revisando…';
+      const m = await api('mi_semana', { sesion: E.sesion });
+      if (m.ok && m.club) { E.club = m.club; guardar('club', E.club); E.hoy = null; }
+      if (E.club && E.club.activo) aviso('★ ¡Tu Club Estrella está activo!');
+      vistaClub(m.ok ? (E.club && E.club.activo ? '' : 'Todavía no vemos una membresía activa. Si acabas de unirte, intenta en unos minutos.') : textoError(m.error));
+    });
     const inp = root.querySelector('#cod-club'); if (inp) inp.focus();
     on('#fc', 'submit', async ev => {
       ev.preventDefault();
