@@ -63,14 +63,27 @@ const ERRORES = {
   usuario_ocupado: 'Ese usuario ya lo tiene otra persona en la app. Si es tuyo, escríbenos a retocreativofest@gmail.com.',
   nombre: 'Escribe tu nombre.',
   edad: 'Responde las dos preguntas.',
-  sesion: 'Tu sesión venció. Entra otra vez.'
+  sesion: 'Tu sesión venció. Entra otra vez.',
+  perfil: 'Completa tu cuenta antes de subir tu dibujo.',
+  tecnica: 'Elige si tu dibujo es tradicional o digital.',
+  descripcion: 'Escribe una descripción corta de tu dibujo.',
+  propio: 'Confirma que el dibujo es 100 % tuyo.',
+  foto: 'Elige la foto de tu dibujo.',
+  imagen: 'No pudimos leer esa foto. Prueba con otra (JPG o PNG).',
+  cerrado: 'El reto de esta semana ya cerró. ¡Te esperamos en el próximo!',
+  tablero: 'El Padlet de esta temporada todavía no está listo. Avísanos por el DM de @mentemilenial.',
+  seccion: 'La sección de esta semana todavía no aparece en el Padlet. Intenta en unos minutos.',
+  congelado: 'El Padlet está cerrado en este momento. Intenta cuando abra el reto.',
+  padlet: 'El Padlet no recibió tu dibujo. Intenta otra vez en un minuto.',
+  ya_subiste: 'Ya subiste tu dibujo de esta semana. ¡Solo se permite uno!',
+  subiendo: 'Tu dibujo se está subiendo. Espera un minuto y revisa el Padlet.'
 };
 const textoError = e => ERRORES[e] || ERRORES.servidor;
 
 /* ---------- estado ---------- */
 const E = {
   sesion: leer('sesion'), correo: leer('correo'), perfil: leer('perfil'),
-  guia: leer('guia') || 'digi', borrador: {}, hoy: leer('hoy'), instalar: null
+  guia: leer('guia') || 'digi', borrador: {}, hoy: leer('hoy'), semana: leer('semana'), subida: {}, instalar: null
 };
 const imgGuia = g => 'img/' + (g === 'tradi' ? 'tradi' : 'digi') + '.webp';
 const caraGuia = g => 'img/' + (g === 'tradi' ? 'tradi' : 'digi') + '-cara.webp';
@@ -322,7 +335,17 @@ async function vistaHoy() {
   E.hoy = r; guardar('hoy', r);   // la próxima vez se muestra al instante
   desfase = new Date(r.ahora) - Date.now();
   if (estaEn === 'hoy') dibujarHoy(r);
+  if (r.actual) {
+    const m = await api('mi_semana', { sesion: E.sesion });
+    if (m.ok) {
+      E.semana = { id: semanaId(r.actual), subido: !!m.subido, padlet: m.padlet || '' };
+      guardar('semana', E.semana);
+      if (estaEn === 'hoy') dibujarHoy(E.hoy);
+    } else if (m.error === 'sesion') cerrarSesion(true);
+  }
 }
+const semanaId = a => a.temporada + '|' + a.semana;
+const yaSubio = () => !!(E.hoy && E.hoy.actual && E.semana && E.semana.id === semanaId(E.hoy.actual) && E.semana.subido);
 
 function dibujarHoy(h, error) {
   const nom = esc(nombreCorto());
@@ -343,7 +366,9 @@ function dibujarHoy(h, error) {
         <h2 id="reto-h">${esc(a.tema || 'Reto de la semana')}</h2>
         ${a.descripcion ? `<p>${esc(a.descripcion)}</p>` : ''}
         <div class="tiempo"><span id="cd">${cuenta(a.cierre)}</span><span>Cierra el ${fecha(a.cierre)}, ${hora(a.cierre)}</span></div>
-        <button type="button" class="btn amarillo" id="subir">SUBIR MI DIBUJO</button>
+        ${yaSubio()
+          ? `<a class="btn blanco" href="${esc(E.semana.padlet || CONFIG.padlet)}" target="_blank" rel="noopener">✓ YA SUBISTE TU DIBUJO · VERLO</a>`
+          : '<button type="button" class="btn amarillo" id="subir">SUBIR MI DIBUJO</button>'}
       </section>`;
   } else {
     const p = h.proximo;
@@ -361,7 +386,7 @@ function dibujarHoy(h, error) {
       <section class="prox" aria-label="Chispa del día"><span class="ico">${ICO.chispa}</span><div style="flex:1;min-width:0"><h3>Chispa del día</h3><span>Un mini reto de 3 minutos</span></div><span class="tag">Muy pronto</span></section>
     </main>`, root => {
     on('#re', 'click', vistaHoy);
-    on('#subir', 'click', ventanaSubir);
+    on('#subir', 'click', () => ir('subir'));
     const cd = root.querySelector('#cd');
     if (cd && h) {
       const fin = h.actual ? h.actual.cierre : h.proximo && h.proximo.publica;
@@ -382,17 +407,110 @@ function ventana(html, alPintar) {
   if (alPintar) alPintar(velo, cerrar);
 }
 
-function ventanaSubir() {
-  const p = E.perfil || {}, titulo = (p.nombre ? p.nombre.split(' ')[0] : 'Nombre') + ' · @' + (p.usuario || 'usuario');
-  ventana(`
-    <h2 id="v-h" tabindex="-1">Muy pronto, desde aquí</h2>
-    <p>En la próxima versión de la app subirás tu dibujo con una foto y se publicará solo en el Padlet. Por ahora, publícalo directo en el Padlet con este título:</p>
-    <div class="caja" style="display:flex;align-items:center;gap:8px"><b style="flex:1;min-width:0;overflow-wrap:anywhere">${esc(titulo)}</b><button type="button" class="btn blanco chico" id="copiar" style="width:auto;padding:6px 12px">Copiar</button></div>
-    <a class="btn amarillo" href="${CONFIG.padlet}" target="_blank" rel="noopener">ABRIR EL PADLET ↗</a>`, v => {
-    v.querySelector('#copiar').addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(titulo); aviso('Título copiado'); } catch (e) { aviso('Mantén presionado el título para copiarlo'); }
+/* ---------- subir el dibujo ---------- */
+async function comprimir(archivo) {
+  if (!archivo || !/^image\//.test(archivo.type || 'image/')) throw new Error('imagen');
+  if (archivo.size > 40 * 1024 * 1024) throw new Error('imagen');
+  const url = URL.createObjectURL(archivo);
+  try {
+    const img = new Image();
+    img.src = url;
+    await img.decode();
+    const max = 2048, esc_ = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.naturalWidth * esc_); c.height = Math.round(img.naturalHeight * esc_);
+    const x = c.getContext('2d');
+    x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, c.width, c.height);   // fondo blanco para PNG transparentes
+    x.drawImage(img, 0, 0, c.width, c.height);
+    let calidad = 0.86, blob;
+    do {
+      blob = await new Promise(ok => c.toBlob(ok, 'image/jpeg', calidad));
+      calidad -= 0.12;
+    } while (blob && blob.size > 3.5 * 1024 * 1024 && calidad > 0.4);
+    if (!blob) throw new Error('imagen');
+    const datos = await new Promise((ok, mal) => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.onerror = mal; fr.readAsDataURL(blob); });
+    return { base64: String(datos).split(',')[1], vista: URL.createObjectURL(blob), ancho: c.width, alto: c.height };
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+function vistaSubir(error) {
+  const h = E.hoy, a = h && h.actual;
+  if (!a) return ir('hoy');
+  const S = E.subida, p = E.perfil || {};
+  if (S.id !== semanaId(a)) { Object.keys(S).forEach(k => delete S[k]); S.id = semanaId(a); S.tecnica = E.guia === 'tradi' ? 'Tradicional' : ''; }
+  const titulo = (p.nombre || '').split(' ')[0] + ' · @' + (p.usuario || '');
+  pintar(`
+    <header class="barra">
+      <button type="button" class="volver" id="v" aria-label="Volver">${ICO.volver}</button>
+      <div style="flex:1;min-width:0"><h1>Subir mi dibujo</h1><span class="sub">Semana ${a.semana} · ${esc(a.tema)}</span></div>
+      <img class="cara" src="${caraGuia(E.guia)}" alt="">
+    </header>
+    <form class="cont" id="f" novalidate>
+      ${h.prueba ? '<div class="prueba">MODO PRUEBA · se publica de verdad en el Padlet</div>' : ''}
+      <label class="foto ${S.vista ? 'lista' : ''}" for="archivo">
+        ${S.vista ? `<img src="${S.vista}" alt="Vista previa de tu dibujo">` : `<span class="foto-ico" aria-hidden="true">📷</span><b>Toca para elegir la foto de tu dibujo</b><small>Desde tu galería o con la cámara</small>`}
+        <input id="archivo" type="file" accept="image/*">
+      </label>
+      ${S.vista ? '<button type="button" class="enlace" id="cambiar" style="margin-top:-6px">Cambiar la foto</button>' : ''}
+      <fieldset><legend>Tipo de técnica</legend>
+        <div class="par"><button type="button" class="opcion" data-t="Tradicional" aria-pressed="${S.tecnica === 'Tradicional'}">Tradicional</button><button type="button" class="opcion" data-t="Digital" aria-pressed="${S.tecnica === 'Digital'}">Digital</button></div>
+      </fieldset>
+      <label class="campo" for="des">Descripción
+        <textarea id="des" rows="3" maxlength="500" placeholder="Cuéntanos por qué lo dibujaste así. ¡Una buena descripción consigue más me gusta!">${esc(S.descripcion || '')}</textarea>
+        <span class="ayuda" id="cnt">${(S.descripcion || '').length} / 500</span>
+      </label>
+      <label class="check" for="pro"><input id="pro" type="checkbox" ${S.propio ? 'checked' : ''}><span>Mi dibujo es 100 % mío: sin inteligencia artificial, sin calcar y sin fanart.</span></label>
+      ${p.mayor === 'No' ? '<span class="nota izq">Puedes participar. Para quedar entre las finalistas, tu representante tiene que haber confirmado la autorización.</span>' : ''}
+      <div class="muestra" aria-hidden="true"><i></i><span><b>${esc(titulo)}</b><small>Así saldrá el título en el Padlet</small></span></div>
+      ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}
+      <button type="submit" class="btn amarillo" id="ok">PUBLICAR EN EL PADLET</button>
+      <span class="nota">Cierra el ${fecha(a.cierre)}, ${hora(a.cierre)}. Una participación por semana.</span>
+    </form>`, root => {
+    const des = root.querySelector('#des'), pro = root.querySelector('#pro'), cnt = root.querySelector('#cnt');
+    const leerCampos = () => { S.descripcion = des.value; S.propio = pro.checked; };
+    des.addEventListener('input', () => { cnt.textContent = des.value.length + ' / 500'; });
+    on('#v', 'click', () => { leerCampos(); ir('hoy'); });
+    on('#cambiar', 'click', () => root.querySelector('#archivo').click());
+    root.querySelectorAll('[data-t]').forEach(b => b.addEventListener('click', () => { leerCampos(); S.tecnica = b.dataset.t; vistaSubir(); }));
+    on('#archivo', 'change', async ev => {
+      leerCampos();
+      const f = ev.target.files && ev.target.files[0];
+      if (!f) return;
+      const caja = root.querySelector('.foto'); caja.innerHTML = '<span class="spin" aria-hidden="true"></span><b>Preparando la foto…</b>';
+      try { const c = await comprimir(f); S.base64 = c.base64; S.vista = c.vista; vistaSubir(); }
+      catch (e) { S.base64 = S.vista = null; vistaSubir(ERRORES.imagen); }
+    });
+    on('#f', 'submit', async ev => {
+      ev.preventDefault();
+      leerCampos();
+      const falta = !S.base64 ? 'foto' : !S.tecnica ? 'tecnica' : S.descripcion.trim().length < 3 ? 'descripcion' : !S.propio ? 'propio' : '';
+      if (falta) return vistaSubir(ERRORES[falta]);
+      const ok = root.querySelector('#ok'); ok.disabled = true; ok.textContent = 'Publicando… no cierres la app';
+      const r = await api('subir', { sesion: E.sesion, imagen: S.base64, tecnica: S.tecnica, descripcion: S.descripcion.trim(), propio: true });
+      if (r.ok || r.error === 'ya_subiste') {
+        E.semana = { id: semanaId(a), subido: true, padlet: r.padlet || '' }; guardar('semana', E.semana);
+        if (S.vista) URL.revokeObjectURL(S.vista);
+        Object.keys(S).forEach(k => delete S[k]);
+        return r.ok ? vistaCelebracion(r) : (aviso(ERRORES.ya_subiste), ir('hoy'));
+      }
+      if (r.error === 'sesion') return cerrarSesion(true);
+      vistaSubir(textoError(r.error));
     });
   });
+}
+
+function vistaCelebracion(r) {
+  pintar(`
+    <div class="cont" style="justify-content:center;text-align:center;align-items:center">
+      <img src="${imgGuia(E.guia)}" alt="" width="170" height="164" style="animation:bob 2.6s ease-in-out infinite">
+      <h1 style="margin:0;font-family:var(--display);font-size:28px">¡Dibujo publicado! 🎉</h1>
+      <p style="margin:0;font-size:16px;line-height:1.45">Ya está en el Padlet, en la sección <b>Semana ${r.semana}</b>, con el título <b>${esc(r.titulo)}</b>.</p>
+      <div class="caja agua" style="text-align:left">Comparte el enlace para que te den me gusta. Los 5 dibujos con más me gusta van a la votación del canal de WhatsApp.</div>
+      <a class="btn amarillo" href="${esc(r.padlet || CONFIG.padlet)}" target="_blank" rel="noopener">VER MI DIBUJO EN EL PADLET ↗</a>
+      <button type="button" class="btn blanco chico" id="hoy">Volver a Hoy</button>
+    </div>`, () => on('#hoy', 'click', () => ir('hoy')));
 }
 
 function vistaPronto(cual) {
@@ -440,8 +558,8 @@ function vistaYo() {
 
 async function cerrarSesion(vencida) {
   const s = E.sesion;
-  E.sesion = E.correo = E.perfil = E.hoy = null; E.borrador = {};
-  ['sesion', 'correo', 'perfil', 'hoy'].forEach(k => guardar(k, null));
+  E.sesion = E.correo = E.perfil = E.hoy = E.semana = null; E.borrador = {}; E.subida = {};
+  ['sesion', 'correo', 'perfil', 'hoy', 'semana'].forEach(k => guardar(k, null));
   if (s && vencida !== true) api('salir', { sesion: s });
   vistaBienvenida(vencida === true ? ERRORES.sesion : '');
 }
@@ -452,7 +570,7 @@ function ir(donde) {
   if (!E.sesion) return vistaBienvenida();
   if (!E.perfil || !E.perfil.completo) { E.borrador = { nombre: (E.perfil || {}).nombre || '', usuario: (E.perfil || {}).usuario || '' }; return vistaPerfil(); }
   estaEn = donde;
-  if (donde === 'subir') { if (E.hoy && E.hoy.actual) return ventanaSubir(); estaEn = 'hoy'; donde = 'hoy'; }
+  if (donde === 'subir') { if (E.hoy && E.hoy.actual && !yaSubio()) return vistaSubir(); if (yaSubio()) aviso(ERRORES.ya_subiste); estaEn = 'hoy'; donde = 'hoy'; }
   if (donde === 'hoy') return vistaHoy();
   if (donde === 'yo') return vistaYo();
   return vistaPronto(donde);

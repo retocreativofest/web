@@ -141,3 +141,12 @@ legend{font-weight:700;font-size:14px;padding:0;margin-bottom:6px}
 .ventana h2{margin:0;font-family:var(--display);font-size:20px}
 .ventana p,.ventana ol{margin:0;font-size:15px;line-height:1.45}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(110px + var(--safe-b));background:var(--ink);color:var(--white);padding:10px 16px;border-radius:12px;font-weight:700;font-size:14px;z-index:30;max-width:90vw;text-align:center}
+
+/* Subir (bloque 2) */
+.campo textarea{border:3px solid var(--ink);border-radius:12px;padding:10px 12px;font:inherit;font-size:16px;font-weight:600;background:var(--white);resize:vertical;min-height:84px;width:100%}
+.foto{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:190px;border:3px dashed var(--violeta);border-radius:20px;background:var(--white);text-align:center;padding:16px;cursor:pointer}
+.foto.lista{border-style:solid;border-color:var(--ink);padding:6px;background:var(--lila-2)}
+.foto img{max-height:320px;width:auto;border-radius:14px;display:block}
+.foto input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.foto-ico{font-size:40px}
+.foto b{font-size:15px} .foto small{font-size:12px;color:var(--muted)}
