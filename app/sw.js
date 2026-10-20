@@ -1,7 +1,8 @@
 /* #RetoMenteMilenial · funciona sin conexión para la parte visual. Los datos siempre se piden en línea. */
-const VERSION = 'rmm-app-v6';
-const BASE = ['./', 'index.html', 'app.css?v=6', 'app.js?v=6', 'manifest.webmanifest',
-  'img/digi.webp', 'img/tradi.webp', 'img/digi-cara.webp', 'img/tradi-cara.webp', 'img/icon-192.png'];
+const VERSION = 'rmm-app-v7';
+const BASE = ['./', 'index.html', 'app.css?v=7', 'app.js?v=7', 'manifest.webmanifest',
+  'img/digi.webp', 'img/tradi.webp', 'img/digi-cara.webp', 'img/tradi-cara.webp', 'img/icon-192.png',
+  'img/sticker-1.webp', 'img/sticker-2.webp', 'img/sticker-3.webp'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(BASE)).then(() => self.skipWaiting()));

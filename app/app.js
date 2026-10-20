@@ -77,14 +77,22 @@ const ERRORES = {
   congelado: 'El Padlet está cerrado en este momento. Intenta cuando abra el reto.',
   padlet: 'El Padlet no recibió tu dibujo. Intenta otra vez en un minuto.',
   ya_subiste: 'Ya subiste tu dibujo de esta semana. ¡Solo se permite uno!',
-  subiendo: 'Tu dibujo se está subiendo. Espera un minuto y revisa el Padlet.'
+  subiendo: 'Tu dibujo se está subiendo. Espera un minuto y revisa el Padlet.',
+  no_existe: 'No encontramos a nadie con ese usuario en la app. Pídele que se registre primero.',
+  tu_mismo: 'Ese es tu propio usuario 😄',
+  ya_amigos: 'Ya son amigos.',
+  ya_enviada: 'Ya le mandaste una solicitud. Espera a que la acepte.',
+  max_amigos: 'Llegaste al máximo de 50 amigos.',
+  no_amigos: 'Solo puedes dar toques a tus amigos.',
+  toque_hoy: 'Ya le diste un toque hoy. Mañana puedes darle otro.',
+  sticker: 'Elige un sticker.'
 };
 const textoError = e => ERRORES[e] || ERRORES.servidor;
 
 /* ---------- estado ---------- */
 const E = {
   sesion: leer('sesion'), correo: leer('correo'), perfil: leer('perfil'),
-  guia: leer('guia') || 'digi', borrador: {}, hoy: leer('hoy'), semana: leer('semana'), progreso: leer('progreso'), ranking: null, subida: {}, instalar: null
+  guia: leer('guia') || 'digi', borrador: {}, hoy: leer('hoy'), semana: leer('semana'), progreso: leer('progreso'), novedades: null, amigos: null, ranking: null, subida: {}, instalar: null
 };
 const imgGuia = g => 'img/' + (g === 'tradi' ? 'tradi' : 'digi') + '.webp';
 const caraGuia = g => 'img/' + (g === 'tradi' ? 'tradi' : 'digi') + '-cara.webp';
@@ -302,7 +310,8 @@ function vistaEdad(error) {
 /* ---------- pantallas con barra inferior ---------- */
 function nav(activa) {
   const b = (id, ico, txt) => `<button type="button" data-ir="${id}" ${activa === id ? 'aria-current="page"' : ''}>${ico}<span>${txt}</span></button>`;
-  return `<nav class="nav" aria-label="Principal">${b('hoy', ICO.hoy, 'Hoy')}${b('ranking', ICO.ranking, 'Ranking')}<button type="button" class="mas" data-ir="subir" aria-label="Subir mi dibujo">${ICO.mas}</button>${b('amigos', ICO.amigos, 'Amigos')}${b('yo', ICO.yo, 'Yo')}</nav>`;
+  const sol = E.novedades && E.novedades.solicitudes ? `<i class="punto" aria-label="${E.novedades.solicitudes} solicitudes"></i>` : '';
+  return `<nav class="nav" aria-label="Principal">${b('hoy', ICO.hoy, 'Hoy')}${b('ranking', ICO.ranking, 'Ranking')}<button type="button" class="mas" data-ir="subir" aria-label="Subir mi dibujo">${ICO.mas}</button>${b('amigos', ICO.amigos + sol, 'Amigos')}${b('yo', ICO.yo, 'Yo')}</nav>`;
 }
 function conNav(activa, cuerpo, alPintar) {
   pintar(cuerpo + nav(activa), root => {
@@ -342,11 +351,18 @@ async function vistaHoy() {
   if (m.ok) {
     if (r.actual) { E.semana = { id: semanaId(r.actual), subido: !!m.subido, padlet: m.padlet || '' }; guardar('semana', E.semana); }
     if (m.progreso) { E.progreso = m.progreso; guardar('progreso', E.progreso); }
-    if (estaEn === 'hoy') dibujarHoy(E.hoy);
+    E.novedades = m.novedades || null;
+    if (estaEn === 'hoy') {
+      dibujarHoy(E.hoy);
+      if (toqueNuevo()) api('toques_vistos', { sesion: E.sesion });   // se muestra una vez; luego desaparece
+    }
   } else if (m.error === 'sesion') cerrarSesion(true);
 }
+const STICKERS = [['img/sticker-1.webp', '¡Tú puedes!'], ['img/sticker-2.webp', '¡Qué dibujo!'], ['img/sticker-3.webp', '¡No la pierdas!']];
+const toqueNuevo = () => E.novedades && E.novedades.toques && E.novedades.toques.length ? E.novedades.toques[E.novedades.toques.length - 1] : null;
 function burbujaHoy(nom, a) {
-  const pr = E.progreso, hola = '¡Hola' + (nom ? ', ' + nom : '') + '! ';
+  const pr = E.progreso, hola = '¡Hola' + (nom ? ', ' + nom : '') + '! ', tq = toqueNuevo();
+  if (tq) return hola + `👋 <b>${esc(tq.nombre)}</b> te dio un toque: «${esc((STICKERS[tq.sticker] || STICKERS[0])[1])}».${a ? ' El reto cierra en <b>' + cuantoFalta(a.cierre) + '</b>.' : ''}`;
   if (yaSubio()) return hola + (pr && pr.racha > 1 ? `🔥 Tu racha va en <b>${pr.racha} semanas</b>. ¡Sigue así!` : '🎉 Ya subiste tu dibujo de esta semana.');
   if (pr && pr.enRiesgo) return hola + `😱 Tu racha de <b>${pr.racha} ${pr.racha === 1 ? 'semana' : 'semanas'}</b> está en riesgo. El reto cierra en <b>${cuantoFalta(a.cierre)}</b>.`;
   return hola + `👋 El reto cierra en <b>${cuantoFalta(a.cierre)}</b>.`;
@@ -367,7 +383,7 @@ function dibujarHoy(h, error) {
     cuerpo = `
       ${h.prueba ? '<div class="prueba">MODO PRUEBA · las fechas son de ejemplo</div>' : ''}
       <div class="progreso"><div class="t"><span>${esc(a.temporada)} · semana ${a.semana} de ${total - 1}</span><span>Premiación: ${premio}</span></div><div class="b"><i style="width:${pct}%"></i></div></div>
-      <div class="saludo"><img src="${imgGuia(E.guia)}" alt="${E.guia === 'tradi' ? 'Tradi' : 'Digi'} dibujando" width="112" height="108"><div class="burbuja">${burbujaHoy(nom, a)}</div></div>
+      <div class="saludo">${toqueNuevo() ? `<img src="${(STICKERS[toqueNuevo().sticker] || STICKERS[0])[0]}" alt="Sticker de ${esc(toqueNuevo().nombre)}" width="112" height="112">` : `<img src="${imgGuia(E.guia)}" alt="${E.guia === 'tradi' ? 'Tradi' : 'Digi'} dibujando" width="112" height="108">`}<div class="burbuja">${burbujaHoy(nom, a)}</div></div>
       <section class="reto" aria-labelledby="reto-h">
         <span class="pill">Reto de la semana ${a.semana}</span>
         <h2 id="reto-h">${esc(a.tema || 'Reto de la semana')}</h2>
@@ -578,6 +594,78 @@ function dibujarRanking(r, error) {
   conNav('ranking', cabecera('Ranking') + `<main class="cont con-nav">${cuerpo}</main>`);
 }
 
+/* ---------- Amigos ---------- */
+async function vistaAmigos(mensaje) {
+  dibujarAmigos(E.amigos, mensaje);
+  const r = await api('amigos', { sesion: E.sesion });
+  if (r.ok) {
+    E.amigos = r;
+    if (E.novedades) E.novedades.solicitudes = r.solicitudes.length;
+    if (estaEn === 'amigos') dibujarAmigos(r, mensaje);
+  } else if (r.error === 'sesion') cerrarSesion(true);
+  else if (!E.amigos && estaEn === 'amigos') dibujarAmigos(null, null, textoError(r.error));
+}
+
+function dibujarAmigos(d, mensaje, error) {
+  const inicial = n => esc((n || '?').charAt(0).toUpperCase());
+  let cuerpo = `
+    <form class="agregar" id="fa" novalidate>
+      <label class="campo" for="nu">Agrega a un amigo por su usuario
+        <span class="fila-ag"><input id="nu" type="text" autocapitalize="none" spellcheck="false" placeholder="@usuario" maxlength="31"><button type="submit" class="btn amarillo chico" style="width:auto;padding:8px 16px">AGREGAR</button></span>
+      </label>
+    </form>
+    ${mensaje ? `<div class="caja agua" role="status">${esc(mensaje)}</div>` : ''}
+    ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}`;
+  if (!d) cuerpo += '<div class="cargando" role="status"><span class="spin" aria-hidden="true"></span>Buscando a tus amigos…</div>';
+  else {
+    if (d.solicitudes.length) cuerpo += `<h2 class="sub-t">Te quieren agregar</h2>` + d.solicitudes.map(x => `
+      <div class="amigo"><span class="avatar">${inicial(x.nombre)}</span><div class="info"><b>${esc(x.nombre)}</b><small>@${esc(x.usuario)}</small></div>
+        <button type="button" class="btn turquesa chico mini" data-aceptar="${esc(x.usuario)}">Aceptar</button><button type="button" class="enlace mini" data-rechazar="${esc(x.usuario)}">No</button></div>`).join('');
+    cuerpo += `<h2 class="sub-t">Tus amigos${d.amigos.length ? ' (' + d.amigos.length + ')' : ''}</h2>`;
+    cuerpo += d.amigos.length ? d.amigos.map(x => `
+      <div class="amigo"><span class="avatar">${inicial(x.nombre)}</span>
+        <div class="info"><b>${esc(x.nombre)}</b><small>@${esc(x.usuario)}</small>
+          <span class="chips"><span class="chip fuego">🔥 ${x.rachaJuntos} ${x.rachaJuntos === 1 ? 'semana' : 'semanas'} juntos</span>${d.semanaAbierta ? `<span class="chip ${x.subio ? 'ok' : ''}">${x.subio ? '✓ Ya subió' : '⏳ Aún no sube'}</span>` : ''}</span></div>
+        <button type="button" class="btn ${x.toqueHoy ? 'blanco' : 'amarillo'} chico mini" data-toque="${esc(x.usuario)}" data-nombre="${esc(x.nombre)}" ${x.toqueHoy ? 'disabled' : ''}>${x.toqueHoy ? 'Toque ✓' : '👆 Toque'}</button></div>`).join('')
+      : `<div class="caja">Todavía no tienes amigos en la app. Agrégalos con el usuario que usan en el reto (el de Instagram o TikTok). Cuando los dos suben su dibujo la misma semana, crece su racha juntos 🔥</div>`;
+    if (d.enviadas.length) cuerpo += `<p class="nota izq">Esperando respuesta: ${d.enviadas.map(x => '@' + esc(x.usuario)).join(', ')}</p>`;
+    cuerpo += `<p class="nota">Los toques son stickers dentro de la app: sin chat. Uno por amigo al día.</p>`;
+  }
+  conNav('amigos', cabecera('Amigos') + `<main class="cont con-nav">${cuerpo}</main>`, root => {
+    on('#fa', 'submit', async ev => {
+      ev.preventDefault();
+      const inp = root.querySelector('#nu'), u = inp.value.trim().replace(/^@+/, '').toLowerCase();
+      if (!/^[a-z0-9._]{3,30}$/.test(u)) return dibujarAmigos(d, null, ERRORES.usuario_invalido);
+      const b = root.querySelector('#fa button'); b.disabled = true;
+      const r = await api('amigo_agregar', { sesion: E.sesion, usuario: u });
+      if (!r.ok) return dibujarAmigos(d, null, textoError(r.error));
+      vistaAmigos(r.aceptado ? '¡Ahora son amigos! 🎉' : 'Solicitud enviada a @' + u + '. Cuando la acepte, aparecerá aquí.');
+    });
+    root.querySelectorAll('[data-aceptar]').forEach(b => b.addEventListener('click', async () => { b.disabled = true; await api('amigo_responder', { sesion: E.sesion, usuario: b.dataset.aceptar, accionAmigo: 'aceptar' }); vistaAmigos('¡Ahora son amigos! 🎉'); }));
+    root.querySelectorAll('[data-rechazar]').forEach(b => b.addEventListener('click', async () => { b.disabled = true; await api('amigo_responder', { sesion: E.sesion, usuario: b.dataset.rechazar, accionAmigo: 'rechazar' }); vistaAmigos(); }));
+    root.querySelectorAll('[data-toque]').forEach(b => b.addEventListener('click', () => ventanaToque(b.dataset.toque, b.dataset.nombre)));
+  });
+}
+
+function ventanaToque(usuario, nombre) {
+  let elegido = 2;
+  ventana(`
+    <h2 id="v-h" tabindex="-1">Dale un toque a ${esc(nombre)}</h2>
+    <p style="font-size:14px">Le aparecerá en su app con el sticker que elijas.</p>
+    <div class="stickers">${STICKERS.map((st, i) => `<button type="button" class="sticker" data-st="${i}" aria-pressed="${i === elegido}"><img src="${st[0]}" alt="" width="80" height="80"><span>${esc(st[1])}</span></button>`).join('')}</div>
+    <button type="button" class="btn amarillo" id="dar">DAR TOQUE</button>
+    <button type="button" class="enlace" id="quitar" style="font-size:12px;color:var(--muted)">Quitar a @${esc(usuario)} de mis amigos</button>`, (v, cerrar) => {
+    v.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => { elegido = +b.dataset.st; v.querySelectorAll('[data-st]').forEach(x => x.setAttribute('aria-pressed', String(+x.dataset.st === elegido))); }));
+    v.querySelector('#dar').addEventListener('click', async ev => {
+      ev.currentTarget.disabled = true; ev.currentTarget.textContent = 'Enviando…';
+      const r = await api('toque', { sesion: E.sesion, usuario, sticker: elegido });
+      cerrar();
+      if (r.ok) { aviso('¡Toque enviado a ' + nombre + '!'); vistaAmigos(); } else aviso(textoError(r.error));
+    });
+    v.querySelector('#quitar').addEventListener('click', async () => { cerrar(); await api('amigo_responder', { sesion: E.sesion, usuario, accionAmigo: 'quitar' }); vistaAmigos(); });
+  });
+}
+
 function vistaPronto(cual) {
   const T = {
     ranking: ['Ranking', 'Tu posición en cada categoría, tus puntos y las estrellas del Club.'],
@@ -633,7 +721,7 @@ function vistaYo() {
 
 async function cerrarSesion(vencida) {
   const s = E.sesion;
-  E.sesion = E.correo = E.perfil = E.hoy = E.semana = E.progreso = E.ranking = null; E.borrador = {}; E.subida = {};
+  E.sesion = E.correo = E.perfil = E.hoy = E.semana = E.progreso = E.ranking = E.amigos = E.novedades = null; E.borrador = {}; E.subida = {};
   ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso'].forEach(k => guardar(k, null));
   if (s && vencida !== true) api('salir', { sesion: s });
   vistaBienvenida(vencida === true ? ERRORES.sesion : '');
@@ -649,6 +737,7 @@ function ir(donde) {
   if (donde === 'hoy') return vistaHoy();
   if (donde === 'yo') return vistaYo();
   if (donde === 'ranking') return vistaRanking();
+  if (donde === 'amigos') return vistaAmigos();
   return vistaPronto(donde);
 }
 
