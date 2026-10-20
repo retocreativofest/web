@@ -1,6 +1,6 @@
 /* #RetoMenteMilenial · funciona sin conexión para la parte visual. Los datos siempre se piden en línea. */
-const VERSION = 'rmm-app-v9';
-const BASE = ['./', 'index.html', 'app.css?v=9', 'app.js?v=9', 'manifest.webmanifest',
+const VERSION = 'rmm-app-v10';
+const BASE = ['./', 'index.html', 'app.css?v=10', 'app.js?v=10', 'manifest.webmanifest',
   'img/digi.webp', 'img/tradi.webp', 'img/digi-cara.webp', 'img/tradi-cara.webp', 'img/icon-192.png',
   'img/sticker-1.webp', 'img/sticker-2.webp', 'img/sticker-3.webp', 'chispa.js?v=2',
   'img/estrella-1.webp', 'img/estrella-3.webp', 'img/estrella-6.webp'];
@@ -24,5 +24,25 @@ self.addEventListener('fetch', e => {
       return r;
     }).catch(() => guardado);
     return guardado || red;
+  }));
+});
+
+/* ---------- avisos ---------- */
+self.addEventListener('push', e => {
+  let j = {};
+  try { j = e.data ? e.data.json() : {}; } catch (x) {}
+  const d = j.data || j.notification || {};
+  e.waitUntil(self.registration.showNotification(d.titulo || d.title || '#RetoMenteMilenial', {
+    body: d.cuerpo || d.body || '', icon: 'img/icon-192.png', lang: 'es',
+    tag: d.tag || undefined, renotify: !!d.tag, data: { ir: d.ir || 'hoy' }
+  }));
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const ir = (e.notification.data || {}).ir || 'hoy';
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => {
+    const abierta = cs.find(c => c.url.startsWith(self.registration.scope));
+    if (abierta) { abierta.postMessage({ ir }); return abierta.focus(); }
+    return self.clients.openWindow(new URL('./?ir=' + encodeURIComponent(ir), self.registration.scope).href);
   }));
 });

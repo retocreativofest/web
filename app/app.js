@@ -91,7 +91,11 @@ const ERRORES = {
   codigo_club: 'Ese no es el código de este mes. Lo encuentras en Patreon y en el Discord del Club.',
   club: 'Esto es del Club Estrella.',
   sin_protectores: 'Ya usaste tus 2 protectores de este mes.',
-  ya_protegida: 'Esta semana ya está protegida.'
+  ya_protegida: 'Esta semana ya está protegida.',
+  pronto: '¡Ya casi! La app abre el 1 de diciembre. Te esperamos ese día para registrarte y preparar tu racha. 🎨',
+  avisos_bloqueados: 'Los avisos están bloqueados en este teléfono. Actívalos en los ajustes: Notificaciones → Reto MM (en Chrome, en el candadito junto a la dirección).',
+  avisos_cancelados: 'No se activaron los avisos. Puedes activarlos cuando quieras desde Yo.',
+  avisos_no: 'Este teléfono o navegador no permite avisos. En Android usa Chrome; en iPhone, instala la app y ábrela desde el ícono.'
 };
 const textoError = e => ERRORES[e] || ERRORES.servidor;
 
@@ -147,7 +151,7 @@ async function entrarGoogle(ev) {
   const b = ev.currentTarget; b.disabled = true; b.lastChild.textContent = ' Abriendo Google…';
   let r;
   try {
-    const { googleIdToken } = await import('./google.js?v=1');
+    const { googleIdToken } = await import('./google.js?v=2');
     const g = await googleIdToken();
     b.lastChild.textContent = ' Entrando…';
     r = await api('entrar_google', { idToken: g.idToken });
@@ -583,8 +587,9 @@ function vistaCelebracion(r) {
       <p style="margin:0;font-size:16px;line-height:1.45">Ya está en el Padlet, en la sección <b>Semana ${r.semana}</b>, con el título <b>${esc(r.titulo)}</b>.</p>
       <div class="caja agua" style="text-align:left">Manda el enlace a tus amigos para que te den me gusta. Los 5 dibujos con más me gusta van a la votación del canal de WhatsApp.</div>
       ${botonesCompartir(r.padlet || CONFIG.padlet)}
+      ${avisosHtml(true)}
       <button type="button" class="btn blanco chico" id="hoy">Volver a Hoy</button>
-    </div>`, root => { activarCompartir(root); on('#hoy', 'click', () => ir('hoy')); });
+    </div>`, root => { activarCompartir(root); activarAvisosEn(root, () => vistaCelebracion(r)); on('#hoy', 'click', () => ir('hoy')); });
 }
 
 async function vistaRanking() {
@@ -747,6 +752,81 @@ function vistaPronto(cual) {
   conNav(cual, cabecera(T[0]) + `<main class="cont con-nav"><div class="pronto"><img src="${imgGuia(E.guia)}" alt="" width="150" height="145"><h2>Muy pronto</h2><p>${esc(T[1])}</p></div></main>`);
 }
 
+/* ---------- avisos ---------- */
+const TIPOS_AVISO = [['reto', 'Reto nuevo', 'cuando sale el reto de la semana'], ['racha', 'Racha en riesgo', 'domingo 6:00 p. m., si aún no subes'], ['amigos', 'Amigos', 'toques y solicitudes de amistad']];
+const esIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const instalada = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+function estadoAvisos() {
+  if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) return esIOS() && !instalada() ? 'instalar' : 'no';
+  if (Notification.permission === 'denied') return 'bloqueado';
+  const A = leer('avisos');
+  return A && A.token && Notification.permission === 'granted' ? 'activo' : 'pedir';
+}
+async function activarAvisos(tipos) {
+  let permiso;
+  try { permiso = await Notification.requestPermission(); } catch (e) { permiso = 'default'; }   // primero, sin esperar nada (Safari)
+  if (permiso !== 'granted') return { ok: false, error: permiso === 'denied' ? 'avisos_bloqueados' : 'avisos_cancelados' };
+  let token;
+  try {
+    const espera = new Promise((_, no) => setTimeout(() => no(new Error('tiempo')), 20000));
+    token = await Promise.race([import('./avisos.js?v=1').then(m => m.tokenAvisos()), espera]);
+  } catch (e) { return { ok: false, error: 'avisos_no' }; }
+  const r = await api('avisos', { sesion: E.sesion, token, tipos: tipos || TIPOS_AVISO.map(t => t[0]) });
+  if (r.ok) guardar('avisos', { token, tipos: r.tipos, fecha: Date.now() });
+  return r;
+}
+async function desactivarAvisos(sinServidor) {
+  const A = leer('avisos');
+  guardar('avisos', null);
+  if (A && A.token && !sinServidor) await api('avisos', { sesion: E.sesion, token: A.token, quitar: true });
+  try { const reg = await navigator.serviceWorker.getRegistration(), sus = reg && await reg.pushManager.getSubscription(); if (sus) await sus.unsubscribe(); } catch (e) {}
+}
+async function refrescarAvisos() {   // una vez por semana: el token del teléfono puede cambiar
+  const A = leer('avisos');
+  if (estadoAvisos() !== 'activo' || Date.now() - (A.fecha || 0) < 7 * 864e5) return;
+  try {
+    const token = await (await import('./avisos.js?v=1')).tokenAvisos();
+    if (token !== A.token) await api('avisos', { sesion: E.sesion, token: A.token, quitar: true });
+    const r = await api('avisos', { sesion: E.sesion, token, tipos: A.tipos });
+    if (r.ok) guardar('avisos', { token, tipos: r.tipos, fecha: Date.now() });
+  } catch (e) {}
+}
+/* Bloque de avisos para Yo (completo) y para la Celebración (solo invitación). */
+function avisosHtml(enCelebracion) {
+  const est = estadoAvisos(), A = leer('avisos') || {};
+  if (enCelebracion) {
+    if (est === 'pedir') return `<div class="caja crema avisos-inv" style="text-align:left"><strong class="t">🔔 ¿Te avisamos del próximo reto?</strong>También si tu racha está en riesgo o un amigo te da un toque. Nada de spam.<button type="button" class="btn turquesa chico" id="av-on" style="margin-top:8px;width:100%">ACTIVAR AVISOS</button></div>`;
+    if (est === 'instalar') return '<div class="caja crema" style="text-align:left">🔔 En iPhone, para recibir el aviso del próximo reto, instala la app: botón <b>Compartir</b> → <b>«Agregar a inicio»</b>. Luego actívalos en <b>Yo</b>.</div>';
+    return '';
+  }
+  const cuerpo = {
+    activo: `<div class="lista avisos-op">${TIPOS_AVISO.map(([id, t, d]) => `<label><span><b>${t}</b><small>${d}</small></span><input type="checkbox" data-aviso="${id}" ${(A.tipos || []).indexOf(id) >= 0 ? 'checked' : ''}></label>`).join('')}</div>
+      <button type="button" class="enlace" id="av-off" style="font-size:13px">Desactivar avisos en este teléfono</button>`,
+    pedir: '<button type="button" class="btn turquesa chico" id="av-on">🔔 Activar avisos</button>',
+    instalar: '<div class="caja crema">En iPhone los avisos solo funcionan con la app instalada. Toca <b>«Instalar la app en mi teléfono»</b> y luego ábrela desde el ícono.</div>',
+    bloqueado: `<div class="caja crema">${esc(ERRORES.avisos_bloqueados)}</div>`,
+    no: `<p class="nota izq" style="margin:0">${esc(ERRORES.avisos_no)}</p>`
+  }[est];
+  return `<div class="fila-t"><strong>Avisos</strong><span>Solo lo importante</span></div>${cuerpo}`;
+}
+function activarAvisosEn(root, despues) {
+  const b = root.querySelector('#av-on');
+  if (b) b.addEventListener('click', async () => {
+    b.disabled = true; b.textContent = 'Activando…';
+    const r = await activarAvisos();
+    if (r.ok) aviso('🔔 ¡Listo! Te avisaremos.'); else aviso(textoError(r.error));
+    despues();
+  });
+  const off = root.querySelector('#av-off');
+  if (off) off.addEventListener('click', async () => { off.disabled = true; await desactivarAvisos(); aviso('Avisos desactivados en este teléfono.'); despues(); });
+  root.querySelectorAll('[data-aviso]').forEach(c => c.addEventListener('change', async () => {
+    const A = leer('avisos'); if (!A) return;
+    const tipos = [...root.querySelectorAll('[data-aviso]')].filter(x => x.checked).map(x => x.dataset.aviso);
+    const r = await api('avisos', { sesion: E.sesion, token: A.token, tipos });
+    if (r.ok) { guardar('avisos', Object.assign(A, { tipos: r.tipos })); aviso('Guardado ✓'); } else { aviso(textoError(r.error)); despues(); }
+  }));
+}
+
 /* ---------- Yo ---------- */
 function progresoHtml() {
   const pr = E.progreso;
@@ -778,6 +858,7 @@ function vistaYo() {
       ${E.club && E.club.activo
         ? `<div class="club-yo"><img src="img/estrella-${E.club.estrella}.webp" alt="" width="54" height="54"><div><b>Club Estrella activo</b><span>Hasta el ${fechaCorta(E.club.hasta)} · llevas ${E.club.meses} ${E.club.meses === 1 ? 'mes' : 'meses'}${E.club.protectores ? ' · ' + E.club.protectores + ' protectores' : ''}</span></div></div>`
         : '<button type="button" class="btn blanco chico" data-ir="club">★ Conocer el Club Estrella</button>'}
+      ${avisosHtml()}
       ${instalada ? '' : `<button type="button" class="btn amarillo chico" id="instalar">📲 Instalar la app en mi teléfono</button>`}
       <a class="btn blanco chico" href="${CONFIG.web}/preguntas-frecuentes.html" target="_blank" rel="noopener">Preguntas frecuentes</a>
       <button type="button" class="enlace" id="salir">Cerrar sesión</button>
@@ -786,6 +867,7 @@ function vistaYo() {
     root.querySelectorAll('[data-guia]').forEach(b => b.addEventListener('click', () => { E.guia = b.dataset.guia; guardar('guia', E.guia); vistaYo(); }));
     on('#editar', 'click', () => { E.borrador = { nombre: p.nombre, usuario: p.usuario }; vistaPerfil(); });
     on('#salir', 'click', () => cerrarSesion());
+    activarAvisosEn(root, vistaYo);
     on('#instalar', 'click', async () => {
       if (E.instalar) { E.instalar.prompt(); await E.instalar.userChoice; E.instalar = null; return vistaYo(); }
       ventana(esIOS
@@ -799,6 +881,8 @@ async function cerrarSesion(vencida) {
   const s = E.sesion;
   E.sesion = E.correo = E.perfil = E.hoy = E.semana = E.progreso = E.ranking = E.amigos = E.novedades = E.club = null; E.borrador = {}; E.subida = {};
   ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso', 'club'].forEach(k => guardar(k, null));
+  const A = leer('avisos');
+  if (A && A.token) { if (s && vencida !== true) api('avisos', { sesion: s, token: A.token, quitar: true }); desactivarAvisos(true); }
   if (s && vencida !== true) api('salir', { sesion: s });
   vistaBienvenida(vencida === true ? ERRORES.sesion : '');
 }
@@ -821,11 +905,16 @@ function ir(donde) {
   return vistaPronto(donde);
 }
 
+const IR_AVISO = ['hoy', 'amigos', 'ranking', 'yo', 'club'];
 async function iniciar() {
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); E.instalar = e; });
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => { if (e.data && IR_AVISO.indexOf(e.data.ir) >= 0 && E.sesion) ir(e.data.ir); });
+  const pedido = new URLSearchParams(location.search).get('ir');   // al tocar un aviso
+  if (pedido) history.replaceState(null, '', location.pathname);
   if (!E.sesion) return vistaBienvenida();
-  ir('hoy');
+  ir(IR_AVISO.indexOf(pedido) >= 0 ? pedido : 'hoy');
+  refrescarAvisos();
   const r = await api('perfil', { sesion: E.sesion });   // refresca los datos guardados en el teléfono
   if (r.ok) { E.perfil = r.perfil; guardar('perfil', E.perfil); if (!r.perfil.completo) ir('hoy'); }
   else if (r.error === 'sesion') cerrarSesion(true);
