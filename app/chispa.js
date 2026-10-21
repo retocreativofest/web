@@ -83,6 +83,27 @@ export function abrirChispa(ctx) {
     r.classList.toggle('poco', S.fase === 'dibujando' && S.quedan <= 30);
   }
   function parar() { clearInterval(reloj); reloj = null; }
+  /* Sorteo: las chispas pasan rápido y se van frenando hasta caer en la de hoy (~2 s). */
+  function sortear(final, listo) {
+    const t = $('#ch-t'), aviso = $('#ch-emp');
+    const fin = () => { S.fase = 'lista'; t.textContent = 'Dibuja ' + final; t.removeAttribute('aria-busy'); aviso.textContent = 'Toca el lienzo para empezar ✏️'; pintarAbajo(); if (listo) listo(); };
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return fin();
+    S.fase = 'sorteo'; t.setAttribute('aria-busy', 'true'); t.classList.add('girando'); aviso.textContent = 'Sorteando tu chispa… 🎲'; pintarAbajo();
+    let paso = 0, previo = '';
+    const total = 14;
+    const tick = () => {
+      if (!root.contains(t)) return;   // salió de la pantalla
+      if (paso >= total) {
+        t.classList.remove('girando'); fin();
+        t.classList.add('cae'); setTimeout(() => t.classList.remove('cae'), 700);
+        return;
+      }
+      let o; do { o = POOL[Math.floor(Math.random() * POOL.length)]; } while (o === previo || o === final);
+      previo = o; t.textContent = 'Dibuja ' + o; paso++;
+      setTimeout(tick, 45 + paso * paso * 1.6);
+    };
+    tick();
+  }
   function guardarFoto() { try { foto = c.toDataURL('image/png'); } catch (e) {} }
   function empezar() {
     S.fase = 'dibujando'; S.quedan = LIMITE; $('#ch-emp').hidden = true;
@@ -117,7 +138,7 @@ export function abrirChispa(ctx) {
     x.putImageData(img, 0, 0); return true;
   }
   function abajo(e) {
-    if (S.fase === 'hecha' || S.video) return;
+    if (S.fase === 'hecha' || S.fase === 'sorteo' || S.video) return;
     if (S.fase === 'lista') empezar();
     if (e.cancelable) e.preventDefault();
     const p = pos(e);
@@ -220,7 +241,7 @@ export function abrirChispa(ctx) {
         if (!club) return bloqueado('Cambiar la chispa');
         let n = Math.floor(Math.random() * POOL.length); if (POOL[n] === S.chispa) n = (n + 1) % POOL.length;
         S.chispa = POOL[n]; S.cambiada = true; guardarLS('chispa.' + diaCaracas(), { chispa: S.chispa, cambiada: true });
-        $('#ch-t').textContent = 'Dibuja ' + S.chispa; pintarAbajo();
+        sortear(S.chispa);
       });
       return;
     }
@@ -245,6 +266,6 @@ export function abrirChispa(ctx) {
     $('#ch-video').addEventListener('click', video);
     $('#ch-salir').addEventListener('click', () => ctx.volver());
   }
-  pintarReloj(); pintarAbajo();
+  pintarReloj(); sortear(S.chispa);
   return () => parar();
 }
