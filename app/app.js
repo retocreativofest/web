@@ -94,6 +94,11 @@ const ERRORES = {
   patreon_vencido: 'El enlace de Patreon venció. Toca otra vez «Vincular mi Patreon».',
   club: 'Esto es del Club Estrella.',
   sin_protectores: 'Ya usaste tus 2 protectores de este mes.',
+  voto_cerrado: 'La votación ya cerró. Mira el podio.',
+  voto_finalista: 'Ese dibujo no está entre las finalistas.',
+  voto_propio: 'No puedes votar por tu propio dibujo.',
+  voto_participa: 'Para votar, sube al menos un dibujo esta temporada.',
+  voto_ya: 'Ya votaste esta semana. El voto no se puede cambiar.',
   ya_protegida: 'Esta semana ya está protegida.',
   pronto: '¡Ya casi! La app abre el 1 de diciembre. Te esperamos ese día para registrarte y preparar tu racha. 🎨',
   avisos_bloqueados: 'Los avisos están bloqueados en este teléfono. Actívalos en los ajustes: Notificaciones → Reto MM (en Chrome, en el candadito junto a la dirección).',
@@ -422,7 +427,7 @@ function dibujarHoy(h, error) {
         <a class="btn blanco chico" href="${CONFIG.padlet}" target="_blank" rel="noopener">VER EL PADLET</a>
       </section>`;
   }
-  conNav('hoy', cabecera('Hoy') + `<main class="cont con-nav">${cuerpo}
+  conNav('hoy', cabecera('Hoy') + `<main class="cont con-nav">${h ? tarjetaVoto(h.votacion) : ''}${cuerpo}
       <section class="prox" aria-label="Chispa del día"><span class="ico">${ICO.chispa}</span><div style="flex:1;min-width:0"><h3>Chispa del día</h3><span>${chispaHechaHoy() ? '✓ ¡Lista por hoy! Mañana sale otra.' : '¿Qué te tocará hoy?'}</span><small class="sem-ch">Chispas de esta semana: ${chispasDeLaSemana()} de 7 · no afecta tu racha</small></div><button type="button" class="btn ${chispaHechaHoy() ? 'blanco' : 'turquesa'} chico mini" data-ir="chispa">${chispaHechaHoy() ? '✓ Hecha<br><small>repetir</small>' : '¡Hacerla!<br><small>3 min</small>'}</button></section>
     </main>`, root => {
     on('#re', 'click', vistaHoy);
@@ -440,6 +445,79 @@ function dibujarHoy(h, error) {
       const fin = h.actual ? h.actual.cierre : h.proximo && h.proximo.publica;
       reloj = setInterval(() => { if (new Date(fin) <= ahora()) { clearInterval(reloj); vistaHoy(); } else cd.textContent = cuenta(fin); }, 30000);
     }
+  });
+}
+
+/* ---------- Votación (lunes 9:00 p. m. a martes 9:00 p. m.) ---------- */
+const nombreFin = f => esc(String(f.titulo || '').split(' · ')[0] || f.usuario);
+function tarjetaVoto(v) {
+  if (!v) return '';
+  const pill = `<span class="pill">${v.prueba ? 'PRUEBA · ' : ''}Votación · semana ${v.semana}</span>`;
+  if (v.estado === 'pronto') return `<section class="vota">${pill}<h2>Las finalistas salen a las ${hora(v.abre)}</h2><p>Las 5 con más «Me gusta» pasan a la final. Luego deciden los participantes.</p></section>`;
+  if (v.estado === 'abierta') return `<section class="vota">${pill}<h2>¿Cuál merece el 1.er lugar?</h2>
+    <p>Las 5 con más «Me gusta» pasaron a la final. Ahora deciden los participantes.</p>
+    <div class="tiempo"><span>Cierra en ${cuantoFalta(v.cierra)}</span></div>
+    <button type="button" class="btn amarillo" data-ir="votar">VOTAR AHORA</button></section>`;
+  return `<section class="prox"><span class="ico">🏆</span><div style="flex:1;min-width:0"><h3>Ya salió el podio de la semana ${v.semana}</h3><span>Mira quién ganó y cuántos votos tuvo cada finalista.</span></div><button type="button" class="btn turquesa chico mini" data-ir="votar">Ver</button></section>`;
+}
+
+async function vistaVotar() {
+  dibujarVotar(E.votacion);
+  const r = await api('votacion', { sesion: E.sesion });
+  if (r.ok) { E.votacion = r; if (estaEn === 'votar') dibujarVotar(r); }
+  else if (r.error === 'sesion') cerrarSesion(true);
+  else if (estaEn === 'votar') dibujarVotar(E.votacion, textoError(r.error));
+}
+
+function dibujarVotar(v, error) {
+  let cuerpo = error ? `<div class="error" role="alert">${esc(error)}</div>` : '';
+  if (!v) cuerpo += error ? '' : '<div class="cargando" role="status"><span class="spin" aria-hidden="true"></span>Buscando la votación…</div>';
+  else if (v.estado === 'nada') cuerpo += '<div class="caja agua"><strong class="t">No hay ninguna votación abierta</strong>La votación abre los lunes a las 9:00 p. m., cuando cierra el reto, y dura 24 horas.</div>';
+  else if (v.estado === 'pronto') cuerpo += `<div class="caja agua"><strong class="t">Semana ${v.semana}</strong>Las finalistas salen el ${fecha(v.abre)} a las ${hora(v.abre)}.</div>`;
+  else {
+    const abierta = v.estado === 'abierta', fins = v.finalistas || [];
+    const elegido = fins.find(f => f.id === v.miVoto);
+    if (v.prueba) cuerpo += '<div class="prueba">VOTACIÓN DE PRUEBA</div>';
+    if (abierta) {
+      cuerpo += `<div class="caja agua"><strong class="t">Semana ${v.semana} · cierra el ${fecha(v.cierra)} a las ${hora(v.cierra)}</strong>Toca un dibujo para verlo grande. Tienes <b>un solo voto</b> y no se puede cambiar.${v.enVivo ? ` Van <b>${v.total}</b> ${v.total === 1 ? 'voto' : 'votos'}.` : ''}</div>`;
+      if (elegido) cuerpo += `<div class="caja crema" style="text-align:center">✓ Votaste por <b>${nombreFin(elegido)}</b>. El podio sale el ${fecha(v.cierra)} a las ${hora(v.cierra)}</div>`;
+      else if (!v.puede) cuerpo += '<div class="caja rosa"><strong class="t">Para votar, participa primero</strong>Votan quienes ya subieron al menos un dibujo esta temporada. Sube tu dibujo de esta semana y la próxima votación es tuya.</div>';
+    } else {
+      const medalla = n => n === 1 ? '🔴 1.º' : '🔵 ' + n + '.º';
+      cuerpo += `<section class="cat-app podio"><h2>🏆 Podio de la semana ${v.semana}</h2><p>${v.votantes ? 'Votaron ' + v.votantes + (v.votantes === 1 ? ' persona.' : ' personas.') : 'Nadie votó: decidieron los «Me gusta».'}</p><ol>
+        ${(v.podio || []).map(p => `<li class="${p.puesto === 1 ? 'gana' : ''}"><span><b>${medalla(p.puesto)} · ${esc(String(p.titulo).split(' · ')[0])}</b><small>${esc(p.titulo)} · ${p.votos} ${p.votos === 1 ? 'voto' : 'votos'}</small></span><em>${p.puesto === 1 ? '+3 puntos' : '+1 punto'}</em></li>`).join('')}</ol></section>
+        ${v.relampago ? `<section class="cat-app"><h2>⚡ Relámpago creativo</h2><ol><li class="gana"><span><b>${esc(v.relampago.titulo)}</b><small>Primera en publicar esta semana</small></span></li></ol></section>` : ''}
+        <div class="caja agua">Los puntos ya cuentan para el ranking. El anuncio completo es en el stream del miércoles.</div>`;
+    }
+    cuerpo += fins.map((f, i) => {
+      const puedeVotar = abierta && v.puede && !v.miVoto && !f.mio;
+      const etiqueta = f.mio ? '<span class="votar ok">Tu dibujo</span>' : f.id === v.miVoto ? '<span class="votar ok">✓ Tu voto</span>' : puedeVotar ? `<button type="button" class="votar" data-votar="${esc(f.id)}">VOTAR</button>` : '';
+      return `<div class="fin ${f.id === v.miVoto ? 'elegido' : ''}"><button type="button" class="art" data-ver="${i}" aria-label="Ver grande el dibujo de ${nombreFin(f)}"><img src="${esc(f.img)}" alt="" loading="lazy"><b>Finalista ${i + 1}</b><span class="mg">❤️ ${f.meGusta}${v.enVivo ? ' · 🗳️ ' + (f.votos || 0) : ''}</span></button>
+        <div class="pie"><div><strong>${nombreFin(f)}</strong><small>@${esc(f.usuario)}${f.tecnica ? ' · ' + esc(f.tecnica) : ''}</small></div>${etiqueta}</div></div>`;
+    }).join('') || '<div class="caja crema">Todavía no hay finalistas. Si la votación ya abrió, intenta en unos minutos.</div>';
+  }
+  conNav('hoy', cabecera('Votación') + `<main class="cont con-nav">${cuerpo}</main>`, root => {
+    if (!v || !v.finalistas) return;
+    root.querySelectorAll('[data-ver]').forEach(b => b.addEventListener('click', () => {
+      const f = v.finalistas[Number(b.dataset.ver)];
+      ventana(`<h2 id="v-h" tabindex="-1" style="margin:0;font-family:var(--display)">${nombreFin(f)}</h2><img class="grande" src="${esc(f.img)}" alt="Dibujo de ${nombreFin(f)}">`);
+    }));
+    root.querySelectorAll('[data-votar]').forEach(b => b.addEventListener('click', () => {
+      const f = v.finalistas.find(x => x.id === b.dataset.votar);
+      ventana(`<h2 id="v-h" tabindex="-1" style="margin:0;font-family:var(--display)">¿Votar por ${nombreFin(f)}?</h2>
+        <img class="grande chica" src="${esc(f.img)}" alt="">
+        <p style="margin:0;font-size:14px">Nadie sabe por quién votaste, y el voto no se puede cambiar.</p>
+        <button type="button" class="btn amarillo" id="si">SÍ, VOTAR</button>`, (velo, cerrar) => {
+        velo.querySelector('#si').addEventListener('click', async ev => {
+          ev.currentTarget.disabled = true; ev.currentTarget.textContent = 'Votando…';
+          const r = await api('votar', { sesion: E.sesion, post: f.id });
+          cerrar();
+          if (!r.ok) { aviso(textoError(r.error)); return vistaVotar(); }
+          aviso('🗳️ ¡Voto registrado! Gracias por votar.');
+          E.votacion.miVoto = r.miVoto; vistaVotar();
+        });
+      });
+    }));
   });
 }
 
@@ -920,10 +998,11 @@ function ir(donde) {
   if (donde === 'chispa') return vistaChispa();
   if (donde === 'ranking') return vistaRanking();
   if (donde === 'amigos') return vistaAmigos();
+  if (donde === 'votar') return vistaVotar();
   return vistaPronto(donde);
 }
 
-const IR_AVISO = ['hoy', 'amigos', 'ranking', 'yo', 'club'];
+const IR_AVISO = ['hoy', 'amigos', 'ranking', 'yo', 'club', 'votar'];
 async function iniciar() {
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); E.instalar = e; });
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
