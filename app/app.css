@@ -271,3 +271,5 @@ legend{font-weight:700;font-size:14px;padding:0;margin-bottom:6px}
 .votar.ok{background:var(--violeta);color:var(--white);box-shadow:none;cursor:default;display:inline-flex;align-items:center}
 .ventana img.grande{width:100%;max-height:60vh;object-fit:contain;border:3px solid var(--ink);border-radius:14px;background:var(--white)}
 .ventana img.grande.chica{max-height:28vh}
+.vota .minis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.vota .minis img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;border:2px solid var(--ink);background:var(--lila-2);display:block}

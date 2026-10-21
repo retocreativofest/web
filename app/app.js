@@ -376,6 +376,10 @@ async function vistaHoy() {
       if (toqueNuevo()) api('toques_vistos', { sesion: E.sesion });   // se muestra una vez; luego desaparece
     }
   } else if (m.error === 'sesion') cerrarSesion(true);
+  if (r.votacion && r.votacion.estado === 'abierta') {   // para las miniaturas y saber si ya votó
+    const v = await api('votacion', { sesion: E.sesion });
+    if (v.ok) { E.votacion = v; if (estaEn === 'hoy') dibujarHoy(E.hoy); }
+  }
 }
 const STICKERS = [['img/sticker-1.webp', '¡Tú puedes!'], ['img/sticker-2.webp', '¡Qué dibujo!'], ['img/sticker-3.webp', '¡No la pierdas!']];
 const toqueNuevo = () => E.novedades && E.novedades.toques && E.novedades.toques.length ? E.novedades.toques[E.novedades.toques.length - 1] : null;
@@ -391,11 +395,18 @@ const yaSubio = () => !!(E.hoy && E.hoy.actual && E.semana && E.semana.id === se
 
 function dibujarHoy(h, error) {
   const nom = esc(nombreCorto());
+  const votando = !!(h && h.votacion && (h.votacion.estado === 'abierta' || h.votacion.estado === 'pronto'));
   let cuerpo;
   if (!h) {
     cuerpo = error
       ? `<div class="error" role="alert">${esc(error)}</div><button type="button" class="btn blanco" id="re">Intentar otra vez</button>`
       : '<div class="cargando" role="status"><span class="spin" aria-hidden="true"></span>Buscando el reto de la semana…</div>';
+  } else if (votando && !h.clubAnticipado) {
+    // Lunes 9:00 p. m. a martes 9:00 p. m.: la votación ocupa el lugar del reto (que ya cerró).
+    cuerpo = `
+      ${h.prueba ? '<div class="prueba">MODO PRUEBA · las fechas son de ejemplo</div>' : ''}
+      <div class="saludo"><img src="${imgGuia(E.guia)}" alt="" width="112" height="108"><div class="burbuja">${burbujaVoto(nom, h.votacion)}</div></div>
+      ${tarjetaVoto(h.votacion)}`;
   } else if (h.actual) {
     const a = h.actual, total = h.total || 1, pct = Math.max(4, Math.round((a.semana + 1) / total * 100));
     const premio = a.temporada === 'Fase II' ? 'diciembre' : 'julio';
@@ -403,6 +414,7 @@ function dibujarHoy(h, error) {
       ${h.prueba ? '<div class="prueba">MODO PRUEBA · las fechas son de ejemplo</div>' : ''}
       <div class="progreso"><div class="t"><span>${esc(a.temporada)} · semana ${a.semana} de ${total - 1}</span><span>Premiación: ${premio}</span></div><div class="b"><i style="width:${pct}%"></i></div></div>
       <div class="saludo">${toqueNuevo() ? `<img src="${(STICKERS[toqueNuevo().sticker] || STICKERS[0])[0]}" alt="Sticker de ${esc(toqueNuevo().nombre)}" width="112" height="112">` : `<img src="${imgGuia(E.guia)}" alt="${E.guia === 'tradi' ? 'Tradi' : 'Digi'} dibujando" width="112" height="108">`}<div class="burbuja">${burbujaHoy(nom, a)}</div></div>
+      ${tarjetaVoto(h.votacion)}
       <section class="reto" aria-labelledby="reto-h">
         <span class="pill">Reto de la semana ${a.semana}</span>${h.clubAnticipado ? '<span class="pill-club">★ Club: lo ves 24 h antes que todos</span>' : ''}
         <h2 id="reto-h">${esc(a.tema || 'Reto de la semana')}</h2>
@@ -419,6 +431,7 @@ function dibujarHoy(h, error) {
     const p = h.proximo;
     cuerpo = `
       <div class="saludo"><img src="${imgGuia(E.guia)}" alt="" width="112" height="108"><div class="burbuja">¡Hola${nom ? ', ' + nom : ''}! 👋 ${p ? 'Ya casi empieza el próximo reto.' : 'Por ahora no hay retos abiertos.'}</div></div>
+      ${tarjetaVoto(h.votacion)}
       <section class="reto espera" aria-labelledby="reto-h">
         <span class="pill">${p ? esc(p.temporada) + ' · semana ' + p.semana : 'En pausa'}</span>
         <h2 id="reto-h">${p ? 'El reto se revela el ' + fecha(p.publica) : 'Nos vemos en la próxima temporada'}</h2>
@@ -427,7 +440,7 @@ function dibujarHoy(h, error) {
         <a class="btn blanco chico" href="${CONFIG.padlet}" target="_blank" rel="noopener">VER EL PADLET</a>
       </section>`;
   }
-  conNav('hoy', cabecera('Hoy') + `<main class="cont con-nav">${h ? tarjetaVoto(h.votacion) : ''}${cuerpo}
+  conNav('hoy', cabecera('Hoy') + `<main class="cont con-nav">${cuerpo}
       <section class="prox" aria-label="Chispa del día"><span class="ico">${ICO.chispa}</span><div style="flex:1;min-width:0"><h3>Chispa del día</h3><span>${chispaHechaHoy() ? '✓ ¡Lista por hoy! Mañana sale otra.' : '¿Qué te tocará hoy?'}</span><small class="sem-ch">Chispas de esta semana: ${chispasDeLaSemana()} de 7 · no afecta tu racha</small></div><button type="button" class="btn ${chispaHechaHoy() ? 'blanco' : 'turquesa'} chico mini" data-ir="chispa">${chispaHechaHoy() ? '✓ Hecha<br><small>repetir</small>' : '¡Hacerla!<br><small>3 min</small>'}</button></section>
     </main>`, root => {
     on('#re', 'click', vistaHoy);
@@ -450,14 +463,26 @@ function dibujarHoy(h, error) {
 
 /* ---------- Votación (lunes 9:00 p. m. a martes 9:00 p. m.) ---------- */
 const nombreFin = f => esc(String(f.titulo || '').split(' · ')[0] || f.usuario);
+function burbujaVoto(nom, v) {
+  const hola = '¡Hola' + (nom ? ', ' + nom : '') + '! ', d = E.votacion && E.votacion.semana === v.semana ? E.votacion : null;
+  if (v.estado === 'pronto') return hola + `🗳️ El reto ya cerró. Las <b>5 finalistas</b> salen a las <b>${hora(v.abre)}</b>.`;
+  if (d && d.miVoto) return hola + '💜 ¡Gracias por votar! El podio sale el <b>' + DIAS[new Date(v.cierra).getDay()] + ' a las ' + hora(v.cierra) + '</b>.';
+  if (d && !d.puede) return hola + `🗳️ Ya salieron las <b>5 finalistas</b> de la semana ${v.semana}. Mira cómo va la votación.`;
+  return hola + `🗳️ Ya salieron las <b>5 finalistas</b> de la semana ${v.semana}. ¡Elige tu favorita!`;
+}
+function minisVoto(v) {
+  const d = E.votacion && E.votacion.semana === v.semana && E.votacion.finalistas;
+  return d && d.length ? `<div class="minis">${d.map(f => `<img src="${esc(f.img)}" alt="" loading="lazy">`).join('')}</div>` : '';
+}
 function tarjetaVoto(v) {
   if (!v) return '';
   const pill = `<span class="pill">${v.prueba ? 'PRUEBA · ' : ''}Votación · semana ${v.semana}</span>`;
   if (v.estado === 'pronto') return `<section class="vota">${pill}<h2>Las finalistas salen a las ${hora(v.abre)}</h2><p>Las 5 con más «Me gusta» pasan a la final. Luego deciden los participantes.</p></section>`;
   if (v.estado === 'abierta') return `<section class="vota">${pill}<h2>¿Cuál merece el 1.er lugar?</h2>
     <p>Las 5 con más «Me gusta» pasaron a la final. Ahora deciden los participantes.</p>
+    ${minisVoto(v)}
     <div class="tiempo"><span>Cierra en ${cuantoFalta(v.cierra)}</span></div>
-    <button type="button" class="btn amarillo" data-ir="votar">VOTAR AHORA</button></section>`;
+    <button type="button" class="btn amarillo" data-ir="votar">${E.votacion && E.votacion.semana === v.semana && (E.votacion.miVoto || !E.votacion.puede) ? 'VER LA VOTACIÓN' : 'VOTAR AHORA'}</button></section>`;
   return `<section class="prox"><span class="ico">🏆</span><div style="flex:1;min-width:0"><h3>Ya salió el podio de la semana ${v.semana}</h3><span>Mira quién ganó y cuántos votos tuvo cada finalista.</span></div><button type="button" class="btn turquesa chico mini" data-ir="votar">Ver</button></section>`;
 }
 
