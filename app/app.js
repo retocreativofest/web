@@ -491,7 +491,7 @@ function tarjetaVoto(v) {
     ${minisVoto(v)}
     <div class="tiempo"><span>Cierra en ${cuantoFalta(v.cierra)}</span></div>
     <button type="button" class="btn amarillo" data-ir="votar">${E.votacion && E.votacion.semana === v.semana && (E.votacion.miVoto || !E.votacion.puede) ? 'VER LA VOTACIÓN' : 'VOTAR AHORA'}</button></section>`;
-  return `<section class="prox"><span class="ico">🏆</span><div style="flex:1;min-width:0"><h3>Ya salió el podio de la semana ${v.semana}</h3><span>Mira quién ganó esta semana.</span></div><button type="button" class="btn turquesa chico mini" data-ir="votar">Ver</button></section>`;
+  return `<section class="prox"><span class="ico">🏆</span><div style="flex:1;min-width:0"><h3>¡Ya salió el podio!</h3><span>Semana&nbsp;${v.semana}: mira quién ganó.</span></div><button type="button" class="btn turquesa chico mini" data-ir="votar">Ver</button></section>`;
 }
 
 async function vistaVotar() {
