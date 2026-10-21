@@ -692,7 +692,7 @@ function vistaCelebracion(r) {
       <img src="${imgGuia(E.guia)}" alt="" width="170" height="164" style="animation:bob 2.6s ease-in-out infinite">
       <h1 style="margin:0;font-family:var(--display);font-size:28px">¡Dibujo publicado! 🎉</h1>
       <p style="margin:0;font-size:16px;line-height:1.45">Ya está en el Padlet, en la sección <b>Semana ${r.semana}</b>, con el título <b>${esc(r.titulo)}</b>.</p>
-      <div class="caja agua" style="text-align:left">Manda el enlace a tus amigos para que te den me gusta. Los 5 dibujos con más me gusta van a la votación del canal de WhatsApp.</div>
+      <div class="caja agua" style="text-align:left">Manda el enlace a tus amigos para que te den me gusta. Los 5 dibujos con más me gusta pasan a la final, y los participantes votan aquí en la app del lunes 9:00 p. m. al martes 9:00 p. m.</div>
       ${botonesCompartir(r.padlet || CONFIG.padlet)}
       ${avisosHtml(true)}
       <button type="button" class="btn blanco chico" id="hoy">Volver a Hoy</button>
