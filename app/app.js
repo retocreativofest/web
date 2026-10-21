@@ -80,6 +80,7 @@ const ERRORES = {
   padlet: 'El Padlet no recibió tu dibujo. Intenta otra vez en un minuto.',
   ya_subiste: 'Ya subiste tu dibujo de esta semana. ¡Solo se permite uno!',
   subiendo: 'Tu dibujo se está subiendo. Espera un minuto y revisa el Padlet.',
+  retirado: 'Los Guardianes retiraron tu dibujo de esta semana y ya no puedes subir otro. Te escribimos al correo con el motivo.',
   no_existe: 'No encontramos a nadie con ese usuario en la app. Pídele que se registre primero.',
   tu_mismo: 'Ese es tu propio usuario 😄',
   ya_amigos: 'Ya son amigos.',
