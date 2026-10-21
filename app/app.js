@@ -483,7 +483,7 @@ function tarjetaVoto(v) {
     ${minisVoto(v)}
     <div class="tiempo"><span>Cierra en ${cuantoFalta(v.cierra)}</span></div>
     <button type="button" class="btn amarillo" data-ir="votar">${E.votacion && E.votacion.semana === v.semana && (E.votacion.miVoto || !E.votacion.puede) ? 'VER LA VOTACIÓN' : 'VOTAR AHORA'}</button></section>`;
-  return `<section class="prox"><span class="ico">🏆</span><div style="flex:1;min-width:0"><h3>Ya salió el podio de la semana ${v.semana}</h3><span>Mira quién ganó y cuántos votos tuvo cada finalista.</span></div><button type="button" class="btn turquesa chico mini" data-ir="votar">Ver</button></section>`;
+  return `<section class="prox"><span class="ico">🏆</span><div style="flex:1;min-width:0"><h3>Ya salió el podio de la semana ${v.semana}</h3><span>Mira quién ganó esta semana.</span></div><button type="button" class="btn turquesa chico mini" data-ir="votar">Ver</button></section>`;
 }
 
 async function vistaVotar() {
@@ -504,7 +504,7 @@ function dibujarVotar(v, error) {
     const elegido = fins.find(f => f.id === v.miVoto);
     if (v.prueba) cuerpo += '<div class="prueba">VOTACIÓN DE PRUEBA</div>';
     if (abierta) {
-      cuerpo += `<div class="caja agua"><strong class="t">Semana ${v.semana} · cierra el ${fecha(v.cierra)} a las ${hora(v.cierra)}</strong>Toca un dibujo para verlo grande. Tienes <b>un solo voto</b> y no se puede cambiar.${v.enVivo ? ` Van <b>${v.total}</b> ${v.total === 1 ? 'voto' : 'votos'}.` : ''}</div>`;
+      cuerpo += `<div class="caja agua"><strong class="t">Semana ${v.semana} · cierra el ${fecha(v.cierra)} a las ${hora(v.cierra)}</strong>Toca un dibujo para verlo grande. Tienes <b>un solo voto</b> y no se puede cambiar.${v.total ? ` Van <b>${v.total}</b> ${v.total === 1 ? 'voto' : 'votos'} en total.` : ''} Los votos de cada dibujo no se muestran: al cierre solo se publican los del podio.</div>`;
       if (elegido) cuerpo += `<div class="caja crema" style="text-align:center">✓ Votaste por <b>${nombreFin(elegido)}</b>. El podio sale el ${fecha(v.cierra)} a las ${hora(v.cierra)}</div>`;
       else if (!v.puede) cuerpo += '<div class="caja rosa"><strong class="t">Para votar, participa primero</strong>Votan quienes ya subieron al menos un dibujo esta temporada. Sube tu dibujo de esta semana y la próxima votación es tuya.</div>';
     } else {
@@ -517,7 +517,7 @@ function dibujarVotar(v, error) {
     cuerpo += fins.map((f, i) => {
       const puedeVotar = abierta && v.puede && !v.miVoto && !f.mio;
       const etiqueta = f.mio ? '<span class="votar ok">Tu dibujo</span>' : f.id === v.miVoto ? '<span class="votar ok">✓ Tu voto</span>' : puedeVotar ? `<button type="button" class="votar" data-votar="${esc(f.id)}">VOTAR</button>` : '';
-      return `<div class="fin ${f.id === v.miVoto ? 'elegido' : ''}"><button type="button" class="art" data-ver="${i}" aria-label="Ver grande el dibujo de ${nombreFin(f)}"><img src="${esc(f.img)}" alt="" loading="lazy"><b>Finalista ${i + 1}</b><span class="mg">❤️ ${f.meGusta}${v.enVivo ? ' · 🗳️ ' + (f.votos || 0) : ''}</span></button>
+      return `<div class="fin ${f.id === v.miVoto ? 'elegido' : ''}"><button type="button" class="art" data-ver="${i}" aria-label="Ver grande el dibujo de ${nombreFin(f)}"><img src="${esc(f.img)}" alt="" loading="lazy"><b>Finalista ${i + 1}</b><span class="mg">❤️ ${f.meGusta}</span></button>
         <div class="pie"><div><strong>${nombreFin(f)}</strong><small>@${esc(f.usuario)}${f.tecnica ? ' · ' + esc(f.tecnica) : ''}</small></div>${etiqueta}</div></div>`;
     }).join('') || '<div class="caja crema">Todavía no hay finalistas. Si la votación ya abrió, intenta en unos minutos.</div>';
   }
@@ -531,7 +531,7 @@ function dibujarVotar(v, error) {
       const f = v.finalistas.find(x => x.id === b.dataset.votar);
       ventana(`<h2 id="v-h" tabindex="-1" style="margin:0;font-family:var(--display)">¿Votar por ${nombreFin(f)}?</h2>
         <img class="grande chica" src="${esc(f.img)}" alt="">
-        <p style="margin:0;font-size:14px">Nadie sabe por quién votaste, y el voto no se puede cambiar.</p>
+        <p style="margin:0;font-size:14px">Tu voto es secreto: nadie del público ve por quién votaste. No se puede cambiar.</p>
         <button type="button" class="btn amarillo" id="si">SÍ, VOTAR</button>`, (velo, cerrar) => {
         velo.querySelector('#si').addEventListener('click', async ev => {
           ev.currentTarget.disabled = true; ev.currentTarget.textContent = 'Votando…';
@@ -828,7 +828,7 @@ function vistaClub(error, escribiendo) {
         ${escribiendo ? `<form class="fila-ag" id="fc"><input id="cod-club" type="text" autocapitalize="characters" autocomplete="off" placeholder="Código" aria-label="Código del Club" style="border:3px solid var(--ink);border-radius:12px;padding:10px;font-size:16px;font-weight:700"><button type="submit" class="btn turquesa chico mini">Desbloquear</button></form>`
         : '<button type="button" class="enlace" id="ya" style="font-size:12px">Tengo un código del Club</button>'}`}
       ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}
-      <span class="nota">Participar es gratis siempre. El Club ve el reto 24 horas antes, y eso puede ayudar en el Relámpago creativo; las demás categorías son iguales para todos.</span>
+      <span class="nota">Participar es gratis siempre. El Club ve el reto 24 horas antes y puede publicar desde ese momento: tiene más tiempo para dibujar y sus «Me gusta» empiezan a sumar antes. Eso ayuda sobre todo en el Relámpago creativo.</span>
     </main>`, root => {
     on('#v', 'click', () => ir(E.volverA && E.volverA !== 'club' ? E.volverA : 'hoy'));
     on('#ya', 'click', () => vistaClub('', true));
