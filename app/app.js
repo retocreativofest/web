@@ -828,7 +828,7 @@ function vistaClub(error, escribiendo) {
         ${escribiendo ? `<form class="fila-ag" id="fc"><input id="cod-club" type="text" autocapitalize="characters" autocomplete="off" placeholder="Código" aria-label="Código del Club" style="border:3px solid var(--ink);border-radius:12px;padding:10px;font-size:16px;font-weight:700"><button type="submit" class="btn turquesa chico mini">Desbloquear</button></form>`
         : '<button type="button" class="enlace" id="ya" style="font-size:12px">Tengo un código del Club</button>'}`}
       ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}
-      <span class="nota">Participar y ganar premios es gratis siempre. El Club no da puntos.</span>
+      <span class="nota">Participar es gratis siempre. El Club ve el reto 24 horas antes, y eso puede ayudar en el Relámpago creativo; las demás categorías son iguales para todos.</span>
     </main>`, root => {
     on('#v', 'click', () => ir(E.volverA && E.volverA !== 'club' ? E.volverA : 'hoy'));
     on('#ya', 'click', () => vistaClub('', true));
