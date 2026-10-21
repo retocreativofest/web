@@ -243,13 +243,20 @@ function vistaPerfil(error) {
         <span class="ayuda">El de Instagram o TikTok. Con él te encuentran tus amigos y se cuentan tus puntos.</span>
       </label>
       <div class="muestra" aria-hidden="true"><i></i><span><b id="prev">Nombre · @usuario</b><small>Así se verá el título en el Padlet</small></span></div>
+      <div class="caja crema" id="cambio" role="note" hidden></div>
       ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}
       <span class="pasos" aria-label="Paso 1 de 2"><i class="on"></i><i></i></span>
       <button type="submit" class="btn">SIGUIENTE</button>
     </form>`, root => {
     const nom = root.querySelector('#nom'), usr = root.querySelector('#usr'), prev = root.querySelector('#prev');
     const norm = u => u.trim().replace(/^@+/, '').toLowerCase();
-    const act = () => { prev.textContent = (nom.value.trim().split(' ')[0] || 'Nombre') + ' · @' + (norm(usr.value) || 'usuario'); };
+    const antes = (E.perfil && E.perfil.usuario) || '', cambio = root.querySelector('#cambio');
+    const act = () => {
+      prev.textContent = (nom.value.trim().split(' ')[0] || 'Nombre') + ' · @' + (norm(usr.value) || 'usuario');
+      const nuevo = norm(usr.value), avisa = !!(antes && nuevo && nuevo !== antes);
+      cambio.hidden = !avisa;
+      if (avisa) cambio.innerHTML = `<strong class="t">Vas a cambiar @${esc(antes)} por @${esc(nuevo)}</strong>Tus puntos, tu racha y tus dibujos anteriores no se pierden: van con tu cuenta, no con tu usuario. Tus próximos dibujos salen con el usuario nuevo; los que ya están en el Padlet conservan el título anterior.`;
+    };
     nom.addEventListener('input', act); usr.addEventListener('input', act); act();
     on('#salir', 'click', cerrarSesion);
     on('#f', 'submit', ev => {
