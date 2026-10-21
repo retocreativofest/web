@@ -140,6 +140,8 @@ export function abrirChispa(ctx) {
   }
   function arriba() { if (!dibujando) return; dibujando = false; S.ops++; cuadro(); pintarAbajo(); }
   c.addEventListener('pointerdown', abajo); c.addEventListener('pointermove', mover);
+  ['touchstart', 'touchmove', 'touchend'].forEach(t => c.addEventListener(t, e => { if (e.cancelable) e.preventDefault(); }, { passive: false }));   // sin zoom ni lupa al dibujar
+  c.addEventListener('dblclick', e => e.preventDefault());
   c.addEventListener('pointerup', arriba); c.addEventListener('pointercancel', arriba); c.addEventListener('pointerleave', arriba);
 
   root.querySelectorAll('[data-tool]').forEach(b => b.addEventListener('click', () => {
