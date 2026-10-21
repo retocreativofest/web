@@ -36,20 +36,40 @@ function aviso(texto) {
   clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 3500);
 }
 
-async function api(accion, datos) {
-  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 25000);
+/* Pedidos al servidor. Si Google está saturado (mucha gente a la vez), reintenta solo hasta 3 veces
+   esperando cada vez más. Las acciones que solo leen también se reintentan si falla la conexión. */
+const API_LEER = ['hoy', 'perfil', 'mi_semana', 'ranking', 'amigos', 'club', 'votacion'];
+const espera = ms => new Promise(ok => setTimeout(ok, ms));
+async function apiUnaVez(accion, datos, intento) {
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), accion === 'subir' ? 60000 : 25000);
+  let r;
   try {
-    const r = await fetch(CONFIG.api, {
+    r = await fetch(CONFIG.api, {
       method: 'POST', credentials: 'omit', signal: ctl.signal,
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(Object.assign({ accion }, datos || {}))
+      body: JSON.stringify(Object.assign({ accion }, datos || {}, intento ? { reintento: intento } : {}))
     });
-    return await r.json();
   } catch (e) {
     return { ok: false, error: 'red' };
   } finally {
     clearTimeout(t);
   }
+  try { return await r.json(); }
+  catch (e) { return { ok: false, error: 'saturado' }; }   // Google respondió con una página de error: no llegó a correr
+}
+async function api(accion, datos) {
+  let r;
+  for (let i = 0; i <= 3; i++) {
+    if (i) {
+      if (i === 1 && API_LEER.indexOf(accion) < 0) aviso('Hay mucha gente conectada. Seguimos intentando…');
+      await espera(1500 * Math.pow(2, i - 1) + Math.random() * 1000);
+    }
+    r = await apiUnaVez(accion, datos, i);
+    const reintentar = r.error === 'ocupado' || r.error === 'saturado' || (r.error === 'red' && API_LEER.indexOf(accion) >= 0 && navigator.onLine !== false);
+    if (r.ok || !reintentar) break;
+  }
+  if (r.error === 'saturado') r.error = 'ocupado';
+  return r;
 }
 
 const ERRORES = {
@@ -597,13 +617,13 @@ async function comprimir(archivo) {
     const img = new Image();
     img.src = url;
     await img.decode();
-    const max = 2048, esc_ = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const max = 1600, esc_ = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
     const c = document.createElement('canvas');
     c.width = Math.round(img.naturalWidth * esc_); c.height = Math.round(img.naturalHeight * esc_);
     const x = c.getContext('2d');
     x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, c.width, c.height);   // fondo blanco para PNG transparentes
     x.drawImage(img, 0, 0, c.width, c.height);
-    let calidad = 0.86, blob;
+    let calidad = 0.84, blob;
     do {
       blob = await new Promise(ok => c.toBlob(ok, 'image/jpeg', calidad));
       calidad -= 0.12;
