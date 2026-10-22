@@ -106,6 +106,8 @@ legend{font-weight:700;font-size:14px;padding:0;margin-bottom:6px}
 .reto .tiempo{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-weight:700;font-size:13px}
 .reto .tiempo span:first-child{background:var(--ink);color:var(--white);border-radius:10px;padding:6px 10px;font-variant-numeric:tabular-nums}
 .reto.espera{background:var(--lila-2)}
+.reto.chispa-hero{background:var(--crema)}
+.reto .sem-ch{font-size:12px;font-weight:700;color:var(--muted)}
 .prox{background:var(--white);border:3px solid var(--ink);border-radius:18px;padding:12px 14px;display:flex;align-items:center;gap:12px}
 .prox .ico{width:44px;height:44px;flex:none;border-radius:14px;background:var(--crema);border:2px solid var(--ink);display:grid;place-items:center}
 .prox h3{margin:0;font-family:var(--display);font-size:15px}

@@ -456,20 +456,30 @@ function dibujarHoy(h, error) {
           : '<button type="button" class="enlace" data-ir="club" style="font-size:13px">🛡️ Con el Club Estrella tienes 2 protectores al mes para que tu racha no se apague</button>') : ''}
       </section>`;
   } else {
-    const p = h.proximo;
+    // Sin reto abierto (por ejemplo, del 1 al 22 de diciembre): la Chispa del día es lo principal y el reto dice «Próximamente».
+    const p = h.proximo, hecha = chispaHechaHoy();
     cuerpo = `
-      <div class="saludo"><img src="${imgGuia(E.guia)}" alt="" width="112" height="108"><div class="burbuja">¡Hola${nom ? ', ' + nom : ''}! 👋 ${p ? 'Ya casi empieza el próximo reto.' : 'Por ahora no hay retos abiertos.'}</div></div>
+      <div class="saludo"><img src="${imgGuia(E.guia)}" alt="" width="112" height="108"><div class="burbuja">¡Hola${nom ? ', ' + nom : ''}! ✨ ${hecha ? '¡Ya hiciste la chispa de hoy! Mañana sale otra.' : 'Mientras llega el reto, calienta la mano con la <b>Chispa del día</b>.'}</div></div>
       ${tarjetaVoto(h.votacion)}
+      <section class="reto chispa-hero" aria-labelledby="chispa-h">
+        <span class="pill">✨ Chispa del día</span>
+        <h2 id="chispa-h">${hecha ? '¡Lista por hoy!' : 'Un mini reto de 3 minutos'}</h2>
+        <p>${hecha ? 'Mañana sale una chispa nueva. Si quieres, puedes repetir la de hoy.' : 'Toca el botón y descubre qué te toca dibujar hoy. No suma puntos ni racha: es para practicar y divertirte.'}</p>
+        <small class="sem-ch">Chispas de esta semana: ${chispasDeLaSemana()} de 7</small>
+        <button type="button" class="btn ${hecha ? 'blanco' : 'turquesa'}" data-ir="chispa">${hecha ? 'REPETIR LA CHISPA' : '¡HACER LA CHISPA DE HOY!'}</button>
+      </section>
       <section class="reto espera" aria-labelledby="reto-h">
-        <span class="pill">${p ? esc(p.temporada) + ' · semana ' + p.semana : 'En pausa'}</span>
-        <h2 id="reto-h">${p ? 'El reto se revela el ' + fecha(p.publica) : 'Nos vemos en la próxima temporada'}</h2>
-        ${p ? `<div class="tiempo"><span id="cd">${cuenta(p.publica)}</span><span>a las ${hora(p.publica)}</span></div>` : ''}
-        <p>Mientras tanto, revisa los dibujos de la comunidad en el Padlet.</p>
-        <a class="btn blanco chico" href="${CONFIG.padlet}" target="_blank" rel="noopener">VER EL PADLET</a>
+        <span class="pill">Reto de la semana${p ? ' · ' + esc(p.temporada) : ''}</span>
+        <h2 id="reto-h">Próximamente</h2>
+        ${p ? `<p>Disponible a partir del <b>${fecha(p.publica)}</b> a las <b>${hora(p.publica)}</b></p>
+        <div class="tiempo"><span id="cd">${cuenta(p.publica)}</span><span>para el próximo reto</span></div>
+        ${p.club ? `<p class="nota izq">★ El Club Estrella lo recibe el ${fecha(p.club)} a las ${hora(p.club)}</p>` : ''}` : '<p>Pronto anunciamos la fecha de la próxima temporada.</p>'}
+        <a class="enlace" href="${CONFIG.padlet}" target="_blank" rel="noopener" style="align-self:flex-start;font-size:13px">Mientras tanto, mira los dibujos de la comunidad en el Padlet ↗</a>
       </section>`;
   }
+  const chispaAbajo = !h || !!(h.actual || votando);
   conNav('hoy', cabecera('Hoy') + `<main class="cont con-nav">${cuerpo}
-      <section class="prox" aria-label="Chispa del día"><span class="ico">${ICO.chispa}</span><div style="flex:1;min-width:0"><h3>Chispa del día</h3><span>${chispaHechaHoy() ? '✓ ¡Lista por hoy! Mañana sale otra.' : '¿Qué te tocará hoy?'}</span><small class="sem-ch">Chispas de esta semana: ${chispasDeLaSemana()} de 7 · no afecta tu racha</small></div><button type="button" class="btn ${chispaHechaHoy() ? 'blanco' : 'turquesa'} chico mini" data-ir="chispa">${chispaHechaHoy() ? '✓ Hecha<br><small>repetir</small>' : '¡Hacerla!<br><small>3 min</small>'}</button></section>
+      ${chispaAbajo ? `<section class="prox" aria-label="Chispa del día"><span class="ico">${ICO.chispa}</span><div style="flex:1;min-width:0"><h3>Chispa del día</h3><span>${chispaHechaHoy() ? '✓ ¡Lista por hoy! Mañana sale otra.' : '¿Qué te tocará hoy?'}</span><small class="sem-ch">Chispas de esta semana: ${chispasDeLaSemana()} de 7 · no afecta tu racha</small></div><button type="button" class="btn ${chispaHechaHoy() ? 'blanco' : 'turquesa'} chico mini" data-ir="chispa">${chispaHechaHoy() ? '✓ Hecha<br><small>repetir</small>' : '¡Hacerla!<br><small>3 min</small>'}</button></section>` : ''}
     </main>`, root => {
     on('#re', 'click', vistaHoy);
     on('#subir', 'click', () => ir('subir'));
