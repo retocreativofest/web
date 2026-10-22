@@ -216,6 +216,36 @@ export function abrirChispa(ctx) {
     l.innerHTML = `🎄 El marco <b>Navidad</b> se gana haciendo ${ADVIENTO.meta} chispas del Adviento${a ? ' (llevas ' + a.hechas.length + ')' : ''}.`;
     l.hidden = false; clearTimeout(bloqueoT); bloqueoT = setTimeout(() => { l.hidden = true; }, 3500);
   }
+  /* Marco Navidad: estrellitas (como la del logo), copos de nieve y el sello del Adviento. Todo dibujado con código. */
+  function adornosNavidad(y, ancho) {
+    const estrella = (cx, cy, r) => {
+      const k = r * 0.3; y.beginPath();
+      [[0, -r], [k, -k], [r, 0], [k, k], [0, r], [-k, k], [-r, 0], [-k, -k]].forEach((p, i) => i ? y.lineTo(cx + p[0], cy + p[1]) : y.moveTo(cx + p[0], cy + p[1]));
+      y.closePath(); y.fillStyle = '#FFD60A'; y.fill(); y.lineWidth = 2.5; y.strokeStyle = '#0B0B0F'; y.stroke();
+    };
+    const copo = (cx, cy, r) => {
+      y.save(); y.translate(cx, cy); y.strokeStyle = '#FFFFFF'; y.lineWidth = 3; y.lineCap = 'round';
+      for (let i = 0; i < 6; i++) {
+        y.rotate(Math.PI / 3); y.beginPath();
+        y.moveTo(0, 0); y.lineTo(0, -r);
+        y.moveTo(0, -r * 0.55); y.lineTo(-r * 0.28, -r * 0.8); y.moveTo(0, -r * 0.55); y.lineTo(r * 0.28, -r * 0.8);
+        y.stroke();
+      }
+      y.restore();
+    };
+    // En los bordes verdes y abajo, alrededor del texto (sin tapar el dibujo).
+    [[19, 120, 13], [ancho - 19, 330, 15], [19, 470, 12], [ancho - 19, 640, 13], [70, 790, 18], [ancho - 150, 880, 14], [150, 884, 11]].forEach(e => estrella(e[0], e[1], e[2]));
+    [[ancho - 19, 200, 13], [19, 300, 14], [ancho - 19, 500, 12], [19, 640, 14], [ancho - 70, 800, 17], [28, 872, 11], [ancho - 28, 872, 11]].forEach(e => copo(e[0], e[1], e[2]));
+    // Sello del Adviento, como medalla en la esquina de arriba a la derecha.
+    y.save(); y.translate(ancho - 96, 92); y.rotate(0.21);
+    y.beginPath(); y.arc(0, 0, 74, 0, Math.PI * 2); y.fillStyle = '#D62839'; y.fill(); y.lineWidth = 5; y.strokeStyle = '#0B0B0F'; y.stroke();
+    y.setLineDash([6, 6]); y.beginPath(); y.arc(0, 0, 62, 0, Math.PI * 2); y.lineWidth = 2.5; y.strokeStyle = '#FFFFFF'; y.stroke(); y.setLineDash([]);
+    y.textAlign = 'center'; y.fillStyle = '#FFFFFF';
+    y.font = '800 19px Poppins, sans-serif'; y.fillText('ADVIENTO', 0, -14);
+    y.font = '700 15px Quicksand, sans-serif'; y.fillText('de Chispas', 0, 6);
+    y.fillStyle = '#FFD60A'; y.font = '800 26px Poppins, sans-serif'; y.fillText(ADVIENTO.desde.slice(0, 4), 0, 36);
+    y.restore();
+  }
   function conMarco() {
     const m = MARCOS.find(f => f[0] === S.marco) || MARCOS[0];
     const o = document.createElement('canvas'); o.width = ANCHO + 80; o.height = ALTO + 200;
@@ -223,6 +253,7 @@ export function abrirChispa(ctx) {
     y.fillStyle = m[2]; y.fillRect(0, 0, o.width, o.height);
     y.fillStyle = '#0B0B0F'; y.fillRect(34, 34, ANCHO + 12, ALTO + 12);
     y.drawImage(c, 40, 40);
+    if (m[0] === 'navidad') adornosNavidad(y, o.width);
     y.textAlign = 'center';
     y.fillStyle = m[4]; y.font = '800 40px Poppins, sans-serif'; y.fillText('#RetoMenteMilenial', o.width / 2, ALTO + 112);
     const adv = adviento();
