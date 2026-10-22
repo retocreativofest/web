@@ -107,6 +107,12 @@ legend{font-weight:700;font-size:14px;padding:0;margin-bottom:6px}
 .reto .tiempo span:first-child{background:var(--ink);color:var(--white);border-radius:10px;padding:6px 10px;font-variant-numeric:tabular-nums}
 .reto.espera{background:var(--lila-2)}
 .reto.chispa-hero{background:var(--crema)}
+.reto.chispa-hero.adviento{background:#DDF3E3}
+.adv-cal{list-style:none;margin:2px 0 0;padding:0;display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:5px}
+.adv-cal li{aspect-ratio:1;display:grid;place-items:center;border:2px solid var(--ink);border-radius:8px;background:var(--white);font:800 12px var(--display);font-variant-numeric:tabular-nums}
+.adv-cal li.hecho{background:#1E7A3A;color:#fff}
+.adv-cal li.hoy{background:var(--amarillo);border-width:3px}
+.adv-cal li.paso{opacity:.45}
 .reto .sem-ch{font-size:12px;font-weight:700;color:var(--muted)}
 .prox{background:var(--white);border:3px solid var(--ink);border-radius:18px;padding:12px 14px;display:flex;align-items:center;gap:12px}
 .prox .ico{width:44px;height:44px;flex:none;border-radius:14px;background:var(--crema);border:2px solid var(--ink);display:grid;place-items:center}

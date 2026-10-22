@@ -1,5 +1,5 @@
 /* #RetoMenteMilenial · app: entrar, registro, Hoy, subir al Padlet, rachas, ranking, amigos, Chispa del día y Club Estrella */
-import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy } from './chispa.js?v=4';
+import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento } from './chispa.js?v=5';
 const CONFIG = {
   api: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
@@ -419,6 +419,19 @@ function burbujaHoy(nom, a) {
   return hola + `👋 El reto cierra en <b>${cuantoFalta(a.cierre)}</b>.`;
 }
 const semanaId = a => a.temporada + '|' + a.semana;
+/* Calendario del Adviento de Chispas: un cuadrito por día; ✓ hecho, borde grueso hoy. */
+function calendarioAdviento(adv) {
+  const hechos = {}; adv.hechas.forEach(d => { hechos[d] = true; });
+  const base = Date.parse(adv.desde);
+  const dias = Array.from({ length: adv.total }, (_, i) => {
+    const iso = new Date(base + i * 864e5).toISOString().slice(0, 10), n = i + 1;
+    const estado = hechos[iso] ? 'hecho' : n === adv.dia ? 'hoy' : n < adv.dia ? 'paso' : '';
+    return `<li class="${estado}" aria-label="Día ${n}${hechos[iso] ? ', hecho' : n === adv.dia ? ', hoy' : ''}">${hechos[iso] ? '✓' : n}</li>`;
+  }).join('');
+  const faltan = Math.max(0, adv.meta - adv.hechas.length);
+  return `<ol class="adv-cal" aria-label="Adviento de Chispas">${dias}</ol>
+    <small class="sem-ch">${adv.marco ? '🎄 ¡Ganaste el marco Navidad para tus chispas!' : 'Llevas ' + adv.hechas.length + ' de ' + adv.total + ' · con ' + adv.meta + ' ganas el marco Navidad' + (faltan ? ' (te faltan ' + faltan + ')' : '')}</small>`;
+}
 const yaSubio = () => !!(E.hoy && E.hoy.actual && E.semana && E.semana.id === semanaId(E.hoy.actual) && E.semana.subido);
 
 function dibujarHoy(h, error) {
@@ -457,15 +470,15 @@ function dibujarHoy(h, error) {
       </section>`;
   } else {
     // Sin reto abierto (por ejemplo, del 1 al 22 de diciembre): la Chispa del día es lo principal y el reto dice «Próximamente».
-    const p = h.proximo, hecha = chispaHechaHoy();
+    const p = h.proximo, hecha = chispaHechaHoy(), adv = adviento();
     cuerpo = `
-      <div class="saludo"><img src="${imgGuia(E.guia)}" alt="" width="112" height="108"><div class="burbuja">¡Hola${nom ? ', ' + nom : ''}! ✨ ${hecha ? '¡Ya hiciste la chispa de hoy! Mañana sale otra.' : 'Mientras llega el reto, calienta la mano con la <b>Chispa del día</b>.'}</div></div>
+      <div class="saludo"><img src="${imgGuia(E.guia)}" alt="" width="112" height="108"><div class="burbuja">¡Hola${nom ? ', ' + nom : ''}! ✨ ${hecha ? '¡Ya hiciste la chispa de hoy! Mañana sale otra.' : (adv ? 'Mientras llega el reto, calienta la mano con el <b>Adviento de Chispas</b> 🎄' : 'Mientras llega el reto, calienta la mano con la <b>Chispa del día</b>.')}</div></div>
       ${tarjetaVoto(h.votacion)}
-      <section class="reto chispa-hero" aria-labelledby="chispa-h">
-        <span class="pill">✨ Chispa del día</span>
-        <h2 id="chispa-h">${hecha ? '¡Lista por hoy!' : 'Un mini reto de 3 minutos'}</h2>
-        <p>${hecha ? 'Mañana sale una chispa nueva. Si quieres, puedes repetir la de hoy.' : 'Toca el botón y descubre qué te toca dibujar hoy. No suma puntos ni racha: es para practicar y divertirte.'}</p>
-        <small class="sem-ch">Chispas de esta semana: ${chispasDeLaSemana()} de 7</small>
+      <section class="reto chispa-hero${adv ? ' adviento' : ''}" aria-labelledby="chispa-h">
+        <span class="pill">${adv ? '🎄 Adviento de Chispas' : '✨ Chispa del día'}</span>
+        <h2 id="chispa-h">${hecha ? '¡Lista por hoy!' : adv ? 'Día ' + adv.dia + ' de ' + adv.total : 'Un mini reto de 3 minutos'}</h2>
+        <p>${hecha ? 'Mañana sale una chispa nueva. Si quieres, puedes repetir la de hoy.' : adv ? 'Cada día hasta el ' + adv.total + ' de diciembre, un mini dibujo navideño de 3 minutos. Toca el botón y descubre el de hoy.' : 'Toca el botón y descubre qué te toca dibujar hoy. No suma puntos ni racha: es para practicar y divertirte.'}</p>
+        ${adv ? calendarioAdviento(adv) : `<small class="sem-ch">Chispas de esta semana: ${chispasDeLaSemana()} de 7</small>`}
         <button type="button" class="btn ${hecha ? 'blanco' : 'turquesa'}" data-ir="chispa">${hecha ? 'REPETIR LA CHISPA' : '¡HACER LA CHISPA DE HOY!'}</button>
       </section>
       <section class="reto espera" aria-labelledby="reto-h">
@@ -479,7 +492,7 @@ function dibujarHoy(h, error) {
   }
   const chispaAbajo = !h || !!(h.actual || votando);
   conNav('hoy', cabecera('Hoy') + `<main class="cont con-nav">${cuerpo}
-      ${chispaAbajo ? `<section class="prox" aria-label="Chispa del día"><span class="ico">${ICO.chispa}</span><div style="flex:1;min-width:0"><h3>Chispa del día</h3><span>${chispaHechaHoy() ? '✓ ¡Lista por hoy! Mañana sale otra.' : '¿Qué te tocará hoy?'}</span><small class="sem-ch">Chispas de esta semana: ${chispasDeLaSemana()} de 7 · no afecta tu racha</small></div><button type="button" class="btn ${chispaHechaHoy() ? 'blanco' : 'turquesa'} chico mini" data-ir="chispa">${chispaHechaHoy() ? '✓ Hecha<br><small>repetir</small>' : '¡Hacerla!<br><small>3 min</small>'}</button></section>` : ''}
+      ${chispaAbajo ? `<section class="prox" aria-label="Chispa del día"><span class="ico">${ICO.chispa}</span><div style="flex:1;min-width:0"><h3>${adviento() ? '🎄 Adviento de Chispas · día ' + adviento().dia : 'Chispa del día'}</h3><span>${chispaHechaHoy() ? '✓ ¡Lista por hoy! Mañana sale otra.' : '¿Qué te tocará hoy?'}</span><small class="sem-ch">Chispas de esta semana: ${chispasDeLaSemana()} de 7 · no afecta tu racha</small></div><button type="button" class="btn ${chispaHechaHoy() ? 'blanco' : 'turquesa'} chico mini" data-ir="chispa">${chispaHechaHoy() ? '✓ Hecha<br><small>repetir</small>' : '¡Hacerla!<br><small>3 min</small>'}</button></section>` : ''}
     </main>`, root => {
     on('#re', 'click', vistaHoy);
     on('#subir', 'click', () => ir('subir'));

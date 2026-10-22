@@ -12,15 +12,40 @@ const GAMAS = [['Rojo', '#FF5A5A', '#B30000'], ['Naranja', '#FFB04D', '#E06A00']
   ['Marrón', '#C68B59', '#6B3E1E'], ['Piel', '#F6D3B3', '#A86B3C'], ['Negro', '#FFFFFF', '#000000'], ['Gris', '#C8C8C8', '#6E6E6E']];
 const PALETA = GAMAS.map(g => [g[0] === 'Negro' ? 'Blanco' : g[0] + ' claro', g[1]]).concat(GAMAS.map(g => [g[0] === 'Negro' ? 'Negro' : g[0] + ' oscuro', g[2]]));
 const SIZES = [['Fino', 6, 20], ['Mediano', 12, 36], ['Grueso', 26, 64]];
-const MARCOS = [['clasico', 'Clásico', '#6B3FA0', '#FFFFFF', '#FFD60A', false], ['sol', 'Sol', '#FFD60A', '#0B0B0F', '#F0479B', true], ['mar', 'Mar', '#84D7DF', '#0B0B0F', '#6B3FA0', true]];
+const MARCOS = [['clasico', 'Clásico', '#6B3FA0', '#FFFFFF', '#FFD60A', false], ['sol', 'Sol', '#FFD60A', '#0B0B0F', '#F0479B', true], ['mar', 'Mar', '#84D7DF', '#0B0B0F', '#6B3FA0', true],
+  ['navidad', 'Navidad', '#1E7A3A', '#FFFFFF', '#FFD60A', 'adviento']];   // se gana con 15 chispas del Adviento
+
+/* Adviento de Chispas: del 1 al 22 de diciembre, una chispa navideña por día (mientras llega la 3.ª temporada).
+   Misma regla del banco: cantidad + cosa + color. Con 15 de 22 se gana el marco Navidad (para siempre, en ese teléfono). */
+const ADVIENTO = { desde: '2026-12-01', hasta: '2026-12-22', meta: 15, lista: [
+  '1 árbol de Navidad azul', '3 bolas de Navidad moradas', '2 hallacas verdes', '1 pan de jamón marrón', '3 estrellas amarillas',
+  '2 renos rosados', '1 muñeco de nieve naranja', '3 regalos rojos', '2 gorros navideños verdes', '1 campana morada', '3 velas azules',
+  '2 galletas marrones', '1 trineo amarillo', '2 medias navideñas azules', '3 bastones de caramelo verdes', '1 corona navideña rosada',
+  '2 tambores rojos', '1 cuatro venezolano marrón', '2 maracas moradas', '1 taza de chocolate rosada', '3 luces de Navidad naranja', '2 ángeles azules'] };
 const LIMITE = 180, ANCHO = 648, ALTO = 700;
 
 const leerLS = k => { try { return JSON.parse(localStorage.getItem('rcf.' + k)); } catch (e) { return null; } };
 const guardarLS = (k, v) => { try { localStorage.setItem('rcf.' + k, JSON.stringify(v)); } catch (e) {} };
 export function diaCaracas(d) { return new Date((d || new Date()).getTime() - 4 * 36e5).toISOString().slice(0, 10); }
+export function adviento(dia) {
+  dia = dia || diaCaracas();
+  if (dia < ADVIENTO.desde || dia > ADVIENTO.hasta) return null;
+  const n = Math.round((Date.parse(dia) - Date.parse(ADVIENTO.desde)) / 864e5);
+  const hechas = (leerLS('chispas') || []).filter(d => d >= ADVIENTO.desde && d <= ADVIENTO.hasta);
+  return { dia: n + 1, total: ADVIENTO.lista.length, meta: ADVIENTO.meta, hechas: hechas, hoyHecha: hechas.indexOf(dia) >= 0, chispa: ADVIENTO.lista[n],
+           desde: ADVIENTO.desde, marco: navidadGanada() };
+}
+export function navidadGanada() {
+  if (leerLS('marcoNavidad')) return true;
+  const n = (leerLS('chispas') || []).filter(d => d >= ADVIENTO.desde && d <= ADVIENTO.hasta).length;
+  if (n >= ADVIENTO.meta) { guardarLS('marcoNavidad', true); return true; }
+  return false;
+}
 export function chispaDeHoy() {
   const dia = diaCaracas(), guardada = leerLS('chispa.' + dia);
   if (guardada && guardada.chispa) return guardada;
+  const adv = adviento(dia);
+  if (adv) return { chispa: adv.chispa, cambiada: false };
   const n = Math.floor((Date.parse(dia) - Date.parse('2026-01-01')) / 864e5);
   return { chispa: POOL[((n % POOL.length) + POOL.length) % POOL.length], cambiada: false };
 }
@@ -33,7 +58,7 @@ export function chispasDeLaSemana() {   // cuántas hiciste desde el lunes
 export function chispaHechaHoy() { return (leerLS('chispas') || []).indexOf(diaCaracas()) >= 0; }
 function marcarHecha() {
   const dia = diaCaracas(), hechas = (leerLS('chispas') || []).filter(d => d !== dia);
-  hechas.push(dia); guardarLS('chispas', hechas.slice(-21));
+  hechas.push(dia); guardarLS('chispas', hechas.slice(-60)); navidadGanada();
 }
 const hexRgb = h => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
 
@@ -52,7 +77,7 @@ export function abrirChispa(ctx) {
       <span class="reloj-ch" id="ch-reloj" role="timer" aria-live="off">3:00</span>
     </header>
     <main class="cont ch">
-      <div class="ch-tit"><span class="pill-ch">TU CHISPA DE HOY ES…</span><h2 id="ch-t">Dibuja ${esc(S.chispa)}</h2></div>
+      <div class="ch-tit"><span class="pill-ch">${adviento() ? '🎄 ADVIENTO · DÍA ' + adviento().dia + ' DE ' + adviento().total + ' · TU CHISPA ES…' : 'TU CHISPA DE HOY ES…'}</span><h2 id="ch-t">Dibuja ${esc(S.chispa)}</h2></div>
       <div class="lienzo"><canvas id="ch-c" width="${ANCHO}" height="${ALTO}" aria-label="Lienzo para dibujar"></canvas><div class="ch-empezar" id="ch-emp">Toca el lienzo para empezar ✏️</div></div>
       <div class="ch-tools" id="ch-tools">
         <button type="button" class="tool" data-tool="pincel" aria-pressed="true">🖌️ Pincel</button>
@@ -184,6 +209,13 @@ export function abrirChispa(ctx) {
   });
   $('#ch-v').addEventListener('click', () => { parar(); ctx.volver(); });
 
+  function marcoAbierto(m) { return m[5] === 'adviento' ? navidadGanada() : !m[5] || club; }
+  function marcoVisible(m) { return m[5] !== 'adviento' || navidadGanada() || !!adviento(); }
+  function bloqueadoNavidad() {
+    const l = $('#ch-lock'), a = adviento();
+    l.innerHTML = `🎄 El marco <b>Navidad</b> se gana haciendo ${ADVIENTO.meta} chispas del Adviento${a ? ' (llevas ' + a.hechas.length + ')' : ''}.`;
+    l.hidden = false; clearTimeout(bloqueoT); bloqueoT = setTimeout(() => { l.hidden = true; }, 3500);
+  }
   function conMarco() {
     const m = MARCOS.find(f => f[0] === S.marco) || MARCOS[0];
     const o = document.createElement('canvas'); o.width = ANCHO + 80; o.height = ALTO + 200;
@@ -193,7 +225,11 @@ export function abrirChispa(ctx) {
     y.drawImage(c, 40, 40);
     y.textAlign = 'center';
     y.fillStyle = m[4]; y.font = '800 40px Poppins, sans-serif'; y.fillText('#RetoMenteMilenial', o.width / 2, ALTO + 112);
-    y.fillStyle = m[3]; y.font = '700 30px Quicksand, sans-serif'; y.fillText('Chispa del día: ' + S.chispa, o.width / 2, ALTO + 156);
+    const adv = adviento();
+    const linea = (adv ? 'Adviento de Chispas · día ' + adv.dia + ': ' : 'Chispa del día: ') + S.chispa;
+    let fs = 30; y.font = '700 ' + fs + 'px Quicksand, sans-serif';
+    while (y.measureText(linea).width > o.width - 48 && fs > 16) { fs -= 2; y.font = '700 ' + fs + 'px Quicksand, sans-serif'; }
+    y.fillStyle = m[3]; y.fillText(linea, o.width / 2, ALTO + 156);
     y.font = '700 22px Quicksand, sans-serif'; y.fillText('Reto Creativo Fest', o.width / 2, ALTO + 188);
     return o;
   }
@@ -239,8 +275,9 @@ export function abrirChispa(ctx) {
       if (ca) ca.addEventListener('click', () => {
         if (S.cambiada) return;
         if (!club) return bloqueado('Cambiar la chispa');
-        let n = Math.floor(Math.random() * POOL.length); if (POOL[n] === S.chispa) n = (n + 1) % POOL.length;
-        S.chispa = POOL[n]; S.cambiada = true; guardarLS('chispa.' + diaCaracas(), { chispa: S.chispa, cambiada: true });
+        const banco = adviento() ? ADVIENTO.lista : POOL;
+        let n = Math.floor(Math.random() * banco.length); if (banco[n] === S.chispa) n = (n + 1) % banco.length;
+        S.chispa = banco[n]; S.cambiada = true; guardarLS('chispa.' + diaCaracas(), { chispa: S.chispa, cambiada: true });
         sortear(S.chispa);
       });
       return;
@@ -253,13 +290,14 @@ export function abrirChispa(ctx) {
     ab.innerHTML = `
       <div class="caja agua" style="text-align:center">${S.video ? '🎬 Grabando el video acelerado…' : S.quedan === 0 ? '⏰ ¡Se acabó el tiempo! Tu chispa quedó así.' : '🎉 ¡Chispa terminada!'}</div>
       <div class="fila-t"><strong>Marco</strong><span>Para guardarla o compartirla</span></div>
-      <div class="marcos">${MARCOS.map(m => `<button type="button" class="marco" data-marco="${m[0]}" aria-pressed="${S.marco === m[0]}" style="background:${m[2]};color:${m[3]}">${m[1]}${m[5] && !club ? ' 🔒' : ''}</button>`).join('')}</div>
+      <div class="marcos">${MARCOS.filter(marcoVisible).map(m => `<button type="button" class="marco" data-marco="${m[0]}" aria-pressed="${S.marco === m[0]}" style="background:${m[2]};color:${m[3]}">${m[1]}${marcoAbierto(m) ? '' : ' 🔒'}</button>`).join('')}</div>
       <button type="button" class="btn amarillo" id="ch-desc">⬇ GUARDAR O COMPARTIR</button>
       <button type="button" class="btn blanco chico" id="ch-video" ${S.video ? 'disabled' : ''}>🎬 Video acelerado${candado}</button>
       <button type="button" class="enlace" id="ch-salir">Volver a Hoy · mañana hay otra chispa</button>`;
     root.querySelectorAll('[data-marco]').forEach(b => b.addEventListener('click', () => {
       const m = MARCOS.find(f => f[0] === b.dataset.marco);
-      if (m[5] && !club) return bloqueado('El marco ' + m[1]);
+      if (m[5] === 'adviento' && !marcoAbierto(m)) return bloqueadoNavidad();
+      if (!marcoAbierto(m)) return bloqueado('El marco ' + m[1]);
       S.marco = m[0]; pintarAbajo();
     }));
     $('#ch-desc').addEventListener('click', compartirOdescargar);
