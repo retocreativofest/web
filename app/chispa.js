@@ -233,17 +233,20 @@ export function abrirChispa(ctx) {
       }
       y.restore();
     };
-    // En los bordes verdes y abajo, alrededor del texto (sin tapar el dibujo).
-    [[19, 120, 13], [ancho - 19, 330, 15], [19, 470, 12], [ancho - 19, 640, 13], [70, 790, 18], [ancho - 150, 880, 14], [150, 884, 11]].forEach(e => estrella(e[0], e[1], e[2]));
-    [[ancho - 19, 200, 13], [19, 300, 14], [ancho - 19, 500, 12], [19, 640, 14], [ancho - 70, 800, 17], [28, 872, 11], [ancho - 28, 872, 11]].forEach(e => copo(e[0], e[1], e[2]));
-    // Sello del Adviento, como medalla en la esquina de arriba a la derecha.
-    y.save(); y.translate(ancho - 96, 92); y.rotate(0.21);
-    y.beginPath(); y.arc(0, 0, 74, 0, Math.PI * 2); y.fillStyle = '#D62839'; y.fill(); y.lineWidth = 5; y.strokeStyle = '#0B0B0F'; y.stroke();
-    y.setLineDash([6, 6]); y.beginPath(); y.arc(0, 0, 62, 0, Math.PI * 2); y.lineWidth = 2.5; y.strokeStyle = '#FFFFFF'; y.stroke(); y.setLineDash([]);
+    // Solo en los bordes verdes de los lados: nada tapa el dibujo ni el texto.
+    [[19, 120, 13], [ancho - 19, 330, 15], [19, 470, 12], [ancho - 19, 640, 13]].forEach(e => estrella(e[0], e[1], e[2]));
+    [[ancho - 19, 160, 13], [19, 300, 14], [ancho - 19, 500, 12], [19, 640, 14]].forEach(e => copo(e[0], e[1], e[2]));
+  }
+  /* Sello del Adviento (medalla roja). */
+  function selloAdviento(y, cx, cy, r) {
+    const k = r / 74;
+    y.save(); y.translate(cx, cy); y.rotate(-0.14);
+    y.beginPath(); y.arc(0, 0, r, 0, Math.PI * 2); y.fillStyle = '#D62839'; y.fill(); y.lineWidth = 5 * k; y.strokeStyle = '#0B0B0F'; y.stroke();
+    y.setLineDash([6 * k, 6 * k]); y.beginPath(); y.arc(0, 0, r - 12 * k, 0, Math.PI * 2); y.lineWidth = 2.5 * k; y.strokeStyle = '#FFFFFF'; y.stroke(); y.setLineDash([]);
     y.textAlign = 'center'; y.fillStyle = '#FFFFFF';
-    y.font = '800 19px Poppins, sans-serif'; y.fillText('ADVIENTO', 0, -14);
-    y.font = '700 15px Quicksand, sans-serif'; y.fillText('de Chispas', 0, 6);
-    y.fillStyle = '#FFD60A'; y.font = '800 26px Poppins, sans-serif'; y.fillText(ADVIENTO.desde.slice(0, 4), 0, 36);
+    y.font = '800 ' + Math.round(19 * k) + 'px Poppins, sans-serif'; y.fillText('ADVIENTO', 0, -14 * k);
+    y.font = '700 ' + Math.round(15 * k) + 'px Quicksand, sans-serif'; y.fillText('de Chispas', 0, 6 * k);
+    y.fillStyle = '#FFD60A'; y.font = '800 ' + Math.round(26 * k) + 'px Poppins, sans-serif'; y.fillText(ADVIENTO.desde.slice(0, 4), 0, 36 * k);
     y.restore();
   }
   function conMarco() {
@@ -253,7 +256,18 @@ export function abrirChispa(ctx) {
     y.fillStyle = m[2]; y.fillRect(0, 0, o.width, o.height);
     y.fillStyle = '#0B0B0F'; y.fillRect(34, 34, ANCHO + 12, ALTO + 12);
     y.drawImage(c, 40, 40);
-    if (m[0] === 'navidad') adornosNavidad(y, o.width);
+    if (m[0] === 'navidad') {   // abajo: el sello a la izquierda y el texto alineado a su lado
+      adornosNavidad(y, o.width);
+      const adv = adviento(), base = ALTO + 46, x0 = 192, maxW = o.width - x0 - 40;
+      selloAdviento(y, 104, base + 78, 62);
+      const ajustar = (txt, peso, fs, fam) => { y.font = peso + ' ' + fs + 'px ' + fam; while (y.measureText(txt).width > maxW && fs > 14) { fs -= 2; y.font = peso + ' ' + fs + 'px ' + fam; } };
+      y.textAlign = 'left';
+      ajustar('#RetoMenteMilenial', '800', 40, 'Poppins, sans-serif'); y.fillStyle = m[4]; y.fillText('#RetoMenteMilenial', x0, base + 56);
+      const t = adv ? 'Día ' + adv.dia + ' · ' + S.chispa : 'Chispa del día: ' + S.chispa;
+      ajustar(t, '700', 28, 'Quicksand, sans-serif'); y.fillStyle = m[3]; y.fillText(t, x0, base + 98);
+      y.font = '700 21px Quicksand, sans-serif'; y.fillStyle = '#CDEBD5'; y.fillText('Reto Creativo Fest', x0, base + 132);
+      return o;
+    }
     y.textAlign = 'center';
     y.fillStyle = m[4]; y.font = '800 40px Poppins, sans-serif'; y.fillText('#RetoMenteMilenial', o.width / 2, ALTO + 112);
     const adv = adviento();
