@@ -81,9 +81,9 @@ export function abrirChispa(ctx) {
       <div class="ch-tit"><span class="pill-ch">${adviento() ? '🎄 ADVIENTO · DÍA ' + adviento().dia + ' DE ' + adviento().total + ' · TU CHISPA ES…' : 'TU CHISPA DE HOY ES…'}</span><h2 id="ch-t">Dibuja ${esc(S.chispa)}</h2></div>
       <div class="lienzo"><canvas id="ch-c" width="${ANCHO}" height="${ALTO}" aria-label="Lienzo para dibujar"></canvas><div class="ch-empezar" id="ch-emp">Toca el lienzo para empezar ✏️</div></div>
       <div class="ch-tools" id="ch-tools">
-        <button type="button" class="tool" data-tool="pincel" aria-pressed="true">🖌️ Pincel</button>
-        <button type="button" class="tool" data-tool="borrador" aria-pressed="false">🧽 Borrar</button>
-        <button type="button" class="tool" data-tool="cubeta" aria-pressed="false">🪣 Cubeta${candado}</button>
+        <button type="button" class="tool" data-tool="pincel" aria-pressed="true" aria-label="Pincel" title="Pincel">🖌️<span class="tt"> Pincel</span></button>
+        <button type="button" class="tool" data-tool="borrador" aria-pressed="false" aria-label="Borrar" title="Borrar">🧽<span class="tt"> Borrar</span></button>
+        <button type="button" class="tool" data-tool="cubeta" aria-pressed="false" aria-label="Cubeta${candado ? ' (Club Estrella)' : ''}" title="Cubeta">🪣<span class="tt"> Cubeta</span>${candado}</button>
         <button type="button" class="tool" id="ch-undo" aria-label="Deshacer">↩︎</button>
         <span class="tams">${SIZES.map((z, i) => `<button type="button" class="tam" data-tam="${i}" aria-pressed="${i === 1}" aria-label="Tamaño ${z[0].toLowerCase()}${club || i === 1 ? '' : ' (Club Estrella)'}"><i style="width:${[6, 10, 15][i]}px;height:${[6, 10, 15][i]}px;${club || i === 1 ? '' : 'background:#B9AECB'}"></i></button>`).join('')}</span>
       </div>

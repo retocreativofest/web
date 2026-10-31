@@ -258,10 +258,13 @@ legend{font-weight:700;font-size:14px;padding:0;margin-bottom:6px}
 .lienzo{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .lienzo canvas{display:block;width:100%;height:auto;aspect-ratio:648/700;touch-action:none;cursor:crosshair;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .ch-empezar{position:absolute;inset:auto 0 12px;text-align:center;font-weight:800;font-size:14px;color:var(--muted);pointer-events:none}
-.ch-tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ch-tools{display:flex;flex-wrap:nowrap;gap:6px;align-items:center}
 .tool{font-weight:800;font-size:12px;background:var(--white);border:2px solid var(--ink);border-radius:10px;box-shadow:0 2px 0 var(--ink);padding:6px 8px;cursor:pointer;min-height:36px}
 .tool[aria-pressed="true"]{background:var(--amarillo)}
 .tams{display:flex;gap:4px;margin-left:auto}
+/* Teléfonos: herramientas solo con ícono para que todo quepa en una fila (31 oct 2026) */
+@media (max-width:480px){.tool .tt{display:none}.tool{font-size:17px;min-width:42px;padding:4px 6px;line-height:1;white-space:nowrap}}
+@media (max-width:360px){.ch-tools{gap:4px}.tool{font-size:15px;min-width:34px;padding:3px 4px}.tams{gap:3px}.tam{width:30px;height:30px}}
 .tam{width:34px;height:34px;display:grid;place-items:center;padding:0;background:var(--white);border:2px solid var(--ink);border-radius:8px;cursor:pointer}
 .tam i{display:block;border-radius:50%;background:var(--ink)}
 .tam[aria-pressed="true"]{background:var(--amarillo)}
