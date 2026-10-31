@@ -1,5 +1,5 @@
 /* #RetoMenteMilenial · app: entrar, registro, Hoy, subir al Padlet, rachas, ranking, amigos, Chispa del día y Club Estrella */
-import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento } from './chispa.js?v=7';
+import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento } from './chispa.js?v=8';
 const CONFIG = {
   api: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
@@ -86,6 +86,7 @@ const ERRORES = {
   usuario_ocupado: 'Ese usuario ya lo tiene otra persona en la app. Si es tuyo, escríbenos a retocreativofest@gmail.com.',
   nombre: 'Escribe tu nombre.',
   edad: 'Responde las dos preguntas.',
+  cumple: 'Elige el día y el mes de tu cumpleaños, o deja los dos en blanco.',
   sesion: 'Tu sesión venció. Entra otra vez.',
   perfil: 'Completa tu cuenta antes de subir tu dibujo.',
   tecnica: 'Elige si tu dibujo es tradicional o digital.',
@@ -246,9 +247,11 @@ function vistaCorreo(estado) {
 
 /* ---------- registro: nombre y usuario ---------- */
 function vistaPerfil(error) {
+  const editando = !!(E.perfil && E.perfil.completo);   // ya tenía cuenta: viene de «Editar mis datos»
   const b = E.borrador;
   pintar(`
     <header class="barra">
+      ${editando ? `<button type="button" class="volver" id="v" aria-label="Volver">${ICO.volver}</button>` : ''}
       <div style="flex:1"><h1>Tu cuenta</h1><span class="sub">Así te verán en el Padlet</span></div>
       <img class="cara" src="${caraGuia(E.guia)}" alt="">
     </header>
@@ -279,6 +282,7 @@ function vistaPerfil(error) {
     };
     nom.addEventListener('input', act); usr.addEventListener('input', act); act();
     on('#salir', 'click', cerrarSesion);
+    on('#v', 'click', () => { E.borrador = {}; ir('yo'); });
     on('#f', 'submit', ev => {
       ev.preventDefault();
       const nombre = nom.value.trim().replace(/\s+/g, ' '), usuario = norm(usr.value);
@@ -290,11 +294,17 @@ function vistaPerfil(error) {
   });
 }
 
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const fechaValida = mmdd => { const [m, d] = mmdd.split('-').map(Number); return d >= 1 && d <= [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1]; };
+
 /* ---------- registro: edad y país ---------- */
 function vistaEdad(error) {
   const b = E.borrador;
   const p = E.perfil || {};
   if (b.mayor == null && p.mayor) { b.mayor = p.mayor; b.venezuela = p.venezuela; b.whatsapp = p.whatsapp; b.ofertas = p.ofertas; }
+  const conCumple = 'cumple' in p;   // el Apps Script ya guarda el cumpleaños
+  if (b.cumple == null) b.cumple = p.cumple || '';
+  const [cm, cd] = String(b.cumple || '').split('-');
   const mayor = b.mayor === 'Sí', menor = b.mayor === 'No', vzla = b.venezuela === 'Sí', fuera = b.venezuela === 'No';
   const tel = String(b.whatsapp || '').replace(/^\+58/, '');
   const msj = encodeURIComponent('Hola. Quiero participar en el #RetoMenteMilenial, un reto semanal de dibujo, y como soy menor de edad necesito tu autorización. Es este formulario: ' + CONFIG.autorizacion);
@@ -321,6 +331,9 @@ function vistaEdad(error) {
           <span class="tel">${vzla || !fuera ? '<span>+58</span>' : ''}<input id="tel" type="tel" inputmode="tel" autocomplete="tel" value="${esc(vzla || !fuera ? tel : b.whatsapp || '')}" placeholder="${fuera ? '+1 555 123 4567' : '412 123 4567'}"></span>
         </label>
         <label class="check" for="ofe"><input id="ofe" type="checkbox" ${b.ofertas === 'Sí' ? 'checked' : ''}><span>Quiero recibir ofertas y descuentos del Reto Creativo Fest por correo y WhatsApp. <span style="font-weight:600;color:var(--muted)">Puedes darte de baja cuando quieras.</span></span></label>` : ''}
+      ${conCumple ? `<fieldset><legend>Tu cumpleaños <span class="ayuda">(opcional)</span></legend>
+        <div class="par"><select id="cd" aria-label="Día"><option value="">Día</option>${Array.from({ length: 31 }, (_, i) => `<option value="${String(i + 1).padStart(2, '0')}" ${cd === String(i + 1).padStart(2, '0') ? 'selected' : ''}>${i + 1}</option>`).join('')}</select><select id="cm" aria-label="Mes"><option value="">Mes</option>${MESES.map((m, i) => `<option value="${String(i + 1).padStart(2, '0')}" ${cm === String(i + 1).padStart(2, '0') ? 'selected' : ''}>${m}</option>`).join('')}</select></div>
+        <span class="ayuda">Solo el día y el mes, sin el año. Ese día te llega una sorpresa del Reto 🎂</span></fieldset>` : ''}
       ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}
       <span class="nota izq">Nunca mostramos tu edad, tu país ni tu contacto en la app. Para entregar premios verificamos la edad y el país en persona.</span>
       <span class="pasos" aria-label="Paso 2 de 2"><i></i><i class="on"></i></span>
@@ -330,16 +343,21 @@ function vistaEdad(error) {
       const t = root.querySelector('#tel'), o = root.querySelector('#ofe');
       if (t) b.whatsapp = (b.venezuela === 'No' ? '' : '+58') + t.value.trim();
       if (o) b.ofertas = o.checked ? 'Sí' : 'No';
+      const d = root.querySelector('#cd'), m = root.querySelector('#cm');
+      if (d && m) b.cumple = d.value && m.value ? m.value + '-' + d.value : '';
     };
     root.querySelectorAll('[data-k]').forEach(btn => btn.addEventListener('click', () => { leerCampos(); b[btn.dataset.k] = btn.dataset.v; vistaEdad(); }));
     on('#v', 'click', () => { leerCampos(); vistaPerfil(); });
     on('#ok', 'click', async ev => {
       leerCampos();
       if (!b.mayor || !b.venezuela) return vistaEdad(ERRORES.edad);
+      const d = root.querySelector('#cd'), m = root.querySelector('#cm');
+      if (d && m && (!!d.value !== !!m.value || (b.cumple && !fechaValida(b.cumple)))) return vistaEdad(ERRORES.cumple);
       ev.currentTarget.disabled = true; ev.currentTarget.textContent = 'Guardando…';
       const r = await api('perfil_guardar', {
         sesion: E.sesion, correo: E.correo, nombre: b.nombre, usuario: b.usuario,
-        mayor: b.mayor, venezuela: b.venezuela, whatsapp: b.mayor === 'Sí' ? b.whatsapp : '', ofertas: b.mayor === 'Sí' ? b.ofertas : 'No'
+        mayor: b.mayor, venezuela: b.venezuela, whatsapp: b.mayor === 'Sí' ? b.whatsapp : '', ofertas: b.mayor === 'Sí' ? b.ofertas : 'No',
+        ...(conCumple ? { cumple: b.cumple || '' } : {})
       });
       if (!r.ok) {
         if (r.error === 'sesion') return cerrarSesion(true);
@@ -1019,6 +1037,7 @@ function vistaYo() {
         ${p.correo ? `<div><span>Correo</span><span>${esc(p.correo)}</span></div>` : ''}
         <div><span>Edad</span><span>${p.mayor === 'Sí' ? '18 años o más' : 'Menor de edad'}</span></div>
         <div><span>Vives en Venezuela</span><span>${p.venezuela === 'Sí' ? 'Sí' : 'No'}</span></div>
+        ${p.cumple ? `<div><span>Cumpleaños</span><span>${Number(p.cumple.split('-')[1])} de ${MESES[Number(p.cumple.split('-')[0]) - 1] || ''}</span></div>` : ''}
         ${p.mayor === 'Sí' ? `<div><span>Ofertas</span><span>${p.ofertas === 'Sí' ? 'Sí' : 'No'}</span></div>` : ''}
       </div>
       <button type="button" class="btn blanco chico" id="editar">Editar mis datos</button>

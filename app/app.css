@@ -1,3 +1,8 @@
+/* Tipografías alojadas en la propia web (antes venían de Google Fonts y con poca conexión se veía Arial). Licencia OFL en assets/fonts. */
+@font-face{font-family:'Poppins';font-style:normal;font-weight:600;font-display:swap;src:url(../assets/fonts/poppins-600.woff) format('woff')}
+@font-face{font-family:'Poppins';font-style:normal;font-weight:700;font-display:swap;src:url(../assets/fonts/poppins-700.woff) format('woff')}
+@font-face{font-family:'Poppins';font-style:normal;font-weight:800 900;font-display:swap;src:url(../assets/fonts/poppins-800.woff) format('woff')}
+@font-face{font-family:'Quicksand';font-style:normal;font-weight:300 800;font-display:swap;src:url(../assets/fonts/quicksand.woff) format('woff')}
 /* #RetoMenteMilenial · app (bloque 1) */
 :root{
   --bg:#FBF9FF; --ink:#0B0B0F; --muted:#3A3446; --white:#FFFFFF;
@@ -73,6 +78,7 @@ img{max-width:100%}
 /* formularios */
 .campo{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:13px}
 .campo input{border:3px solid var(--ink);border-radius:12px;padding:10px 12px;font-size:16px;font-weight:600;background:var(--white);min-width:0;width:100%}
+fieldset select{border:3px solid var(--ink);border-radius:12px;padding:10px 12px;font:600 16px var(--texto);color:var(--ink);background:var(--white);min-width:0;width:100%}
 .campo .ayuda{font-weight:600;color:var(--muted);font-size:12px}
 .tel{display:flex;align-items:center;border:3px solid var(--ink);border-radius:12px;background:var(--white);overflow:hidden}
 .tel span{padding:10px;background:var(--lila-2);border-right:3px solid var(--ink);font-weight:700;font-size:15px}
@@ -239,6 +245,15 @@ legend{font-weight:700;font-size:14px;padding:0;margin-bottom:6px}
 @keyframes ch-gira{0%{transform:translateY(-3px);opacity:.55}100%{transform:translateY(3px);opacity:1}}
 @keyframes ch-cae{0%{transform:scale(1.18);color:var(--violeta)}100%{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.ch-tit h2.girando,.ch-tit h2.cae{animation:none}}
+.ch-sorteo{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:24px;background:rgba(11,11,15,.55);animation:ch-entra .2s ease-out}
+.ch-sorteo-caja{width:100%;max-width:340px;background:var(--crema);border:3px solid var(--ink);border-radius:22px;box-shadow:6px 6px 0 var(--ink);padding:22px 18px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.ch-sorteo .pill-ch{align-self:center}
+.ch-sorteo b{font-family:var(--display);font-weight:800;font-size:28px;line-height:1.15;min-height:2.3em;display:flex;align-items:center;justify-content:center}
+.ch-sorteo b.girando{color:var(--morado);animation:ch-gira .09s linear infinite}
+.ch-sorteo b.cae{animation:ch-cae .6s cubic-bezier(.2,1.6,.4,1);transform-origin:center}
+.ch-sorteo-dado{font-size:30px;line-height:1}
+.ch-sorteo.sale{opacity:0;transition:opacity .3s}
+@keyframes ch-entra{from{opacity:0}to{opacity:1}}
 .lienzo{position:relative;border:3px solid var(--ink);border-radius:12px;overflow:hidden;background:#fff}
 .lienzo{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .lienzo canvas{display:block;width:100%;height:auto;aspect-ratio:648/700;touch-action:none;cursor:crosshair;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}

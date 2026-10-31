@@ -1,3 +1,8 @@
+/* Tipografías alojadas en la propia web (antes venían de Google Fonts y con poca conexión se veía Arial). Licencia OFL en assets/fonts. */
+@font-face{font-family:'Poppins';font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/poppins-600.woff) format('woff')}
+@font-face{font-family:'Poppins';font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/poppins-700.woff) format('woff')}
+@font-face{font-family:'Poppins';font-style:normal;font-weight:800 900;font-display:swap;src:url(../fonts/poppins-800.woff) format('woff')}
+@font-face{font-family:'Quicksand';font-style:normal;font-weight:300 800;font-display:swap;src:url(../fonts/quicksand.woff) format('woff')}
 /* Reto Creativo Fest · hoja de estilos única del sitio
    Layout: cabecera negra fija, bandas de color a todo el ancho, contenido en contenedor de 1280px,
    fichas con borde negro de 3px y sombra dura desplazada, polaroids inclinadas y destellos de 4 puntas. */
@@ -527,3 +532,30 @@ mark{background:var(--yellow);border-radius:3px;padding:0 2px}
 .press-list li::before{content:"";position:absolute;left:0;top:.2em;width:18px;height:18px;border-radius:50%;background:var(--yellow);border:2px solid var(--ink)}
 .press-date{margin-top:12px;background:var(--yellow);border:2px solid var(--ink);border-radius:12px;padding:8px 12px;width:max-content;max-width:100%}
 .press-closed{padding:20px;font-weight:700}
+
+/* ---------- tienda con 2 productos ---------- */
+.pgrid:has(> :nth-child(2):last-child){grid-template-columns:repeat(2,minmax(0,360px));justify-content:center}
+@media (max-width:560px){.pgrid:has(> :nth-child(2):last-child){grid-template-columns:1fr}}
+
+/* ---------- cuenta regresiva (inicio) ---------- */
+.cuenta{background:var(--yellow);border-block:3px solid var(--ink)}
+.cuenta .wrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding-block:32px;text-align:center}
+.cuenta-t{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(20px,2.4vw,28px)}
+.cuenta-n{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;width:min(560px,100%)}
+.cuenta-n span{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--white);border:3px solid var(--ink);border-radius:16px;box-shadow:4px 4px 0 var(--ink);padding:12px 4px;font-weight:700;font-size:14px}
+.cuenta-n b{font-family:var(--display);font-weight:800;font-size:clamp(30px,5vw,48px);line-height:1;font-variant-numeric:tabular-nums}
+.cuenta-f{margin:0;font-weight:700}
+.cuenta .wrap.envivo .cuenta-n{display:none}
+@media (max-width:400px){.cuenta-n{gap:8px}.cuenta-n span{font-size:12px;padding:10px 2px}}
+
+/* ---------- patrocinantes de la edición (inicio) ---------- */
+.patro{background:var(--paper)}
+.patro .h-sec{text-align:center;margin-bottom:32px}
+.patro-main{display:grid;grid-template-columns:repeat(2,minmax(0,320px));justify-content:center;gap:28px}
+.patro-card{--pad:28px;margin:0;position:relative;background:var(--white);border:3px solid var(--ink);border-radius:var(--r);box-shadow:var(--sh);aspect-ratio:1}
+.patro-card img{position:absolute;top:var(--pad);left:var(--pad);width:calc(100% - 2 * var(--pad));height:calc(100% - 2 * var(--pad));object-fit:contain}
+.apoyan{margin:44px auto 0;max-width:900px;background:var(--soft);border:3px dashed var(--ink);border-radius:var(--r);padding:24px 20px;text-align:center}
+.apoyan h3{margin:0 0 18px;font-size:clamp(18px,2vw,22px)}
+.apoyan-logos{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:16px 28px}
+.apoyan-logos img{height:64px;width:auto;max-width:42vw;object-fit:contain;background:var(--white);border:2px solid var(--ink);border-radius:14px;padding:8px 14px;box-sizing:content-box}
+@media (max-width:560px){.patro-main{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.patro-card{--pad:14px}.apoyan-logos img{height:48px}}

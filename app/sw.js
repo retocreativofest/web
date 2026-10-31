@@ -1,9 +1,10 @@
 /* #RetoMenteMilenial · funciona sin conexión para la parte visual. Los datos siempre se piden en línea. */
-const VERSION = 'rmm-app-v28';
-const BASE = ['./', 'index.html', 'app.css?v=17', 'app.js?v=27', 'manifest.webmanifest',
+const VERSION = 'rmm-app-v29';
+const BASE = ['./', 'index.html', 'app.css?v=18', 'app.js?v=28', 'manifest.webmanifest',
   'img/digi.webp', 'img/tradi.webp', 'img/digi-cara.webp', 'img/tradi-cara.webp', 'img/icon-192.png',
-  'img/sticker-1.webp', 'img/sticker-2.webp', 'img/sticker-3.webp', 'chispa.js?v=7',
-  'img/estrella-1.webp', 'img/estrella-3.webp', 'img/estrella-6.webp'];
+  'img/sticker-1.webp', 'img/sticker-2.webp', 'img/sticker-3.webp', 'chispa.js?v=8',
+  'img/estrella-1.webp', 'img/estrella-3.webp', 'img/estrella-6.webp',
+  '../assets/fonts/poppins-600.woff', '../assets/fonts/poppins-700.woff', '../assets/fonts/poppins-800.woff', '../assets/fonts/quicksand.woff'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(BASE)).then(() => self.skipWaiting()));

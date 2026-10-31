@@ -108,23 +108,29 @@ export function abrirChispa(ctx) {
     r.classList.toggle('poco', S.fase === 'dibujando' && S.quedan <= 30);
   }
   function parar() { clearInterval(reloj); reloj = null; }
-  /* Sorteo: las chispas pasan rápido y se van frenando hasta caer en la de hoy (~2 s). */
+  /* Sorteo: las chispas pasan rápido en el centro de la pantalla y se van frenando hasta caer en la de hoy (~2 s). */
   function sortear(final, listo) {
     const t = $('#ch-t'), aviso = $('#ch-emp');
     const fin = () => { S.fase = 'lista'; t.textContent = 'Dibuja ' + final; t.removeAttribute('aria-busy'); aviso.textContent = 'Toca el lienzo para empezar ✏️'; pintarAbajo(); if (listo) listo(); };
     if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return fin();
-    S.fase = 'sorteo'; t.setAttribute('aria-busy', 'true'); t.classList.add('girando'); aviso.textContent = 'Sorteando tu chispa… 🎲'; pintarAbajo();
+    S.fase = 'sorteo'; t.setAttribute('aria-busy', 'true'); t.textContent = 'Sorteando…'; aviso.textContent = 'Sorteando tu chispa… 🎲'; pintarAbajo();
+    const ov = document.createElement('div');
+    ov.className = 'ch-sorteo'; ov.setAttribute('aria-hidden', 'true');
+    ov.innerHTML = `<div class="ch-sorteo-caja"><span class="pill-ch">${adviento() ? '🎄 DÍA ' + adviento().dia + ' DE ' + adviento().total : 'TU CHISPA DE HOY ES…'}</span><b class="girando"></b><span class="ch-sorteo-dado">🎲</span></div>`;
+    root.appendChild(ov);
+    const b = ov.querySelector('b');
     let paso = 0, previo = '';
     const total = 14;
     const tick = () => {
-      if (!root.contains(t)) return;   // salió de la pantalla
+      if (!root.contains(t)) { ov.remove(); return; }   // salió de la pantalla
       if (paso >= total) {
-        t.classList.remove('girando'); fin();
-        t.classList.add('cae'); setTimeout(() => t.classList.remove('cae'), 700);
+        b.classList.remove('girando'); b.textContent = 'Dibuja ' + final; b.classList.add('cae');
+        ov.querySelector('.ch-sorteo-dado').textContent = '✨';
+        setTimeout(() => { ov.classList.add('sale'); setTimeout(() => { ov.remove(); if (root.contains(t)) { fin(); t.classList.add('cae'); setTimeout(() => t.classList.remove('cae'), 700); } }, 300); }, 1100);
         return;
       }
       let o; do { o = POOL[Math.floor(Math.random() * POOL.length)]; } while (o === previo || o === final);
-      previo = o; t.textContent = 'Dibuja ' + o; paso++;
+      previo = o; b.textContent = 'Dibuja ' + o; paso++;
       setTimeout(tick, 45 + paso * paso * 1.6);
     };
     tick();

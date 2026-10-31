@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-hashes' 'sha256-1jAmyYXcRq6zFldLe/GCgIDJBiOONdXjTLgEFMDnDSM='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://script.google.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-hashes' 'sha256-1jAmyYXcRq6zFldLe/GCgIDJBiOONdXjTLgEFMDnDSM='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://script.google.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Reto Creativo Fest 2026 · Dibuja. Conecta. Celebra.</title>
 <meta name="description" content="Festival de ilustración en Caracas: concurso de dibujo en vivo, charlas, bazar creativo y premiación del #RetoMenteMilenial. Sábado 5 de diciembre en FACES-UCV. Entrada gratuita.">
@@ -15,11 +15,9 @@
 <meta property="og:image" content="https://retocreativofest.com/assets/img/og-rcf.jpg">
 <meta name="theme-color" content="#0B0B0F">
 <link rel="icon" type="image/png" href="assets/img/logo-rcf-64.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Quicksand:wght@500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Quicksand:wght@500;600;700&display=swap"></noscript>
-<link rel="stylesheet" href="assets/css/rcf.css?v=20261021z">
+<link rel="preload" href="assets/fonts/quicksand.woff" as="font" type="font/woff" crossorigin>
+<link rel="preload" href="assets/fonts/poppins-700.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="assets/css/rcf.css?v=20261031a">
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -39,6 +37,11 @@
     <div class="ctas" style="justify-content:center"><a class="btn b-yellow" data-link="inscripcion" href="#">Inscríbete al concurso</a><a class="btn b-ghost" href="#programa">Ver programa</a></div>
   </div>
 </section>
+<section class="cuenta" aria-label="Cuenta regresiva"><div class="wrap" data-cuenta="2026-12-05T10:00:00-04:00" data-fin="2026-12-05T16:00:00-04:00">
+  <p class="cuenta-t">Faltan para el Reto Creativo Fest</p>
+  <div class="cuenta-n" role="timer" aria-live="off"><span><b data-u="d">–</b>días</span><span><b data-u="h">–</b>horas</span><span><b data-u="m">–</b>min</span><span><b data-u="s">–</b>seg</span></div>
+  <p class="cuenta-f">Sábado 5 de diciembre · 10:00 a. m. · FACES-UCV</p>
+</div></section>
 <section class="stats" aria-label="El RCF en cifras"><div class="wrap">
   <div><b id="canalCount">+3.000</b><span>en el canal de WhatsApp</span></div><div><b>402</b><span>competidores</span></div>
   <div><b>58</b><span>artistas premiados</span></div><div><b>2.176</b><span>asistentes en total</span></div>
@@ -67,6 +70,21 @@
   </div>
   <div class="sched-wrap" role="region" aria-label="Programa del sábado 5 de diciembre" tabindex="0"><div class="sched"><span></span><div class="hd"><b>Auditorio naranja</b>Charlas y premiación</div><div class="hd"><b>Sótano de FACES</b>Concurso de dibujo</div><div class="hd"><b>Planta baja de FACES</b>Bazar y premiación secundaria</div><div class="cell c-time">10:00 a.m<br>10:45 a.m</div><div class="cell c-y0"></div><div class="cell c-p"><span><b>Primer lote</b>12 personas</span></div><div class="cell c-c" style="grid-column:4;grid-row:2 / span 5"><span><b>Bazar de emprendimientos y Ruta Creativa</b></span></div><div class="cell c-time">11:00 a.m<br>11:45 a.m</div><div class="cell c-y"><span><b>Primera Charla</b>@felixmurillor</span></div><div class="cell c-p"><span><b>Segundo lote</b>12 personas</span></div><div class="cell c-time">12:00 p.m<br>12:45 p.m</div><div class="cell c-y"><span><b>Segunda Charla</b>@oscarolivares</span></div><div class="cell c-p"><span><b>Tercer lote</b>12 personas</span></div><div class="cell c-time">1:00 p.m<br>1:45 p.m</div><div class="cell c-y"><span><b>Tercera Charla</b>@chocotoycute</span></div><div class="cell c-p"><span><b>Cuarto lote</b>12 personas</span></div><div class="cell c-time">2:15 p.m<br>2:55 p.m</div><div class="cell c-y"><span><b>Descanso</b></span></div><div class="cell c-p"><span><b>Deliberación final del jurado</b></span></div><div class="cell c-time">3:00 p.m<br>3:45 p.m</div><div class="cell c-y"><span><b>Premiación principal</b><small>#RetoMenteMilenial<br>(3:00 p.m)</small></span></div><div class="cell c-p"><span><b>Premiación en el auditorio</b></span></div><div class="cell c-c"><span><b>Premiación secundaria</b><small>(3:40 p.m)</small></span></div><div class="cell c-time" style="min-height:56px">4:00 p.m</div><div class="cell c-h" style="grid-column:2 / span 3;min-height:56px">CIERRE DEL EVENTO</div></div></div>
 </div></section>
+<section class="sec patro" id="patrocinantes" aria-labelledby="patro-h"><div class="wrap">
+  <h2 class="h-sec" id="patro-h">Patrocinantes principales de esta edición</h2>
+  <div class="patro-main">
+    <figure class="patro-card"><img src="assets/img/aliados/space-creative-lab.webp" alt="Space Creative Lab" width="626" height="640" loading="lazy" decoding="async"></figure>
+    <figure class="patro-card"><img src="assets/img/aliados/instituto-venezolano-de-lenguas.webp" alt="Instituto Venezolano de Lenguas" width="640" height="570" loading="lazy" decoding="async"></figure>
+  </div>
+  <div class="apoyan">
+    <h3>Nos apoyan en esta edición</h3>
+    <div class="apoyan-logos">
+      <img src="assets/img/aliados/michi-cookies.webp" alt="Michi Cookies" width="209" height="104" loading="lazy" decoding="async">
+      <img src="assets/img/aliados/kores.webp" alt="Kores" width="288" height="54" loading="lazy" decoding="async">
+      <img src="assets/img/aliados/academia-olivares.webp" alt="Academia Olivares" width="192" height="91" loading="lazy" decoding="async">
+    </div>
+  </div>
+</div></section>
 <section class="sec" id="avisame" style="background:var(--lav);border-top:3px solid var(--ink)"><div class="wrap lead-wrap">
   <div class="txt"><span class="pill p-yellow" style="border:2px solid var(--ink)">5.ª edición</span><h2>Avísame de la próxima edición</h2>
     <p class="lead">Déjanos tu correo y te escribimos primero cuando abra la preventa, las inscripciones al concurso y los stands del próximo Reto Creativo Fest.</p></div>
@@ -93,6 +111,6 @@
   </div>
   <p class="fbase">Un proyecto de Mente Milenial</p>
 </div></footer>
-<script src="assets/js/rcf.js?v=20261019e" defer></script>
+<script src="assets/js/rcf.js?v=20261031a" defer></script>
 </body>
 </html>

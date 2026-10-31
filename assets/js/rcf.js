@@ -13,12 +13,9 @@ const CONFIG = {
 };
 
 const PRODUCTOS = [
-  {id:'stickers', nombre:'Set de stickers RCF', desc:'Vinil autoadhesivo (10,8 × 14 cm).', precio:1.5, cat:'Papelería', modo:'disponible', color:'#0B0B0F', img:'assets/img/tienda-stickers-640.webp'},
   {id:'ruta', nombre:'Ruta creativa', desc:'Recorre el evento haciendo retos de dibujo y participa en un increíble sorteo con premios. Actividad apta para todo público.', precio:3, cat:'Actividades', modo:'disponible', color:'#FFFFFF', img:'assets/img/tienda-ruta-creativa-640.webp', imgStyle:'inset:auto;left:-4%;top:13%;width:92%;height:auto;object-fit:contain'},
   {id:'guante', nombre:'Guante y lápiz de dibujo', desc:'El combo perfecto para artistas digitales y tradicionales: evita las manchas de grasa en tus dibujos. Diferentes colores y tallas.', precio:8, cat:'Para dibujar', modo:'disponible', color:'#FFFFFF', img:'assets/img/tienda-guante-640.webp',
-    opciones:{Color:['Lila','Verde menta','Negro'], Mano:['Diestro','Zurdo'], Talla:['Regular','Grande']}},
-  {id:'franela', nombre:'Franela y totebag RCF', desc:'El outfit ideal para el Reto Creativo Fest. Tallas S, M y L.', precio:25, cat:'Ropa', modo:'encargo', color:'#FFFFFF', img:'assets/img/tienda-franela-totebag-640.webp',
-    opciones:{Talla:['S','M','L']}}
+    opciones:{Color:['Lila','Verde menta','Negro'], Mano:['Diestro','Zurdo'], Talla:['Regular','Grande']}}
 ];
 const ENCARGO = 'Bajo pedido · ~1 semana';
 
@@ -249,4 +246,27 @@ function wireRedes(){
   }).catch(() => {});
 }
 
-wireMenu(); wireLinks(); wireApp(); wireForms(); wireCart(); wireFloat(); wireCanal(); wireRedes(); renderAll();
+/* ---------- cuenta regresiva al Reto Creativo Fest ----------
+   <div data-cuenta="2026-12-05T10:00:00-04:00" data-fin="2026-12-05T16:00:00-04:00">. Para la próxima edición solo se cambian esas fechas. */
+function wireCuenta(){
+  const el = $('[data-cuenta]'); if (!el) return;
+  const inicio = Date.parse(el.dataset.cuenta), fin = Date.parse(el.dataset.fin || el.dataset.cuenta);
+  const n = {d:$('[data-u="d"]', el), h:$('[data-u="h"]', el), m:$('[data-u="m"]', el), s:$('[data-u="s"]', el)};
+  const dos = v => String(v).padStart(2, '0');
+  let t = null;
+  const tick = () => {
+    const ahora = Date.now(), falta = inicio - ahora;
+    if (falta <= 0){
+      clearInterval(t);
+      if (ahora < fin){ el.classList.add('envivo'); $('.cuenta-t', el).textContent = '¡Es hoy! Estamos en FACES-UCV hasta las 4:00 p. m.'; }
+      else el.closest('section').hidden = true;
+      return;
+    }
+    const seg = Math.floor(falta / 1000);
+    n.d.textContent = Math.floor(seg / 86400); n.h.textContent = dos(Math.floor(seg % 86400 / 3600));
+    n.m.textContent = dos(Math.floor(seg % 3600 / 60)); n.s.textContent = dos(seg % 60);
+  };
+  tick(); t = setInterval(tick, 1000);
+}
+
+wireMenu(); wireLinks(); wireCuenta(); wireApp(); wireForms(); wireCart(); wireFloat(); wireCanal(); wireRedes(); renderAll();
