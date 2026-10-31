@@ -120,6 +120,8 @@ const ERRORES = {
   sin_protectores: 'Ya usaste tus 2 protectores de este mes.',
   voto_cerrado: 'La votación ya cerró. Mira el podio.',
   voto_finalista: 'Ese dibujo no está entre las finalistas.',
+  reporte: 'Elige el motivo del reporte.',
+  reporte_limite: 'Ya enviaste 5 reportes hoy. Si es urgente, escríbenos a retocreativofest@gmail.com.',
   voto_propio: 'No puedes votar por tu propio dibujo.',
   voto_participa: 'Para votar, sube al menos un dibujo esta temporada.',
   voto_ya: 'Ya votaste esta semana. El voto no se puede cambiar.',
@@ -614,7 +616,8 @@ function dibujarVotar(v, error) {
     if (!v || !v.finalistas) return;
     root.querySelectorAll('[data-ver]').forEach(b => b.addEventListener('click', () => {
       const f = v.finalistas[Number(b.dataset.ver)];
-      ventana(`<h2 id="v-h" tabindex="-1" style="margin:0;font-family:var(--display)">${nombreFin(f)}</h2><img class="grande" src="${esc(f.img)}" alt="Dibujo de ${nombreFin(f)}">`);
+      ventana(`<h2 id="v-h" tabindex="-1" style="margin:0;font-family:var(--display)">${nombreFin(f)}</h2><img class="grande" src="${esc(f.img)}" alt="Dibujo de ${nombreFin(f)}">${f.mio ? '' : '<button type="button" class="enlace" id="reportar" style="font-size:13px">🚩 Reportar este dibujo</button>'}`,
+        (velo, cerrar) => { const r = velo.querySelector('#reportar'); if (r) r.addEventListener('click', () => { cerrar(); ventanaReportar(f); }); });
     }));
     root.querySelectorAll('[data-votar]').forEach(b => b.addEventListener('click', () => {
       const f = v.finalistas.find(x => x.id === b.dataset.votar);
@@ -645,6 +648,32 @@ function ventana(html, alPintar, sinCerrar) {
   document.body.appendChild(velo);
   velo.querySelector('h2').focus();
   if (alPintar) alPintar(velo, cerrar);
+}
+
+/* ---------- reportar un dibujo de la votación ----------
+   Llega a la organización y lo revisan los Guardianes del arte. Nadie más sabe quién reportó. */
+const MOTIVOS_REPORTE = [['Copia o plagio', 'Es copia de otro artista o de otra publicación'], ['Hecho con IA', 'Lo generó una inteligencia artificial'], ['Contenido inapropiado', 'Violento, sexual, ofensivo o que no es para todo público'], ['Otro', 'Otra razón: cuéntanos abajo']];
+function ventanaReportar(f) {
+  let motivo = '';
+  ventana(`<h2 id="v-h" tabindex="-1" style="margin:0;font-family:var(--display)">Reportar el dibujo de ${nombreFin(f)}</h2>
+    <p style="margin:0;font-size:14px">Los Guardianes del arte lo revisan. Nadie más sabe que fuiste tú.</p>
+    <div class="motivos" role="radiogroup" aria-label="Motivo">${MOTIVOS_REPORTE.map(m => `<button type="button" class="opcion" role="radio" aria-checked="false" aria-pressed="false" data-m="${esc(m[0])}" style="text-align:left;display:flex;flex-direction:column;gap:2px;padding:10px 12px"><b>${esc(m[0])}</b><small style="font-weight:600">${esc(m[1])}</small></button>`).join('')}</div>
+    <label class="campo" for="rep-det">Detalle <span class="ayuda">(opcional)</span><textarea id="rep-det" maxlength="300" rows="3" placeholder="Por ejemplo, el enlace del dibujo original" style="border:3px solid var(--ink);border-radius:12px;padding:10px 12px;font:600 15px var(--texto);width:100%"></textarea></label>
+    <div class="error" role="alert" id="rep-err" hidden></div>
+    <button type="button" class="btn" id="rep-ok">ENVIAR REPORTE</button>`, (velo, cerrar) => {
+    velo.querySelectorAll('[data-m]').forEach(b => b.addEventListener('click', () => {
+      motivo = b.dataset.m;
+      velo.querySelectorAll('[data-m]').forEach(x => { const on = x === b; x.setAttribute('aria-pressed', on); x.setAttribute('aria-checked', on); });
+    }));
+    velo.querySelector('#rep-ok').addEventListener('click', async ev => {
+      const err = velo.querySelector('#rep-err');
+      if (!motivo) { err.textContent = ERRORES.reporte; err.hidden = false; return; }
+      ev.currentTarget.disabled = true; ev.currentTarget.textContent = 'Enviando…';
+      const r = await api('reportar', { sesion: E.sesion, post: f.id, motivo, detalle: velo.querySelector('#rep-det').value.trim() });
+      if (!r.ok) { err.textContent = textoError(r.error); err.hidden = false; ev.currentTarget.disabled = false; ev.currentTarget.textContent = 'ENVIAR REPORTE'; return; }
+      cerrar(); aviso('🚩 Gracias. Los Guardianes del arte lo van a revisar.');
+    });
+  });
 }
 
 /* ---------- compartir el dibujo ---------- */
