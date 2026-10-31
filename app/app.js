@@ -490,7 +490,9 @@ function dibujarHoy(h, error) {
         ${yaSubio()
           ? `<div class="caja" style="text-align:center;background:var(--white)">✓ Ya subiste tu dibujo de esta semana</div>${botonesCompartir(E.semana.padlet || CONFIG.padlet)}`
           : '<button type="button" class="btn amarillo" id="subir">SUBIR MI DIBUJO</button>'}
-        ${!yaSubio() && E.progreso && E.progreso.enRiesgo ? (E.club && E.club.activo
+        ${!yaSubio() && E.progreso && E.progreso.enRiesgo ? (E.club && E.club.cumple && E.club.cumple.disponible
+          ? `<button type="button" class="btn blanco chico" id="proteger">🎂 Usar tu protector de cumpleaños (vence el ${fechaCorta(E.club.cumple.hasta)})</button>`
+          : E.club && E.club.activo
           ? (E.club.protectores > 0 ? `<button type="button" class="btn blanco chico" id="proteger">🛡️ Usar un protector de racha (te quedan ${E.club.protectores})</button>` : '<p class="nota">Ya usaste tus 2 protectores de este mes.</p>')
           : '<button type="button" class="enlace" data-ir="club" style="font-size:13px">🛡️ Con el Club Estrella tienes 2 protectores al mes para que tu racha no se apague</button>') : ''}
       </section>`;
@@ -1057,6 +1059,7 @@ function vistaYo() {
       ${E.club && E.club.activo
         ? `<div class="club-yo"><img src="img/estrella-${E.club.estrella}.webp" alt="" width="54" height="54"><div><b>Club Estrella activo</b><span>Hasta el ${fechaCorta(E.club.hasta)} · llevas ${E.club.meses} ${E.club.meses === 1 ? 'mes' : 'meses'}${E.club.protectores ? ' · ' + E.club.protectores + ' protectores' : ''}</span></div></div>`
         : '<button type="button" class="btn blanco chico" data-ir="club">★ Conocer el Club Estrella</button>'}
+      ${E.club && E.club.cumple && E.club.cumple.disponible ? `<div class="caja crema"><strong class="t">🎂 Tu regalo de cumpleaños</strong>Tienes un protector de racha hasta el ${fechaCorta(E.club.cumple.hasta)}. Úsalo en «Hoy» si tu racha está en riesgo.</div>` : ''}
       ${avisosHtml()}
       ${instalada ? '' : `<button type="button" class="btn amarillo chico" id="instalar">📲 Instalar la app en mi teléfono</button>`}
       <a class="btn blanco chico" href="${CONFIG.web}/preguntas-frecuentes.html" target="_blank" rel="noopener">Preguntas frecuentes</a>
