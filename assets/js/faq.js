@@ -58,7 +58,7 @@ const FAQ = [
  {id:'comunidad', t:'Comunidad', c:'#C5A6D9', q:[
   ['¿Dónde veo los streams de @mentemilenial?', `<p>Lunes, miércoles y viernes a las <b>8:30 p. m. (hora de Venezuela)</b>, en TikTok, Twitch, YouTube y Kick.</p><a class="act" href="mente-milenial.html">Ver la semana en vivo</a>`],
   ['¿Cómo entro al Discord?', `<p>El Discord de Mente Milenial es exclusivo para miembros del Patreon de Reto Mente Milenial. Ahí puedes hablar con el equipo durante los streams, conocer el reto 24 horas antes y ver master class exclusivas.</p><a class="act" data-link="patreon" href="#">Ir a Patreon</a>`],
-  ['Soy periodista o medio, ¿cómo me acredito?', `<p>Completa el formulario de <b>acreditación de prensa</b>. Revisamos cada solicitud y te confirmamos por correo y WhatsApp.</p><a class="act" href="bazar-creativo.html#prensa">Solicitar acreditación</a>`],
+  ['Soy periodista o medio, ¿cómo me acredito?', `<p>Completa el formulario de <b>acreditación de prensa</b>. Revisamos cada solicitud y te confirmamos por correo y WhatsApp.</p><a class="act" href="index.html#prensa">Solicitar acreditación</a>`],
   ['¿Cómo puedo patrocinar el evento?', `<p>Tenemos paquetes desde <b>$20</b>, que puedes combinar con productos o servicios de tu marca.</p><a class="act" data-wa="¡Hola! Quiero conocer los paquetes de patrocinio del Reto Creativo Fest." href="#">Ver paquetes de patrocinio</a>`]
  ]}
 ];
