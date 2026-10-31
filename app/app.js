@@ -89,7 +89,6 @@ const ERRORES = {
   cumple: 'Elige el día y el mes de tu cumpleaños, o deja los dos en blanco.',
   estado: 'Elige el estado de Venezuela donde vives.',
   pais: 'Escribe el país donde vives.',
-  menor13: 'Responde si tienes 13 años o más.',
   autorizacion: 'Primero tu representante tiene que confirmar la autorización. Cuando lo haga, se desbloquea solo.',
   sesion: 'Tu sesión venció. Entra otra vez.',
   perfil: 'Completa tu cuenta antes de subir tu dibujo.',
@@ -313,8 +312,6 @@ function vistaEdad(error) {
   if (b.cumple == null) b.cumple = p.cumple || '';
   if (b.estado == null) b.estado = p.estado || '';
   if (b.pais == null) b.pais = p.pais || '';
-  if (b.mas13 == null) b.mas13 = p.menor13 === 'Sí' ? 'No' : p.menor13 === 'No' && p.mayor === 'No' ? 'Sí' : '';
-  const conMenor13 = 'menor13' in p;
   const [cm, cd] = String(b.cumple || '').split('-');
   const mayor = b.mayor === 'Sí', menor = b.mayor === 'No', vzla = b.venezuela === 'Sí', fuera = b.venezuela === 'No';
   const tel = String(b.whatsapp || '').replace(/^\+58/, '');
@@ -329,9 +326,6 @@ function vistaEdad(error) {
       <fieldset><legend>¿Cuántos años tienes?</legend>
         <div class="par"><button type="button" class="opcion" data-k="mayor" data-v="Sí" aria-pressed="${mayor}">Tengo 18 o más</button><button type="button" class="opcion" data-k="mayor" data-v="No" aria-pressed="${menor}">Tengo menos de 18</button></div>
       </fieldset>
-      ${menor && conMenor13 ? `<fieldset><legend>¿Y tienes 13 años o más?</legend>
-        <div class="par"><button type="button" class="opcion" data-k="mas13" data-v="Sí" aria-pressed="${b.mas13 === 'Sí'}">Tengo 13 o más</button><button type="button" class="opcion" data-k="mas13" data-v="No" aria-pressed="${b.mas13 === 'No'}">Tengo menos de 13</button></div>
-      </fieldset>` : ''}
       ${conCumple ? `<fieldset><legend>Tu cumpleaños <span class="ayuda">(opcional)</span></legend>
         <div class="par"><select id="cd" aria-label="Día"><option value="">Día</option>${Array.from({ length: 31 }, (_, i) => `<option value="${String(i + 1).padStart(2, '0')}" ${cd === String(i + 1).padStart(2, '0') ? 'selected' : ''}>${i + 1}</option>`).join('')}</select><select id="cm" aria-label="Mes"><option value="">Mes</option>${MESES.map((m, i) => `<option value="${String(i + 1).padStart(2, '0')}" ${cm === String(i + 1).padStart(2, '0') ? 'selected' : ''}>${m}</option>`).join('')}</select></div>
         <span class="ayuda">Solo el día y el mes, sin el año. Ese día te llega una sorpresa del Reto 🎂</span></fieldset>` : ''}
@@ -348,9 +342,7 @@ function vistaEdad(error) {
       </label>` : ''}
       ${vzla ? `<div class="caja agua">Vives en Venezuela: compites en el ranking global y por los premios.</div>` : ''}
       ${menor ? `<div class="caja crema"><strong class="t">Tu representante tiene que autorizarte</strong>
-          <span style="display:block;font-weight:600;margin-bottom:8px">${b.mas13 === 'No'
-            ? 'Mándale este formulario. Hasta que lo llene y confirme el correo que le llega, puedes ver el reto y hacer la Chispa del día, pero todavía no subir dibujos ni agregar amigos.'
-            : 'Mándale este formulario. Cuando lo llene y confirme el correo que le llega, puedes ganar premios y quedar entre las finalistas. Mientras tanto, igual puedes participar.'}</span>
+          <span style="display:block;font-weight:600;margin-bottom:8px">Mándale este formulario. Hasta que lo llene y confirme el correo que le llega, puedes ver el reto y hacer la Chispa del día, pero todavía no subir dibujos ni agregar amigos.</span>
           <a class="btn turquesa chico" href="https://wa.me/?text=${msj}" target="_blank" rel="noopener">📲 MANDAR EL FORMULARIO POR WHATSAPP</a></div>` : ''}
       ${mayor ? `
         <label class="campo" for="tel">WhatsApp <span class="ayuda">(opcional)</span>
@@ -379,7 +371,6 @@ function vistaEdad(error) {
       leerCampos();
       if (!b.mayor || !b.venezuela) return vistaEdad(ERRORES.edad);
       const d = root.querySelector('#cd'), m = root.querySelector('#cm');
-      if (conMenor13 && b.mayor === 'No' && !b.mas13) return vistaEdad(ERRORES.menor13);
       if (conCumple && b.venezuela === 'Sí' && !b.estado) return vistaEdad(ERRORES.estado);
       if (conCumple && b.venezuela === 'No' && (b.pais || '').length < 2) return vistaEdad(ERRORES.pais);
       if (d && m && (!!d.value !== !!m.value || (b.cumple && !fechaValida(b.cumple)))) return vistaEdad(ERRORES.cumple);
@@ -387,8 +378,7 @@ function vistaEdad(error) {
       const r = await api('perfil_guardar', {
         sesion: E.sesion, correo: E.correo, nombre: b.nombre, usuario: b.usuario,
         mayor: b.mayor, venezuela: b.venezuela, whatsapp: b.mayor === 'Sí' ? b.whatsapp : '', ofertas: b.mayor === 'Sí' ? b.ofertas : 'No',
-        ...(conCumple ? { cumple: b.cumple || '', estado: b.venezuela === 'Sí' ? b.estado || '' : '', pais: b.venezuela === 'No' ? b.pais || '' : '' } : {}),
-        ...(conMenor13 && b.mayor === 'No' ? { menor13: b.mas13 } : {})
+        ...(conCumple ? { cumple: b.cumple || '', estado: b.venezuela === 'Sí' ? b.estado || '' : '', pais: b.venezuela === 'No' ? b.pais || '' : '' } : {})
       });
       if (!r.ok) {
         if (r.error === 'sesion') return cerrarSesion(true);
@@ -481,9 +471,9 @@ function calendarioAdviento(adv) {
   return `<ol class="adv-cal" aria-label="Adviento de Chispas">${dias}</ol>
     <small class="sem-ch">${adv.marco ? '🎄 ¡Ganaste el marco Navidad para tus chispas!' : 'Llevas ' + adv.hechas.length + ' de ' + adv.total + ' · con ' + adv.meta + ' ganas el marco Navidad' + (faltan ? ' (te faltan ' + faltan + ')' : '')}</small>`;
 }
-/* Menores de 13 sin autorización confirmada: ven el reto y la Chispa, pero no publican ni tienen amigos. */
+/* Menores de 18 sin autorización confirmada (LOPNNA): ven el reto y la Chispa, pero no publican ni tienen amigos. */
 const bloqueado = () => !!(E.perfil && E.perfil.bloqueado);
-const MSJ_AUTORIZACION = () => encodeURIComponent('Hola. Quiero participar en el #RetoMenteMilenial, un reto semanal de dibujo, y como tengo menos de 13 años necesito tu autorización. Es este formulario: ' + CONFIG.autorizacion);
+const MSJ_AUTORIZACION = () => encodeURIComponent('Hola. Quiero participar en el #RetoMenteMilenial, un reto semanal de dibujo, y como soy menor de edad necesito tu autorización. Es este formulario: ' + CONFIG.autorizacion);
 const cajaAutorizacion = () => `<div class="caja crema"><strong class="t">🔒 Falta la autorización de tu representante</strong>
   <span style="display:block;font-weight:600;margin-bottom:8px">Mientras tanto puedes ver el reto y hacer la Chispa del día. Cuando tu representante llene el formulario y confirme el correo que le llega, se desbloquea solo: podrás subir tus dibujos y agregar amigos.</span>
   <a class="btn turquesa chico" href="https://wa.me/?text=${MSJ_AUTORIZACION()}" target="_blank" rel="noopener">📲 MANDARLE EL FORMULARIO POR WHATSAPP</a></div>`;
