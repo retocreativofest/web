@@ -88,6 +88,7 @@ const ERRORES = {
   edad: 'Responde las dos preguntas.',
   cumple: 'Elige el día y el mes de tu cumpleaños, o deja los dos en blanco.',
   estado: 'Elige el estado de Venezuela donde vives.',
+  pais: 'Escribe el país donde vives.',
   sesion: 'Tu sesión venció. Entra otra vez.',
   perfil: 'Completa tu cuenta antes de subir tu dibujo.',
   tecnica: 'Elige si tu dibujo es tradicional o digital.',
@@ -295,6 +296,7 @@ function vistaPerfil(error) {
   });
 }
 
+const PAISES = ['Alemania', 'Argentina', 'Aruba', 'Australia', 'Bolivia', 'Brasil', 'Canadá', 'Chile', 'Colombia', 'Costa Rica', 'Curazao', 'Ecuador', 'España', 'Estados Unidos', 'Francia', 'Guatemala', 'Irlanda', 'Italia', 'Japón', 'México', 'Panamá', 'Paraguay', 'Perú', 'Portugal', 'Puerto Rico', 'Reino Unido', 'República Dominicana', 'Trinidad y Tobago', 'Uruguay'];
 const ESTADOS = ['Amazonas', 'Anzoátegui', 'Apure', 'Aragua', 'Barinas', 'Bolívar', 'Carabobo', 'Cojedes', 'Delta Amacuro', 'Distrito Capital', 'Falcón', 'Guárico', 'La Guaira', 'Lara', 'Mérida', 'Miranda', 'Monagas', 'Nueva Esparta', 'Portuguesa', 'Sucre', 'Táchira', 'Trujillo', 'Yaracuy', 'Zulia'];
 const fechaValida = mmdd => { const [m, d] = mmdd.split('-').map(Number); return d >= 1 && d <= [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1]; };
 
@@ -306,6 +308,7 @@ function vistaEdad(error) {
   const conCumple = 'cumple' in p;   // el Apps Script ya guarda el cumpleaños y el estado
   if (b.cumple == null) b.cumple = p.cumple || '';
   if (b.estado == null) b.estado = p.estado || '';
+  if (b.pais == null) b.pais = p.pais || '';
   const [cm, cd] = String(b.cumple || '').split('-');
   const mayor = b.mayor === 'Sí', menor = b.mayor === 'No', vzla = b.venezuela === 'Sí', fuera = b.venezuela === 'No';
   const tel = String(b.whatsapp || '').replace(/^\+58/, '');
@@ -320,10 +323,17 @@ function vistaEdad(error) {
       <fieldset><legend>¿Tienes 18 años o más?</legend>
         <div class="par"><button type="button" class="opcion" data-k="mayor" data-v="Sí" aria-pressed="${mayor}">Sí</button><button type="button" class="opcion" data-k="mayor" data-v="No" aria-pressed="${menor}">No, soy menor</button></div>
       </fieldset>
+      ${conCumple ? `<fieldset><legend>Tu cumpleaños <span class="ayuda">(opcional)</span></legend>
+        <div class="par"><select id="cd" aria-label="Día"><option value="">Día</option>${Array.from({ length: 31 }, (_, i) => `<option value="${String(i + 1).padStart(2, '0')}" ${cd === String(i + 1).padStart(2, '0') ? 'selected' : ''}>${i + 1}</option>`).join('')}</select><select id="cm" aria-label="Mes"><option value="">Mes</option>${MESES.map((m, i) => `<option value="${String(i + 1).padStart(2, '0')}" ${cm === String(i + 1).padStart(2, '0') ? 'selected' : ''}>${m}</option>`).join('')}</select></div>
+        <span class="ayuda">Solo el día y el mes, sin el año. Ese día te llega una sorpresa del Reto 🎂</span></fieldset>` : ''}
       <fieldset><legend>¿Vives en Venezuela?</legend>
         <div class="par"><button type="button" class="opcion" data-k="venezuela" data-v="Sí" aria-pressed="${vzla}">Sí</button><button type="button" class="opcion" data-k="venezuela" data-v="No" aria-pressed="${fuera}">No, vivo afuera</button></div>
       </fieldset>
       ${fuera ? `<div class="caja rosa" role="note"><strong class="t">Vives fuera de Venezuela</strong>Puedes participar, subir tus dibujos y tener racha con tus amigos. Pero tus puntos no cuentan para el ranking global ni para los premios: son para personas que viven en Venezuela.</div>` : ''}
+      ${fuera && conCumple ? `<label class="campo" for="pais">¿En qué país vives?
+        <input id="pais" type="text" list="paises" maxlength="40" autocomplete="country-name" value="${esc(b.pais || '')}" placeholder="Escribe o elige tu país" required>
+        <datalist id="paises">${PAISES.map(x => `<option value="${x}"></option>`).join('')}</datalist>
+      </label>` : ''}
       ${vzla && conCumple ? `<label class="campo" for="est">¿En qué estado vives?
         <select id="est" required><option value="">Elige tu estado</option>${ESTADOS.map(e => `<option ${b.estado === e ? 'selected' : ''}>${e}</option>`).join('')}</select>
       </label>` : ''}
@@ -336,9 +346,6 @@ function vistaEdad(error) {
           <span class="tel">${vzla || !fuera ? '<span>+58</span>' : ''}<input id="tel" type="tel" inputmode="tel" autocomplete="tel" value="${esc(vzla || !fuera ? tel : b.whatsapp || '')}" placeholder="${fuera ? '+1 555 123 4567' : '412 123 4567'}"></span>
         </label>
         <label class="check" for="ofe"><input id="ofe" type="checkbox" ${b.ofertas === 'Sí' ? 'checked' : ''}><span>Quiero recibir ofertas y descuentos del Reto Creativo Fest por correo y WhatsApp. <span style="font-weight:600;color:var(--muted)">Puedes darte de baja cuando quieras.</span></span></label>` : ''}
-      ${conCumple ? `<fieldset><legend>Tu cumpleaños <span class="ayuda">(opcional)</span></legend>
-        <div class="par"><select id="cd" aria-label="Día"><option value="">Día</option>${Array.from({ length: 31 }, (_, i) => `<option value="${String(i + 1).padStart(2, '0')}" ${cd === String(i + 1).padStart(2, '0') ? 'selected' : ''}>${i + 1}</option>`).join('')}</select><select id="cm" aria-label="Mes"><option value="">Mes</option>${MESES.map((m, i) => `<option value="${String(i + 1).padStart(2, '0')}" ${cm === String(i + 1).padStart(2, '0') ? 'selected' : ''}>${m}</option>`).join('')}</select></div>
-        <span class="ayuda">Solo el día y el mes, sin el año. Ese día te llega una sorpresa del Reto 🎂</span></fieldset>` : ''}
       ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}
       <span class="nota izq">Nunca mostramos tu edad, tu país, tu estado, tu cumpleaños ni tu contacto en la app. Para entregar premios verificamos la edad y el país en persona.</span>
       <span class="pasos" aria-label="Paso 2 de 2"><i></i><i class="on"></i></span>
@@ -352,6 +359,8 @@ function vistaEdad(error) {
       if (d && m) b.cumple = d.value && m.value ? m.value + '-' + d.value : '';
       const e = root.querySelector('#est');
       if (e) b.estado = e.value;
+      const pa = root.querySelector('#pais');
+      if (pa) b.pais = pa.value.trim().replace(/\s+/g, ' ');
     };
     root.querySelectorAll('[data-k]').forEach(btn => btn.addEventListener('click', () => { leerCampos(); b[btn.dataset.k] = btn.dataset.v; vistaEdad(); }));
     on('#v', 'click', () => { leerCampos(); vistaPerfil(); });
@@ -360,12 +369,13 @@ function vistaEdad(error) {
       if (!b.mayor || !b.venezuela) return vistaEdad(ERRORES.edad);
       const d = root.querySelector('#cd'), m = root.querySelector('#cm');
       if (conCumple && b.venezuela === 'Sí' && !b.estado) return vistaEdad(ERRORES.estado);
+      if (conCumple && b.venezuela === 'No' && (b.pais || '').length < 2) return vistaEdad(ERRORES.pais);
       if (d && m && (!!d.value !== !!m.value || (b.cumple && !fechaValida(b.cumple)))) return vistaEdad(ERRORES.cumple);
       ev.currentTarget.disabled = true; ev.currentTarget.textContent = 'Guardando…';
       const r = await api('perfil_guardar', {
         sesion: E.sesion, correo: E.correo, nombre: b.nombre, usuario: b.usuario,
         mayor: b.mayor, venezuela: b.venezuela, whatsapp: b.mayor === 'Sí' ? b.whatsapp : '', ofertas: b.mayor === 'Sí' ? b.ofertas : 'No',
-        ...(conCumple ? { cumple: b.cumple || '', estado: b.venezuela === 'Sí' ? b.estado || '' : '' } : {})
+        ...(conCumple ? { cumple: b.cumple || '', estado: b.venezuela === 'Sí' ? b.estado || '' : '', pais: b.venezuela === 'No' ? b.pais || '' : '' } : {})
       });
       if (!r.ok) {
         if (r.error === 'sesion') return cerrarSesion(true);
@@ -1046,7 +1056,7 @@ function vistaYo() {
       <div class="lista">
         ${p.correo ? `<div><span>Correo</span><span>${esc(p.correo)}</span></div>` : ''}
         <div><span>Edad</span><span>${p.mayor === 'Sí' ? '18 años o más' : 'Menor de edad'}</span></div>
-        <div><span>Vives en Venezuela</span><span>${p.venezuela === 'Sí' ? (p.estado ? 'Sí · ' + esc(p.estado) : 'Sí') : 'No'}</span></div>
+        <div><span>Vives en Venezuela</span><span>${p.venezuela === 'Sí' ? (p.estado ? 'Sí · ' + esc(p.estado) : 'Sí') : (p.pais ? 'No · ' + esc(p.pais) : 'No')}</span></div>
         ${p.cumple ? `<div><span>Cumpleaños</span><span>${Number(p.cumple.split('-')[1])} de ${MESES[Number(p.cumple.split('-')[0]) - 1] || ''}</span></div>` : ''}
         ${p.mayor === 'Sí' ? `<div><span>Ofertas</span><span>${p.ofertas === 'Sí' ? 'Sí' : 'No'}</span></div>` : ''}
       </div>
