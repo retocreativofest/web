@@ -269,4 +269,18 @@ function wireCuenta(){
   tick(); t = setInterval(tick, 1000);
 }
 
-wireMenu(); wireLinks(); wireCuenta(); wireApp(); wireForms(); wireCart(); wireFloat(); wireCanal(); wireRedes(); renderAll();
+/* ---------- contenido con fecha ----------
+   data-hasta="FECHA": se quita desde esa fecha. data-desde="FECHA": solo aparece desde esa fecha.
+   Así los precios de preventa cambian solos al regular sin tener que editar la web ese día. */
+function wireFechas(){
+  const aplicar = () => {
+    const ahora = Date.now();
+    $$('[data-hasta]').forEach(el => { if (ahora >= Date.parse(el.dataset.hasta)) el.remove(); });
+    $$('[data-desde]').forEach(el => { el.hidden = ahora < Date.parse(el.dataset.desde); });
+  };
+  aplicar();
+  const prox = [...$$('[data-hasta]'), ...$$('[data-desde]')].map(el => Date.parse(el.dataset.hasta || el.dataset.desde) - Date.now()).filter(t => t > 0 && t < 864e5);
+  if (prox.length) setTimeout(aplicar, Math.min(...prox) + 500);   // por si alguien tiene la página abierta justo a medianoche
+}
+
+wireMenu(); wireLinks(); wireFechas(); wireCuenta(); wireApp(); wireForms(); wireCart(); wireFloat(); wireCanal(); wireRedes(); renderAll();

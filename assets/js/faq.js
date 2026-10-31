@@ -1,4 +1,6 @@
 /* Preguntas frecuentes: para agregar o cambiar una pregunta, edita FAQ. */
+/* Precios de preventa de los stands hasta el 6 de noviembre; el 7 cambian solos al precio regular. */
+const PREVENTA = Date.now() < Date.parse('2026-11-07T00:00:00-04:00');
 const FAQ = [
  {id:'categorias', t:'Categorías y cómo clasificar', c:'#FFD60A', q:[
   ['Ilustrador estrella: ¿cómo se gana?', `<p><b>Categoría principal · 1 ganador.</b> Para quien acumula más puestos de honor en los resultados semanales.</p><p><b>Cómo se clasifica:</b> cada 1.er lugar suma 3 puntos y cada 2.º o 3.er lugar suma 1. Gana quien tenga más puntos.</p><a class="act" href="reto-semanal.html">Ver «Así van los puntajes»</a>`],
@@ -46,8 +48,10 @@ const FAQ = [
   ['¿Hacen envíos?', `<p>Sí, hacemos <b>envíos nacionales por MRW con cobro a destino</b>. Todos los productos se entregan por MRW, salvo que elijas retirarlos el día del evento.</p>`]
  ]},
  {id:'bazar', t:'Bazar creativo', c:'#6B3FA0', q:[
-  ['¿Cuánto cuesta un stand?', `<p>Estos son los precios de <b>preventa</b>, válidos hasta el 6 de noviembre de 2026:</p><ul><li>Stand para artistas (1 × 1 m): <b>$20</b></li><li>Stand básico (1 × 1 m): <b>$30</b></li><li>Stand pro (1,5 × 1,5 m): <b>$40</b></li></ul><p>Se pagan en 2 cuotas. Desde el 7 de noviembre aplica el precio regular ($30, $40 y $50).</p><a class="act" href="bazar-creativo.html">Reservar mi stand</a>`],
-  ['¿Cómo pago mi stand?', `<ul><li><b>Hasta el 6 de noviembre:</b> solo USD en efectivo, Binance, Zinli o PayPal (con comisión). No se aceptan bolívares.</li><li><b>Desde el 7 de noviembre:</b> también Pago Móvil. Si pagas completo, a tasa dólar BCV del día; si pagas en dos cuotas, a tasa euro BCV del día.</li></ul>`],
+  ['¿Cuánto cuesta un stand?', PREVENTA ? `<p>Estos son los precios de <b>preventa</b>, válidos hasta el 6 de noviembre de 2026:</p><ul><li>Stand para artistas (1 × 1 m): <b>$20</b></li><li>Stand básico (1 × 1 m): <b>$30</b></li><li>Stand pro (1,5 × 1,5 m): <b>$40</b></li></ul><p>Se pagan en 2 cuotas. Desde el 7 de noviembre aplica el precio regular ($30, $40 y $50).</p><a class="act" href="bazar-creativo.html">Reservar mi stand</a>`
+    : `<ul><li>Stand para artistas (1 × 1 m): <b>$30</b></li><li>Stand básico (1 × 1 m): <b>$40</b></li><li>Stand pro (1,5 × 1,5 m): <b>$50</b></li></ul><p>Puedes pagar completo o en 2 cuotas; la 2.ª vence el 1 de diciembre.</p><a class="act" href="bazar-creativo.html">Reservar mi stand</a>`],
+  ['¿Cómo pago mi stand?', PREVENTA ? `<ul><li><b>Hasta el 6 de noviembre:</b> solo USD en efectivo, Binance, Zinli o PayPal (con comisión). No se aceptan bolívares.</li><li><b>Desde el 7 de noviembre:</b> también Pago Móvil. Si pagas completo, a tasa dólar BCV del día; si pagas en dos cuotas, a tasa euro BCV del día.</li></ul>`
+    : `<p>USD en efectivo, Binance, Zinli, PayPal (con comisión) o Pago Móvil. Si pagas completo, a tasa dólar BCV del día; si pagas en dos cuotas, a tasa euro BCV del día. La 2.ª cuota vence el 1 de diciembre.</p>`],
   ['¿Qué incluye el stand?', `<p>Kit de bienvenida, promoción de tu marca en redes y fotos del evento. Cada marca debe donar 1 producto para el sorteo de la Ruta creativa.</p>`],
   ['¿Tengo que llevar mesa y silla?', `<p>Sí. Cada expositor lleva sus <b>propias mesas, sillas y mobiliario, sin excepción</b>, adaptados al tamaño de su espacio.</p>`]
  ]},
