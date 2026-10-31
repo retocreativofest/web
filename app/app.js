@@ -326,17 +326,17 @@ function vistaEdad(error) {
       <img class="cara" src="${caraGuia(E.guia)}" alt="">
     </header>
     <div class="cont">
-      <fieldset><legend>¿Tienes 18 años o más?</legend>
-        <div class="par"><button type="button" class="opcion" data-k="mayor" data-v="Sí" aria-pressed="${mayor}">Sí</button><button type="button" class="opcion" data-k="mayor" data-v="No" aria-pressed="${menor}">No, soy menor</button></div>
+      <fieldset><legend>¿Cuántos años tienes?</legend>
+        <div class="par"><button type="button" class="opcion" data-k="mayor" data-v="Sí" aria-pressed="${mayor}">Tengo 18 o más</button><button type="button" class="opcion" data-k="mayor" data-v="No" aria-pressed="${menor}">Tengo menos de 18</button></div>
       </fieldset>
-      ${menor && conMenor13 ? `<fieldset><legend>¿Tienes 13 años o más?</legend>
-        <div class="par"><button type="button" class="opcion" data-k="mas13" data-v="Sí" aria-pressed="${b.mas13 === 'Sí'}">Sí</button><button type="button" class="opcion" data-k="mas13" data-v="No" aria-pressed="${b.mas13 === 'No'}">No</button></div>
+      ${menor && conMenor13 ? `<fieldset><legend>¿Y tienes 13 años o más?</legend>
+        <div class="par"><button type="button" class="opcion" data-k="mas13" data-v="Sí" aria-pressed="${b.mas13 === 'Sí'}">Tengo 13 o más</button><button type="button" class="opcion" data-k="mas13" data-v="No" aria-pressed="${b.mas13 === 'No'}">Tengo menos de 13</button></div>
       </fieldset>` : ''}
       ${conCumple ? `<fieldset><legend>Tu cumpleaños <span class="ayuda">(opcional)</span></legend>
         <div class="par"><select id="cd" aria-label="Día"><option value="">Día</option>${Array.from({ length: 31 }, (_, i) => `<option value="${String(i + 1).padStart(2, '0')}" ${cd === String(i + 1).padStart(2, '0') ? 'selected' : ''}>${i + 1}</option>`).join('')}</select><select id="cm" aria-label="Mes"><option value="">Mes</option>${MESES.map((m, i) => `<option value="${String(i + 1).padStart(2, '0')}" ${cm === String(i + 1).padStart(2, '0') ? 'selected' : ''}>${m}</option>`).join('')}</select></div>
         <span class="ayuda">Solo el día y el mes, sin el año. Ese día te llega una sorpresa del Reto 🎂</span></fieldset>` : ''}
-      <fieldset><legend>¿Vives en Venezuela?</legend>
-        <div class="par"><button type="button" class="opcion" data-k="venezuela" data-v="Sí" aria-pressed="${vzla}">Sí</button><button type="button" class="opcion" data-k="venezuela" data-v="No" aria-pressed="${fuera}">No, vivo afuera</button></div>
+      <fieldset><legend>¿Dónde vives?</legend>
+        <div class="par"><button type="button" class="opcion" data-k="venezuela" data-v="Sí" aria-pressed="${vzla}">Vivo en Venezuela</button><button type="button" class="opcion" data-k="venezuela" data-v="No" aria-pressed="${fuera}">Vivo en otro país</button></div>
       </fieldset>
       ${fuera ? `<div class="caja rosa" role="note"><strong class="t">Vives fuera de Venezuela</strong>Puedes participar, subir tus dibujos y tener racha con tus amigos. Pero tus puntos no cuentan para el ranking global ni para los premios: son para personas que viven en Venezuela.</div>` : ''}
       ${fuera && conCumple ? `<label class="campo" for="pais">¿En qué país vives?
