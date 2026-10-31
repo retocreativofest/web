@@ -283,4 +283,16 @@ function wireFechas(){
   if (prox.length) setTimeout(aplicar, Math.min(...prox) + 500);   // por si alguien tiene la página abierta justo a medianoche
 }
 
-wireMenu(); wireLinks(); wireFechas(); wireCuenta(); wireApp(); wireForms(); wireCart(); wireFloat(); wireCanal(); wireRedes(); renderAll();
+/* ---------- clics en los logos de patrocinantes ----------
+   Cada toque se anota en el Sheet (pestaña «clics_patrocinantes»; total por marca en «clics_resumen»).
+   Solo se envía la marca y la página: nada de la persona. sendBeacon no frena la ida a Instagram. */
+function wireClics(){
+  $$('a.patro-card').forEach(a => a.addEventListener('click', () => {
+    if (!CONFIG.formularios) return;
+    const marca = ($('img', a) || {}).alt || '';
+    const datos = new URLSearchParams({formulario:'clic', marca, pagina:location.pathname});
+    try { if (!(navigator.sendBeacon && navigator.sendBeacon(CONFIG.formularios, datos))) fetch(CONFIG.formularios, {method:'POST', mode:'no-cors', body:datos, keepalive:true}); } catch(e){}
+  }));
+}
+
+wireMenu(); wireLinks(); wireFechas(); wireCuenta(); wireClics(); wireApp(); wireForms(); wireCart(); wireFloat(); wireCanal(); wireRedes(); renderAll();
