@@ -237,11 +237,11 @@ legend{font-weight:700;font-size:14px;padding:0;margin-bottom:6px}
 .ch{gap:10px;padding-top:10px}
 .reloj-ch{flex:none;font-family:var(--display);font-weight:800;font-size:20px;background:var(--amarillo);border:3px solid var(--ink);border-radius:14px;padding:4px 10px;min-width:64px;text-align:center;font-variant-numeric:tabular-nums}
 .reloj-ch.poco{background:#F0479B;animation:bob 1s ease-in-out infinite}
-.ch-tit{display:flex;flex-direction:column;gap:4px}
-.pill-ch{align-self:flex-start;background:var(--ink);color:var(--amarillo);border-radius:999px;padding:2px 10px;font-size:11px;font-weight:800}
-.ch-tit h2{margin:0;font-family:var(--display);font-size:21px;line-height:1.15;min-height:2.3em}
+.ch-tit{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.pill-ch{align-self:center;background:var(--ink);color:var(--amarillo);border-radius:999px;padding:2px 10px;font-size:11px;font-weight:800}
+.ch-tit h2{margin:0;font-family:var(--display);font-size:21px;line-height:1.15;min-height:2.3em;display:flex;align-items:center;justify-content:center}
 .ch-tit h2.girando{color:var(--morado);animation:ch-gira .09s linear infinite}
-.ch-tit h2.cae{animation:ch-cae .6s cubic-bezier(.2,1.6,.4,1);transform-origin:left center}
+.ch-tit h2.cae{animation:ch-cae .6s cubic-bezier(.2,1.6,.4,1);transform-origin:center}
 @keyframes ch-gira{0%{transform:translateY(-3px);opacity:.55}100%{transform:translateY(3px);opacity:1}}
 @keyframes ch-cae{0%{transform:scale(1.18);color:var(--violeta)}100%{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.ch-tit h2.girando,.ch-tit h2.cae{animation:none}}

@@ -6,7 +6,8 @@ const POOL = ['3 gatos azules', '2 bomberos verdes', '1 taza rosada', '2 perros 
   '2 caras tristes azules', '1 tortuga marrón', '3 manzanas moradas', '2 cocineros naranja', '1 vaca azul', '3 medias rosadas',
   '2 caras sorprendidas verdes', '1 caracol amarillo', '3 estrellas marrones', '2 casas moradas', '1 jirafa verde', '3 sombrillas naranja',
   '2 pintores rojos', '1 bufanda azul', '3 nubes rosadas', '2 conejos marrones', '1 cara enojada morada', '2 árboles azules',
-  '3 globos verdes', '1 maestra amarilla', '2 gorras rosadas', '1 pulpo rojo', '3 flores naranja'];
+  '3 globos verdes', '1 maestra amarilla', '2 gorras rosadas', '1 pulpo rojo', '3 flores naranja',
+  '3 arepas amarillas', '2 guacamayas rojas', '1 chigüire marrón', '2 turpiales naranja', '3 cayenas rojas'];   // 31 oct: chispas venezolanas
 const GAMAS = [['Rojo', '#FF5A5A', '#B30000'], ['Naranja', '#FFB04D', '#E06A00'], ['Amarillo', '#FFF35C', '#E0B400'],
   ['Verde', '#7EDC6A', '#1E7A1E'], ['Azul', '#6FB6FF', '#0B3D91'], ['Rosado', '#FFB3D1', '#E0408A'], ['Morado', '#C79BF2', '#5B2A86'],
   ['Marrón', '#C68B59', '#6B3E1E'], ['Piel', '#F6D3B3', '#A86B3C'], ['Negro', '#FFFFFF', '#000000'], ['Gris', '#C8C8C8', '#6E6E6E']];

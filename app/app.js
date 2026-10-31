@@ -1,5 +1,5 @@
 /* #RetoMenteMilenial · app: entrar, registro, Hoy, subir al Padlet, rachas, ranking, amigos, Chispa del día y Club Estrella */
-import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento } from './chispa.js?v=8';
+import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento } from './chispa.js?v=9';
 const CONFIG = {
   api: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
