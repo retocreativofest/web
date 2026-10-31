@@ -78,7 +78,7 @@ img{max-width:100%}
 /* formularios */
 .campo{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:13px}
 .campo input{border:3px solid var(--ink);border-radius:12px;padding:10px 12px;font-size:16px;font-weight:600;background:var(--white);min-width:0;width:100%}
-fieldset select{border:3px solid var(--ink);border-radius:12px;padding:10px 12px;font:600 16px var(--texto);color:var(--ink);background:var(--white);min-width:0;width:100%}
+fieldset select,.campo select{border:3px solid var(--ink);border-radius:12px;padding:10px 12px;font:600 16px var(--texto);color:var(--ink);background:var(--white);min-width:0;width:100%}
 .campo .ayuda{font-weight:600;color:var(--muted);font-size:12px}
 .tel{display:flex;align-items:center;border:3px solid var(--ink);border-radius:12px;background:var(--white);overflow:hidden}
 .tel span{padding:10px;background:var(--lila-2);border-right:3px solid var(--ink);font-weight:700;font-size:15px}
