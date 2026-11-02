@@ -174,11 +174,20 @@ function marcaReto(a) {
 function franjaAliados() {
   const al = (E.patro && E.patro.r && E.patro.r.aliados) || [];
   if (!al.length) return '';
+  const codigos = al.filter(x => x.codigo).map(x => `<div class="codigo-app"><span>🏷️ <b>${esc(x.nombre)}</b>${x.descuento ? ': ' + esc(x.descuento) : ''}</span><button type="button" class="codigo-btn" data-codigo="${esc(x.codigo)}" aria-label="Copiar el código ${esc(x.codigo)}">${esc(x.codigo)} <small>Copiar</small></button></div>`).join('');
   return `<div class="aliados-app"><span>Con el apoyo de</span><div>${al.map(x => {
     const img = `<img src="${esc(x.logo)}" alt="${esc(x.nombre)}" height="34">`;
     return x.enlace ? `<a href="${esc(x.enlace)}" target="_blank" rel="noopener">${img}</a>` : img;
-  }).join('')}</div></div>`;
+  }).join('')}</div></div>${codigos ? `<div class="codigos-app"><strong>Descuentos para la comunidad</strong>${codigos}</div>` : ''}`;
 }
+/* Copiar el código de descuento de un aliado (funciona en cualquier pantalla que lo muestre). */
+document.addEventListener('click', async ev => {
+  const b = ev.target.closest && ev.target.closest('[data-codigo]');
+  if (!b) return;
+  const c = b.dataset.codigo;
+  try { await navigator.clipboard.writeText(c); aviso('Código ' + c + ' copiado. Úsalo al comprar.'); }
+  catch (e) { aviso('Tu código es ' + c); }
+});
 
 /* ---------- autorización del representante: en qué va, reenviar el correo y rebotes ----------
    Usa el Apps Script aparte (CONFIG.extra). Se consulta como mucho una vez por minuto. */

@@ -333,3 +333,8 @@ legend{font-weight:700;font-size:14px;padding:0;margin-bottom:6px}
 .aliados-app{display:flex;align-items:center;gap:10px;background:var(--white);border:3px solid var(--ink);border-radius:16px;padding:8px 12px;font-weight:700;font-size:13px}
 .aliados-app>div{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .aliados-app img{height:34px;width:auto;max-width:110px;object-fit:contain;display:block}
+.codigos-app{display:flex;flex-direction:column;gap:8px;background:var(--crema);border:3px solid var(--ink);border-radius:16px;padding:10px 12px}
+.codigos-app strong{font-family:var(--display);font-size:14px}
+.codigo-app{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:600}
+.codigo-btn{flex:none;border:2px dashed var(--ink);background:var(--white);border-radius:10px;padding:6px 10px;font-family:var(--display);font-weight:800;font-size:14px;cursor:pointer;letter-spacing:.04em}
+.codigo-btn small{font-family:var(--texto);font-weight:700;font-size:11px;color:var(--morado);margin-left:4px;letter-spacing:0}
