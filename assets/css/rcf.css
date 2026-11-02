@@ -577,3 +577,12 @@ html,body{overflow-x:clip}
 .reto-ya .ctas{margin-top:6px}
 .reto-ya .b-ghost{color:var(--white);border-color:var(--white)}
 .planes .stand .pr{font-size:28px}
+.reto-ya{position:relative}
+.reto-ya.con-logo h2,.reto-ya.con-logo .reto-desc{padding-right:130px}
+.reto-ya .reto-logo{position:absolute;top:clamp(20px,3vw,32px);right:clamp(20px,3vw,32px);width:110px;height:110px;object-fit:contain;background:var(--white);border-radius:18px;padding:8px}
+.reto-ya .reto-premio{font-weight:700}
+.aliados-web{max-width:880px;margin:24px auto 0;border:3px solid var(--ink);border-radius:22px;background:var(--white);padding:16px 24px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.aliados-web b{font-family:var(--display);font-size:18px}
+.aliados-web>div{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.aliados-web img{height:50px;width:auto;max-width:150px;object-fit:contain;display:block}
+@media (max-width:600px){.reto-ya .reto-logo{width:72px;height:72px}.reto-ya.con-logo h2,.reto-ya.con-logo .reto-desc{padding-right:84px}}

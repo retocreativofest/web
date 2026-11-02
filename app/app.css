@@ -324,3 +324,12 @@ legend{font-weight:700;font-size:14px;padding:0;margin-bottom:6px}
 [data-aut-estado]:empty{display:none}
 .aut-t{display:block;font-weight:600;font-size:14px}
 .aut-alerta{background:var(--rosa);border:2px solid var(--rosa-osc);border-radius:12px;padding:8px 10px}
+
+/* patrocinio: logo del Reto Aliado y aliados */
+.reto{position:relative}
+.reto.con-logo h2,.reto.con-logo>p:first-of-type{padding-right:76px}
+.reto-logo{position:absolute;top:14px;right:14px;width:64px;height:64px;object-fit:contain;background:var(--white);border:2px solid var(--ink);border-radius:12px;padding:4px}
+.reto .reto-premio{font-size:13px;font-weight:700}
+.aliados-app{display:flex;align-items:center;gap:10px;background:var(--white);border:3px solid var(--ink);border-radius:16px;padding:8px 12px;font-weight:700;font-size:13px}
+.aliados-app>div{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.aliados-app img{height:34px;width:auto;max-width:110px;object-fit:contain;display:block}

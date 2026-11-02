@@ -153,6 +153,33 @@ function pintar(html, alPintar) {
   estadoAutorizacion();
 }
 
+/* ---------- patrocinio: logo del Reto Aliado y franja «Con el apoyo de» ----------
+   Viene del Apps Script aparte (CONFIG.extra), pestañas «Retos» (columnas marca, logo, premio) y «aliados». */
+async function cargarPatrocinio() {
+  if (!CONFIG.extra || (E.patro && Date.now() - E.patro.t < 6e5)) return;
+  let r;
+  try {
+    const res = await fetch(CONFIG.extra, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ accion: 'patrocinio' }) });
+    r = await res.json();
+  } catch (e) { return; }
+  if (!r || !r.ok) return;
+  const antes = JSON.stringify(E.patro && E.patro.r);
+  E.patro = { t: Date.now(), r };
+  if (antes !== JSON.stringify(r) && estaEn === 'hoy' && E.hoy) dibujarHoy(E.hoy);
+}
+function marcaReto(a) {
+  const r = E.patro && E.patro.r && E.patro.r.reto;
+  return r && a && r.marca && Number(r.semana) === Number(a.semana) && String(r.temporada) === String(a.temporada) ? r.marca : null;
+}
+function franjaAliados() {
+  const al = (E.patro && E.patro.r && E.patro.r.aliados) || [];
+  if (!al.length) return '';
+  return `<div class="aliados-app"><span>Con el apoyo de</span><div>${al.map(x => {
+    const img = `<img src="${esc(x.logo)}" alt="${esc(x.nombre)}" height="34">`;
+    return x.enlace ? `<a href="${esc(x.enlace)}" target="_blank" rel="noopener">${img}</a>` : img;
+  }).join('')}</div></div>`;
+}
+
 /* ---------- autorización del representante: en qué va, reenviar el correo y rebotes ----------
    Usa el Apps Script aparte (CONFIG.extra). Se consulta como mucho una vez por minuto. */
 let autCache = null, autPidiendo = false;
@@ -491,6 +518,7 @@ async function vistaHoy() {
   const r = await api('hoy', { sesion: E.sesion });
   if (!r.ok) { if (!E.hoy) dibujarHoy(null, textoError(r.error)); return; }
   E.hoy = r; guardar('hoy', r);   // la próxima vez se muestra al instante
+  cargarPatrocinio();
   desfase = new Date(r.ahora) - Date.now();
   if (estaEn === 'hoy') dibujarHoy(r);
   const m = await api('mi_semana', { sesion: E.sesion });
@@ -563,10 +591,12 @@ function dibujarHoy(h, error) {
       <div class="progreso"><div class="t"><span>${esc(a.temporada)} · semana ${a.semana} de ${total - 1}</span><span>Premiación: ${premio}</span></div><div class="b"><i style="width:${pct}%"></i></div></div>
       <div class="saludo">${toqueNuevo() ? `<img src="${(STICKERS[toqueNuevo().sticker] || STICKERS[0])[0]}" alt="Sticker de ${esc(toqueNuevo().nombre)}" width="112" height="112">` : `<img src="${imgGuia(E.guia)}" alt="${E.guia === 'tradi' ? 'Tradi' : 'Digi'} dibujando" width="112" height="108">`}<div class="burbuja">${burbujaHoy(nom, a)}</div></div>
       ${tarjetaVoto(h.votacion)}
-      <section class="reto" aria-labelledby="reto-h">
+      <section class="reto${marcaReto(a) && marcaReto(a).logo ? ' con-logo' : ''}" aria-labelledby="reto-h">
         <span class="pill">Reto de la semana ${a.semana}</span>${h.clubAnticipado ? '<span class="pill-club">★ Club: lo ves 24 h antes que todos</span>' : ''}
+        ${marcaReto(a) && marcaReto(a).logo ? `<img class="reto-logo" src="${esc(marcaReto(a).logo)}" alt="${esc(marcaReto(a).nombre || 'Marca aliada')}" width="64" height="64">` : ''}
         <h2 id="reto-h">${esc(a.tema || 'Reto de la semana')}</h2>
         ${a.descripcion ? `<p>${esc(a.descripcion)}</p>` : ''}
+        ${marcaReto(a) && marcaReto(a).nombre ? `<p class="reto-premio">🎁 Premio de <b>${esc(marcaReto(a).nombre)}</b>${marcaReto(a).premio ? ': ' + esc(marcaReto(a).premio) : ''} al dibujo que elija la marca</p>` : ''}
         <div class="tiempo"><span id="cd">${cuenta(a.cierre)}</span><span>Cierra el ${fecha(a.cierre)}, ${hora(a.cierre)}</span></div>
         ${yaSubio()
           ? `<div class="caja" style="text-align:center;background:var(--white)">✓ Ya subiste tu dibujo de esta semana</div>${botonesCompartir(E.semana.padlet || CONFIG.padlet)}`
@@ -576,7 +606,8 @@ function dibujarHoy(h, error) {
           : E.club && E.club.activo
           ? (E.club.protectores > 0 ? `<button type="button" class="btn blanco chico" id="proteger">🛡️ Usar un protector de racha (te quedan ${E.club.protectores})</button>` : '<p class="nota">Ya usaste tus 2 protectores de este mes.</p>')
           : '<button type="button" class="enlace" data-ir="club" style="font-size:13px">🛡️ Con el Club Estrella tienes 2 protectores al mes para que tu racha no se apague</button>') : ''}
-      </section>`;
+      </section>
+      ${franjaAliados()}`;
   } else {
     // Sin reto abierto (por ejemplo, del 1 al 22 de diciembre): la Chispa del día es lo principal y el reto dice «Próximamente».
     const p = h.proximo, hecha = chispaHechaHoy(), adv = adviento();

@@ -337,7 +337,9 @@ function wireRetoWeb(){
     const ahora = Date.parse(d.ahora) || Date.now(), r = d.reto;
     let html = '';
     if (r && ahora < Date.parse(r.cierre)){
-      html = `<span class="pill p-yellow">Reto de la semana ${esc(r.semana)}</span><h2>${esc(r.tema)}</h2><p class="reto-desc">${esc(r.descripcion)}</p>
+      const m = r.marca;
+      html = `${m && m.logo ? `<img class="reto-logo" src="${esc(m.logo)}" alt="${esc(m.nombre || 'Marca aliada')}" width="110" height="110">` : ''}<span class="pill p-yellow">Reto de la semana ${esc(r.semana)}</span><h2>${esc(r.tema)}</h2><p class="reto-desc">${esc(r.descripcion)}</p>
+        ${m && m.nombre ? `<p class="reto-premio">🎁 Premio de <b>${esc(m.nombre)}</b>${m.premio ? ': ' + esc(m.premio) : ''} al dibujo que elija la marca</p>` : ''}
         <p class="reto-cierre">Sube tu dibujo desde la app antes del <b>${cuandoW(r.cierre)}</b>.</p>
         <div class="ctas">${appBtn}<a class="btn b-ghost" data-link="padlet" href="#">Ver los dibujos en el Padlet</a></div>`;
     } else if (r && d.proximo){
@@ -348,11 +350,15 @@ function wireRetoWeb(){
         <p class="reto-desc">Descarga la app, crea tu cuenta y prepárate: desde ahí ves cada reto, subes tu dibujo y empiezas tu racha.</p><div class="ctas">${appBtn}</div>`;
     }
     if (!html) return;
+    const al = d.aliados || [];
+    const franja = al.length ? `<div class="aliados-web"><b>Aliados del #RetoMenteMilenial</b><div>${al.map(x => { const img = `<img src="${esc(x.logo)}" alt="${esc(x.nombre)}" height="50">`; return x.enlace ? `<a href="${esc(x.enlace)}" target="_blank" rel="noopener">${img}</a>` : img; }).join('')}</div></div>` : '';
     cajas.forEach(c => {
       const sec = c.closest('.reto-sec');
       if (sec && sec.hasAttribute('data-solo-post') && !POST_EVENTO) return;   // en el inicio, solo después del festival
       if (sec && sec.dataset.retoDesde && Date.now() < Date.parse(sec.dataset.retoDesde)) return;   // en Reto semanal, cuando termina la temporada actual
       c.innerHTML = html; c.hidden = false; if (sec) sec.hidden = false;
+      c.classList.toggle('con-logo', !!(r && r.marca && r.marca.logo && html.indexOf('reto-logo') >= 0));
+      if (franja && !c.nextElementSibling) c.insertAdjacentHTML('afterend', franja);
     });
     wireLinks();
   }).catch(() => {});
