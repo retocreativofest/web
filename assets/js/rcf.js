@@ -351,7 +351,7 @@ function wireRetoWeb(){
     }
     if (!html) return;
     const al = d.aliados || [];
-    const franja = al.length ? `<div class="aliados-web"><b>Aliados del #RetoMenteMilenial</b><div>${al.map(x => { const img = `<img src="${esc(x.logo)}" alt="${esc(x.nombre)}" height="50">`; return x.enlace ? `<a href="${esc(x.enlace)}" target="_blank" rel="noopener">${img}</a>` : img; }).join('')}</div></div>` : '';
+    const franja = al.length ? `<div class="aliados-web"><div class="aw-t"><b>🏷️ Descuentos para la comunidad</b><span>Los códigos están en la app del reto. Descárgala gratis para usarlos.</span></div><ul>${al.map(x => `<li>${x.logo ? `<img src="${esc(x.logo)}" alt="" height="40">` : ''}<span><b>${esc(x.nombre)}</b>${x.descuento ? ': ' + esc(x.descuento) : ''}</span></li>`).join('')}</ul><a class="btn b-yellow" href="reto-semanal.html#app">Descargar la app</a></div>` : '';
     cajas.forEach(c => {
       const sec = c.closest('.reto-sec');
       if (sec && sec.hasAttribute('data-solo-post') && !POST_EVENTO) return;   // en el inicio, solo después del festival

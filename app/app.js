@@ -172,13 +172,9 @@ function marcaReto(a) {
   return r && a && r.marca && Number(r.semana) === Number(a.semana) && String(r.temporada) === String(a.temporada) ? r.marca : null;
 }
 function franjaAliados() {
-  const al = (E.patro && E.patro.r && E.patro.r.aliados) || [];
+  const al = ((E.patro && E.patro.r && E.patro.r.aliados) || []).filter(x => x.codigo);
   if (!al.length) return '';
-  const codigos = al.filter(x => x.codigo).map(x => `<div class="codigo-app"><span>🏷️ <b>${esc(x.nombre)}</b>${x.descuento ? ': ' + esc(x.descuento) : ''}</span><button type="button" class="codigo-btn" data-codigo="${esc(x.codigo)}" aria-label="Copiar el código ${esc(x.codigo)}">${esc(x.codigo)} <small>Copiar</small></button></div>`).join('');
-  return `<div class="aliados-app"><span>Con el apoyo de</span><div>${al.map(x => {
-    const img = `<img src="${esc(x.logo)}" alt="${esc(x.nombre)}" height="34">`;
-    return x.enlace ? `<a href="${esc(x.enlace)}" target="_blank" rel="noopener">${img}</a>` : img;
-  }).join('')}</div></div>${codigos ? `<div class="codigos-app"><strong>Descuentos para la comunidad</strong>${codigos}</div>` : ''}`;
+  return `<div class="codigos-app"><strong>🏷️ Descuentos para la comunidad</strong>${al.map(x => `<div class="codigo-app">${x.logo ? `<img src="${esc(x.logo)}" alt="${esc(x.nombre)}" height="30">` : ''}<span><b>${esc(x.nombre)}</b>${x.descuento ? ': ' + esc(x.descuento) : ''}</span><button type="button" class="codigo-btn" data-codigo="${esc(x.codigo)}" aria-label="Copiar el código ${esc(x.codigo)}">${esc(x.codigo)} <small>Copiar</small></button></div>`).join('')}</div>`;
 }
 /* Copiar el código de descuento de un aliado (funciona en cualquier pantalla que lo muestre). */
 document.addEventListener('click', async ev => {

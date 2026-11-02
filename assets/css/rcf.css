@@ -581,10 +581,13 @@ html,body{overflow-x:clip}
 .reto-ya.con-logo h2,.reto-ya.con-logo .reto-desc{padding-right:130px}
 .reto-ya .reto-logo{position:absolute;top:clamp(20px,3vw,32px);right:clamp(20px,3vw,32px);width:110px;height:110px;object-fit:contain;background:var(--white);border-radius:18px;padding:8px}
 .reto-ya .reto-premio{font-weight:700}
-.aliados-web{max-width:880px;margin:24px auto 0;border:3px solid var(--ink);border-radius:22px;background:var(--white);padding:16px 24px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
-.aliados-web b{font-family:var(--display);font-size:18px}
-.aliados-web>div{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
-.aliados-web img{height:50px;width:auto;max-width:150px;object-fit:contain;display:block}
+.aliados-web{max-width:880px;margin:24px auto 0;border:3px solid var(--ink);border-radius:22px;background:var(--cream);padding:18px 24px;display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center;justify-content:space-between}
+.aliados-web .aw-t{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 260px}
+.aliados-web .aw-t b{font-family:var(--display);font-size:18px}
+.aliados-web .aw-t span{color:var(--muted);font-size:15px}
+.aliados-web ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;flex:1 1 260px}
+.aliados-web li{display:flex;align-items:center;gap:10px;font-size:15px}
+.aliados-web li img{height:40px;width:auto;max-width:90px;object-fit:contain}
 @media (max-width:600px){.reto-ya .reto-logo{width:72px;height:72px}.reto-ya.con-logo h2,.reto-ya.con-logo .reto-desc{padding-right:84px}}
 .planes .plan-h{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:clamp(20px,2.2vw,26px);margin-top:44px}
 .planes .stand .mas{font-weight:700;color:var(--violet);font-size:14px}
