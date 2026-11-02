@@ -351,6 +351,7 @@ function wireRetoWeb(){
     cajas.forEach(c => {
       const sec = c.closest('.reto-sec');
       if (sec && sec.hasAttribute('data-solo-post') && !POST_EVENTO) return;   // en el inicio, solo después del festival
+      if (sec && sec.dataset.retoDesde && Date.now() < Date.parse(sec.dataset.retoDesde)) return;   // en Reto semanal, cuando termina la temporada actual
       c.innerHTML = html; c.hidden = false; if (sec) sec.hidden = false;
     });
     wireLinks();
