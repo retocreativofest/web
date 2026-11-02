@@ -88,7 +88,7 @@ const ERRORES = {
   edad: 'Responde las dos preguntas.',
   cumple: 'Elige el día y el mes de tu cumpleaños, o deja los dos en blanco.',
   estado: 'Elige el estado de Venezuela donde vives.',
-  pais: 'Escribe el país donde vives.',
+  pais: 'Elige el país donde vives.',
   autorizacion: 'Primero tu representante tiene que confirmar la autorización. Cuando lo haga, se desbloquea solo.',
   sesion: 'Tu sesión venció. Entra otra vez.',
   perfil: 'Completa tu cuenta antes de subir tu dibujo.',
@@ -299,7 +299,10 @@ function vistaPerfil(error) {
   });
 }
 
-const PAISES = ['Alemania', 'Argentina', 'Aruba', 'Australia', 'Bolivia', 'Brasil', 'Canadá', 'Chile', 'Colombia', 'Costa Rica', 'Curazao', 'Ecuador', 'España', 'Estados Unidos', 'Francia', 'Guatemala', 'Irlanda', 'Italia', 'Japón', 'México', 'Panamá', 'Paraguay', 'Perú', 'Portugal', 'Puerto Rico', 'Reino Unido', 'República Dominicana', 'Trinidad y Tobago', 'Uruguay'];
+/* Lista cerrada de países: así nadie escribe mal el nombre. Arriba, los más comunes en la comunidad. */
+const PAISES_FRECUENTES = ['Colombia', 'España', 'Estados Unidos', 'Chile', 'Perú', 'Argentina', 'Panamá', 'México', 'Ecuador', 'Brasil', 'República Dominicana', 'Canadá', 'Italia', 'Portugal'];
+const PAISES = ['Afganistán', 'Albania', 'Alemania', 'Andorra', 'Angola', 'Antigua y Barbuda', 'Arabia Saudita', 'Argelia', 'Argentina', 'Armenia', 'Aruba', 'Australia', 'Austria', 'Azerbaiyán', 'Bahamas', 'Bangladés', 'Barbados', 'Baréin', 'Bélgica', 'Belice', 'Benín', 'Bielorrusia', 'Bolivia', 'Bonaire', 'Bosnia y Herzegovina', 'Botsuana', 'Brasil', 'Brunéi', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Bután', 'Cabo Verde', 'Camboya', 'Camerún', 'Canadá', 'Catar', 'Chad', 'Chequia', 'Chile', 'China', 'Chipre', 'Colombia', 'Comoras', 'Congo', 'Corea del Norte', 'Corea del Sur', 'Costa de Marfil', 'Costa Rica', 'Croacia', 'Cuba', 'Curazao', 'Dinamarca', 'Dominica', 'Ecuador', 'Egipto', 'El Salvador', 'Emiratos Árabes Unidos', 'Eritrea', 'Eslovaquia', 'Eslovenia', 'España', 'Estados Unidos', 'Estonia', 'Esuatini', 'Etiopía', 'Filipinas', 'Finlandia', 'Fiyi', 'Francia', 'Gabón', 'Gambia', 'Georgia', 'Ghana', 'Granada', 'Grecia', 'Guatemala', 'Guayana Francesa', 'Guinea', 'Guinea Ecuatorial', 'Guinea-Bisáu', 'Guyana', 'Haití', 'Honduras', 'Hong Kong', 'Hungría', 'India', 'Indonesia', 'Irak', 'Irán', 'Irlanda', 'Islandia', 'Islas Marshall', 'Islas Salomón', 'Israel', 'Italia', 'Jamaica', 'Japón', 'Jordania', 'Kazajistán', 'Kenia', 'Kirguistán', 'Kiribati', 'Kuwait', 'Laos', 'Lesoto', 'Letonia', 'Líbano', 'Liberia', 'Libia', 'Liechtenstein', 'Lituania', 'Luxemburgo', 'Macedonia del Norte', 'Madagascar', 'Malasia', 'Malaui', 'Maldivas', 'Malí', 'Malta', 'Marruecos', 'Mauricio', 'Mauritania', 'México', 'Micronesia', 'Moldavia', 'Mónaco', 'Mongolia', 'Montenegro', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'Nicaragua', 'Níger', 'Nigeria', 'Noruega', 'Nueva Zelanda', 'Omán', 'Países Bajos', 'Pakistán', 'Palaos', 'Palestina', 'Panamá', 'Papúa Nueva Guinea', 'Paraguay', 'Perú', 'Polonia', 'Portugal', 'Puerto Rico', 'Reino Unido', 'República Centroafricana', 'República Democrática del Congo', 'República Dominicana', 'Ruanda', 'Rumania', 'Rusia', 'Samoa', 'San Cristóbal y Nieves', 'San Marino', 'San Vicente y las Granadinas', 'Santa Lucía', 'Santo Tomé y Príncipe', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leona', 'Singapur', 'Siria', 'Somalia', 'Sri Lanka', 'Sudáfrica', 'Sudán', 'Sudán del Sur', 'Suecia', 'Suiza', 'Surinam', 'Tailandia', 'Tanzania', 'Tayikistán', 'Timor Oriental', 'Togo', 'Tonga', 'Trinidad y Tobago', 'Túnez', 'Turkmenistán', 'Turquía', 'Tuvalu', 'Ucrania', 'Uganda', 'Uruguay', 'Uzbekistán', 'Vanuatu', 'Vaticano', 'Vietnam', 'Yemen', 'Yibuti', 'Zambia', 'Zimbabue'].sort((a, b) => a.localeCompare(b, 'es'));
+const OTRO_PAIS = 'Otro país';
 const ESTADOS = ['Amazonas', 'Anzoátegui', 'Apure', 'Aragua', 'Barinas', 'Bolívar', 'Carabobo', 'Cojedes', 'Delta Amacuro', 'Distrito Capital', 'Falcón', 'Guárico', 'La Guaira', 'Lara', 'Mérida', 'Miranda', 'Monagas', 'Nueva Esparta', 'Portuguesa', 'Sucre', 'Táchira', 'Trujillo', 'Yaracuy', 'Zulia'];
 const fechaValida = mmdd => { const [m, d] = mmdd.split('-').map(Number); return d >= 1 && d <= [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1]; };
 
@@ -334,8 +337,11 @@ function vistaEdad(error) {
       </fieldset>
       ${fuera ? `<div class="caja rosa" role="note"><strong class="t">Vives fuera de Venezuela</strong>Puedes participar, subir tus dibujos y tener racha con tus amigos. Pero tus puntos no cuentan para el ranking global ni para los premios: son para personas que viven en Venezuela.</div>` : ''}
       ${fuera && conCumple ? `<label class="campo" for="pais">¿En qué país vives?
-        <input id="pais" type="text" list="paises" maxlength="40" autocomplete="country-name" value="${esc(b.pais || '')}" placeholder="Escribe o elige tu país" required>
-        <datalist id="paises">${PAISES.map(x => `<option value="${x}"></option>`).join('')}</datalist>
+        <select id="pais" required><option value="">Elige tu país</option>
+          ${b.pais && PAISES.indexOf(b.pais) < 0 && b.pais !== OTRO_PAIS ? `<option selected>${esc(b.pais)}</option>` : ''}
+          <optgroup label="Más frecuentes">${PAISES_FRECUENTES.map(x => `<option ${b.pais === x ? 'selected' : ''}>${x}</option>`).join('')}</optgroup>
+          <optgroup label="Todos los países">${PAISES.filter(x => PAISES_FRECUENTES.indexOf(x) < 0).map(x => `<option ${b.pais === x ? 'selected' : ''}>${x}</option>`).join('')}<option ${b.pais === OTRO_PAIS ? 'selected' : ''}>${OTRO_PAIS}</option></optgroup>
+        </select>
       </label>` : ''}
       ${vzla && conCumple ? `<label class="campo" for="est">¿En qué estado vives?
         <select id="est" required><option value="">Elige tu estado</option>${ESTADOS.map(e => `<option ${b.estado === e ? 'selected' : ''}>${e}</option>`).join('')}</select>
@@ -363,7 +369,7 @@ function vistaEdad(error) {
       const e = root.querySelector('#est');
       if (e) b.estado = e.value;
       const pa = root.querySelector('#pais');
-      if (pa) b.pais = pa.value.trim().replace(/\s+/g, ' ');
+      if (pa) b.pais = pa.value;
     };
     root.querySelectorAll('[data-k]').forEach(btn => btn.addEventListener('click', () => { leerCampos(); b[btn.dataset.k] = btn.dataset.v; vistaEdad(); }));
     on('#v', 'click', () => { leerCampos(); vistaPerfil(); });
@@ -1109,6 +1115,7 @@ function vistaYo() {
       ${E.club && E.club.cumple && E.club.cumple.disponible ? `<div class="caja crema"><strong class="t">🎂 Tu regalo de cumpleaños</strong>Tienes un protector de racha hasta el ${fechaCorta(E.club.cumple.hasta)}. Úsalo en «Hoy» si tu racha está en riesgo.</div>` : ''}
       ${avisosHtml()}
       ${instalada ? '' : `<button type="button" class="btn amarillo chico" id="instalar">📲 Instalar la app en mi teléfono</button>`}
+      <button type="button" class="btn blanco chico" id="tuto">👋 Ver el tutorial otra vez</button>
       <a class="btn blanco chico" href="${CONFIG.web}/preguntas-frecuentes.html" target="_blank" rel="noopener">Preguntas frecuentes</a>
       <button type="button" class="enlace" id="salir">Cerrar sesión</button>
       <span class="nota"><a href="${CONFIG.web}/bases.html#reto" target="_blank" rel="noopener">Bases del reto</a> · <a href="${CONFIG.web}/privacidad.html" target="_blank" rel="noopener">Privacidad</a></span>
@@ -1116,6 +1123,7 @@ function vistaYo() {
     root.querySelectorAll('[data-guia]').forEach(b => b.addEventListener('click', () => { E.guia = b.dataset.guia; guardar('guia', E.guia); vistaYo(); }));
     on('#editar', 'click', () => { E.borrador = { nombre: p.nombre, usuario: p.usuario }; vistaPerfil(); });
     on('#salir', 'click', () => cerrarSesion());
+    on('#tuto', 'click', () => { guardar('tuto', null); ir('hoy'); });
     activarAvisosEn(root, vistaYo);
     on('#instalar', 'click', async () => {
       if (E.instalar) { E.instalar.prompt(); await E.instalar.userChoice; E.instalar = null; return vistaYo(); }
@@ -1136,6 +1144,58 @@ async function cerrarSesion(vencida) {
   vistaBienvenida(vencida === true ? ERRORES.sesion : '');
 }
 
+/* ---------- mini tutorial con tu guía ----------
+   La primera vez que se abre la app (Hoy) y la primera vez que se entra a cada sección,
+   el guía elegido (Tradi o Digi) explica en pocas palabras cómo se usa. Se guarda en el teléfono
+   lo que ya se vio; desde «Yo» se puede ver otra vez. */
+const TUTO = {
+  hoy: [
+    ['¡Hola! Soy {g} {e}', 'Te voy a acompañar en la app. Te explico rapidito cómo funciona y, la primera vez que entres a cada sección, te cuento qué hay ahí.'],
+    ['El reto de la semana', 'Aquí en <b>Hoy</b> ves el reto de la semana y cuánto falta para que cierre. Sale el miércoles a las 8:00 p. m. y cierra el lunes a las 8:00 p. m.'],
+    ['Sube tu dibujo', 'Toca el botón <b>+</b> de abajo para subir tu dibujo. Se publica solo en el Padlet con tu nombre y tu usuario. Uno por semana.'],
+    ['Tu racha 🔥', 'Cada semana que subes tu dibujo, tu racha crece. ¡No dejes pasar una semana sin dibujar!'],
+    ['Mientras esperas', 'Haz la <b>Chispa del día</b>, un ejercicio corto para calentar la mano. Abajo tienes también <b>Ranking</b>, <b>Amigos</b> y <b>Yo</b>.']
+  ],
+  subir: [['Subir tu dibujo', 'Toma la foto de tu dibujo o elígela de tu galería, ponle título y una descripción corta, y marca si es tradicional o digital. Solo dibujos 100 % tuyos: sin IA, calcos ni copias.']],
+  ranking: [['El ranking', 'Aquí ves cómo vas en cada categoría de premios y tus semanas para el Premio a la constancia. Compiten por los premios quienes viven en Venezuela.']],
+  amigos: [
+    ['Tus amigos', 'Busca a tus amigos por su usuario y mándales una solicitud.'],
+    ['Rachas con amigos', 'Cuando los dos suben su dibujo la misma semana, crece la racha de los dos. Puedes darles un toque con un sticker una vez al día para animarlos.']
+  ],
+  yo: [['Tu perfil', 'Aquí están tus datos, tu progreso y los avisos. Activa los avisos para que te recordemos antes del cierre. También puedes cambiar de guía o ver este tutorial otra vez.']],
+  votar: [['La votación', 'Los 5 dibujos con más «Me gusta» en el Padlet son las finalistas. Tienes un voto, no se puede cambiar y no puedes votar por tu propio dibujo. Cierra el martes a las 9:00 p. m.']],
+  club: [['El Club Estrella', 'Es la membresía de Patreon del reto: ves el reto 24 horas antes, tienes protectores para tu racha y tu estrella cambia según los meses que llevas.']],
+  chispa: [['La Chispa del día', 'Es un mini reto para calentar la mano. Sale una nueva cada día: hazla cuando quieras.']]
+};
+function tutorial(clave, intento) {
+  const pasos = TUTO[clave];
+  if (!pasos || estaEn !== clave) return;
+  const vistos = leer('tuto') || {};
+  if (vistos[clave]) return;
+  if (document.querySelector('.velo')) { if (!intento) setTimeout(() => tutorial(clave, 1), 4000); return; }   // hay otra ventana abierta
+  vistos[clave] = true; guardar('tuto', vistos);
+  const g = E.guia === 'tradi' ? 'Tradi' : 'Digi', emoji = E.guia === 'tradi' ? '✏️' : '💻';
+  let i = 0;
+  const html = () => {
+    const [t, p] = pasos[i], ultimo = i === pasos.length - 1;
+    return `<div class="tuto-guia"><img src="${imgGuia(E.guia)}" alt="${g}" width="96" height="92"><div class="tuto-b"><h2 id="v-h" tabindex="-1">${t.replace('{g}', g).replace('{e}', emoji)}</h2><p>${p}</p></div></div>
+      ${pasos.length > 1 ? `<span class="pasos" aria-label="Paso ${i + 1} de ${pasos.length}">${pasos.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</span>` : ''}
+      <button type="button" class="btn amarillo" data-sig>${ultimo ? '¡Entendido!' : 'Siguiente'}</button>
+      ${!ultimo ? '<button type="button" class="enlace" data-saltar>Saltar</button>' : ''}`;
+  };
+  ventana(`<div class="tuto">${html()}</div>`, (velo, cerrar) => {
+    const caja = velo.querySelector('.tuto');
+    const conectar = () => {
+      caja.querySelector('[data-sig]').addEventListener('click', () => {
+        if (i === pasos.length - 1) return cerrar();
+        i++; caja.innerHTML = html(); conectar(); caja.querySelector('h2').focus();
+      });
+      const sal = caja.querySelector('[data-saltar]'); if (sal) sal.addEventListener('click', cerrar);
+    };
+    conectar();
+  }, true);
+}
+
 /* ---------- navegación ---------- */
 let estaEn = '';
 function ir(donde) {
@@ -1144,7 +1204,12 @@ function ir(donde) {
   if ((donde === 'club' || donde === 'chispa') && estaEn !== donde) E.volverA = estaEn || 'hoy';
   estaEn = donde;
   if (donde === 'subir' && bloqueado()) { aviso(ERRORES.autorizacion); estaEn = 'hoy'; donde = 'hoy'; }
-  if (donde === 'subir') { if (E.hoy && E.hoy.actual && !yaSubio()) return vistaSubir(); if (yaSubio()) aviso(ERRORES.ya_subiste); estaEn = 'hoy'; donde = 'hoy'; }
+  if (donde === 'subir' && !(E.hoy && E.hoy.actual && !yaSubio())) { if (yaSubio()) aviso(ERRORES.ya_subiste); estaEn = 'hoy'; donde = 'hoy'; }
+  mostrar(donde);
+  setTimeout(() => tutorial(donde), 700);   // la primera vez en cada sección, el guía la explica
+}
+function mostrar(donde) {
+  if (donde === 'subir') return vistaSubir();
   if (donde === 'hoy') return vistaHoy();
   if (donde === 'yo') return vistaYo();
   if (cerrarChispa) { cerrarChispa(); cerrarChispa = null; }

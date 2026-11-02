@@ -308,3 +308,13 @@ legend{font-weight:700;font-size:14px;padding:0;margin-bottom:6px}
 .vota .minis img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;border:2px solid var(--ink);background:var(--lila-2);display:block}
 
 .motivos{display:grid;gap:8px}
+
+/* mini tutorial con el guía */
+.tuto{display:flex;flex-direction:column;gap:12px}
+.tuto-guia{display:flex;align-items:flex-end;gap:8px}
+.tuto-guia img{width:96px;height:auto;flex:none;animation:bob 2.6s ease-in-out infinite}
+.tuto-b{flex:1;background:var(--white);border:3px solid var(--ink);border-radius:18px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+.tuto-b h2{font-size:18px}
+.tuto-b p{font-weight:600}
+.tuto .pasos{margin:0}
+@media (prefers-reduced-motion:reduce){.tuto-guia img{animation:none}}

@@ -562,3 +562,18 @@ mark{background:var(--yellow);border-radius:3px;padding:0 2px}
 
 /* Evita que un elemento más ancho que el teléfono mueva toda la página hacia los lados (31 oct 2026). */
 html,body{overflow-x:clip}
+
+/* ---------- después del festival (6 dic 2026) y reto de la semana ---------- */
+.nav a.nav-app{color:var(--yellow);font-weight:700}
+.appband{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:4px 12px;padding:12px max(16px,env(safe-area-inset-left,0px));background:var(--yellow);color:var(--ink);border-bottom:3px solid var(--ink);text-decoration:none;text-align:center;font-size:15px}
+.appband b{font-family:var(--display);font-weight:700}
+.appband:hover span{text-decoration:underline}
+.reto-sec{padding-block:40px}
+.reto-ya{background:var(--ink);color:var(--white);border-radius:28px;padding:clamp(24px,4vw,44px);box-shadow:12px 12px 0 var(--purple);display:grid;gap:14px;justify-items:start;max-width:880px;margin:0 auto}
+.reto-ya h2{font-size:clamp(28px,4vw,46px);color:var(--yellow);text-wrap:balance}
+.reto-ya .reto-desc{font-size:18px;max-width:60ch}
+.reto-ya .reto-cierre{color:#C9C2D3}
+.reto-ya .reto-cierre b{color:var(--white)}
+.reto-ya .ctas{margin-top:6px}
+.reto-ya .b-ghost{color:var(--white);border-color:var(--white)}
+.planes .stand .pr{font-size:28px}

@@ -9,15 +9,19 @@ const CONFIG = {
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
   autorizacion: 'https://docs.google.com/forms/d/e/1FAIpQLSeTf_vZNjg5LU_mMs1X9tqmrgBddUGMDKuzvqV9U7NuXeXW7A/viewform', // Google Forms «Autorización del representante»
   patreon: 'https://www.patreon.com/RetoMenteMilenial',
-  app: ''                                   // enlace de la app (PWA). Vacío = «Llega en diciembre». Al lanzarla, pega aquí la URL y la web cambia sola a «Instálala».
+  app: '',                                  // enlace de la app (PWA). Vacío = «Llega en diciembre». Al lanzarla, pega aquí la URL y la web cambia sola a «Instálala».
+  postEvento: '2026-12-06T00:00:00-04:00',  // desde esta fecha la web deja el festival atrás: sin concurso, «Bazar creativo» → «Planes de patrocinio» y todo apunta a la app
+  retoWeb: ''                               // URL del Apps Script «Reto de la semana · web» (termina en /exec). Vacío = la tarjeta del reto no aparece.
 };
+const POST_EVENTO = Date.now() >= Date.parse(CONFIG.postEvento);
 
 const PRODUCTOS = [
-  {id:'ruta', nombre:'Ruta creativa', desc:'Recorre el evento haciendo retos de dibujo y participa en un increíble sorteo con premios. Actividad apta para todo público.', precio:3, cat:'Actividades', modo:'disponible', color:'#FFFFFF', img:'assets/img/tienda-ruta-creativa-640.webp', imgStyle:'inset:auto;left:-4%;top:13%;width:92%;height:auto;object-fit:contain'},
+  {id:'ruta', hasta:CONFIG.postEvento, nombre:'Ruta creativa', desc:'Recorre el evento haciendo retos de dibujo y participa en un increíble sorteo con premios. Actividad apta para todo público.', precio:3, cat:'Actividades', modo:'disponible', color:'#FFFFFF', img:'assets/img/tienda-ruta-creativa-640.webp', imgStyle:'inset:auto;left:-4%;top:13%;width:92%;height:auto;object-fit:contain'},
   {id:'guante', nombre:'Guante y lápiz de dibujo', desc:'El combo perfecto para artistas digitales y tradicionales: evita las manchas de grasa en tus dibujos. Diferentes colores y tallas.', precio:8, cat:'Para dibujar', modo:'disponible', color:'#FFFFFF', img:'assets/img/tienda-guante-640.webp',
     opciones:{Color:['Lila','Verde menta','Negro'], Mano:['Diestro','Zurdo'], Talla:['Regular','Grande']}}
 ];
 const ENCARGO = 'Bajo pedido · ~1 semana';
+const vigente = p => !p.hasta || Date.now() < Date.parse(p.hasta);   // la Ruta creativa solo se vende hasta el evento
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -58,7 +62,7 @@ function wireMenu(){
 let cart = store.get('rcf-cart2', []);          // [{id, q, op:{Talla:'M'}}]
 if (!Array.isArray(cart)) cart = [];
 /* Seguridad: solo se aceptan productos que existen, cantidades enteras y opciones válidas (el carrito guardado se puede manipular). */
-cart = cart.filter(l => l && PRODUCTOS.some(p => p.id === l.id) && Number.isInteger(l.q) && l.q > 0 && l.q <= 99)
+cart = cart.filter(l => l && PRODUCTOS.some(p => p.id === l.id && vigente(p)) && Number.isInteger(l.q) && l.q > 0 && l.q <= 99)
   .map(l => { const p = PRODUCTOS.find(x => x.id === l.id), op = {};
     Object.entries(p.opciones || {}).forEach(([k, vals]) => { op[k] = vals.includes(l.op && l.op[k]) ? l.op[k] : vals[0]; });
     return {id:l.id, q:l.q, op}; });
@@ -74,8 +78,8 @@ function drawerHTML(){
     <div class="db">
       <div id="items"></div>
       <fieldset id="ship"><legend>¿Cómo lo recibes?</legend>
-        <label class="opt"><input type="radio" name="entrega" id="e1" value="Retiro en el evento (sábado 5 de diciembre, FACES-UCV)" checked><span>Retiro en el evento<small>Sábado 5 de diciembre, FACES-UCV</small></span></label>
-        <label class="opt"><input type="radio" name="entrega" id="e2" value="Envío nacional por MRW (cobro a destino)"><span>Envío nacional por MRW<small>Cobro a destino. Te pedimos los datos por mensaje</small></span></label>
+        ${POST_EVENTO ? '' : '<label class="opt"><input type="radio" name="entrega" id="e1" value="Retiro en el evento (sábado 5 de diciembre, FACES-UCV)" checked><span>Retiro en el evento<small>Sábado 5 de diciembre, FACES-UCV</small></span></label>'}
+        <label class="opt"><input type="radio" name="entrega" id="e2" value="Envío nacional por MRW (cobro a destino)"${POST_EVENTO ? ' checked' : ''}><span>Envío nacional por MRW<small>Cobro a destino. Te pedimos los datos por mensaje</small></span></label>
       </fieldset>
       <label class="fl" for="nombre">Tu nombre<input id="nombre" type="text" autocomplete="name" placeholder="María Pérez"></label>
       <span class="err" id="nerr" hidden>Escribe tu nombre para enviar el pedido.</span>
@@ -115,13 +119,13 @@ let filtro = 'Todo';
 function renderProducts(){
   $$('[data-products]').forEach(g => {
     const withFilter = g.hasAttribute('data-filter');
-    const list = PRODUCTOS.filter(p => !withFilter || filtro === 'Todo' || p.cat === filtro);
+    const list = PRODUCTOS.filter(vigente).filter(p => !withFilter || filtro === 'Todo' || p.cat === filtro);
     g.innerHTML = list.map(productCard).join('');
     $$('[data-a]', g).forEach(b => b.onclick = () => b.dataset.a === '+' ? addOne(b.dataset.id) : removeOne(b.dataset.id));
   });
   const fl = $('#filters');
   if (fl){
-    const cats = ['Todo', ...new Set(PRODUCTOS.map(p => p.cat))];
+    const cats = ['Todo', ...new Set(PRODUCTOS.filter(vigente).map(p => p.cat))];
     fl.innerHTML = cats.map(c => `<button class="f" type="button" aria-pressed="${c===filtro}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
     $$('.f', fl).forEach(b => b.onclick = () => { filtro = b.dataset.c; renderProducts(); });
   }
@@ -295,4 +299,62 @@ function wireClics(){
   }));
 }
 
-wireMenu(); wireLinks(); wireFechas(); wireCuenta(); wireClics(); wireApp(); wireForms(); wireCart(); wireFloat(); wireCanal(); wireRedes(); renderAll();
+/* ---------- después del festival (CONFIG.postEvento) ----------
+   Menú y pie de página iguales en todas las páginas: se quita el concurso, «Bazar creativo» pasa a «Patrocinio»
+   y aparece «Descarga la app». El contenido de cada página cambia con data-hasta / data-desde. */
+function wirePostEvento(){
+  if (!POST_EVENTO) return;
+  document.documentElement.classList.add('post-evento');
+  $$('.nav a[href="concurso.html"], .foot a[href="concurso.html"], .foot a[href="index.html#programa"], .foot a[href="index.html#prensa"]').forEach(a => (a.closest('li') || a).remove());
+  $$('.nav a[href="bazar-creativo.html"]').forEach(a => a.textContent = 'Patrocinio');
+  $$('.foot a[href="bazar-creativo.html"]').forEach(a => a.textContent = 'Planes de patrocinio');
+  const ini = $('.nav a[href="index.html"]');
+  if (ini) ini.insertAdjacentHTML('afterend', '<a class="nav-app" href="reto-semanal.html#app">Descarga la app</a>');
+  $$('.foot .fgrid > div:first-child p').forEach(p => p.innerHTML = 'Temporada 2027 del #RetoMenteMilenial<br>Descarga gratis la app del reto');
+  if (/bazar-creativo/.test(location.pathname)) document.title = 'Planes de patrocinio · Reto Creativo Fest';
+  if (/concurso/.test(location.pathname)) document.title = 'Concurso de dibujo · 4.ª edición · Reto Creativo Fest';
+  const main = $('#main');
+  if (main && !/reto-semanal/.test(location.pathname)) main.insertAdjacentHTML('afterbegin',
+    '<a class="appband" href="reto-semanal.html#app"><b>Nueva app del #RetoMenteMilenial</b><span>Mira el reto de la semana, sube tu dibujo y cuida tu racha. Gratis →</span></a>');
+}
+
+/* ---------- reto de la semana (desde la 3.ª temporada) ----------
+   CONFIG.retoWeb devuelve solo el reto que ya es público (miércoles 8:00 p. m.): los del Club Estrella y los futuros nunca llegan a la web.
+   Se dibuja en cada [data-reto-web]. */
+const MESES_W = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const DIAS_W = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+function cuandoW(iso){
+  const d = new Date(new Date(iso).getTime() - 4 * 36e5);   // hora de Caracas (UTC−4), sin depender del teléfono
+  let h = d.getUTCHours(); const m = String(d.getUTCMinutes()).padStart(2, '0'), pm = h >= 12; h = h % 12 || 12;
+  return `${DIAS_W[d.getUTCDay()]} ${d.getUTCDate()} de ${MESES_W[d.getUTCMonth()]} a las ${h}:${m} ${pm ? 'p. m.' : 'a. m.'}`;
+}
+function wireRetoWeb(){
+  const cajas = $$('[data-reto-web]');
+  if (!cajas.length || !CONFIG.retoWeb) return;
+  const appBtn = '<a class="btn b-yellow" href="reto-semanal.html#app">Participa desde la app</a>';
+  fetch(CONFIG.retoWeb, {cache:'no-store'}).then(r => r.ok ? r.json() : Promise.reject()).then(d => {
+    if (!d || !d.ok) return;
+    const ahora = Date.parse(d.ahora) || Date.now(), r = d.reto;
+    let html = '';
+    if (r && ahora < Date.parse(r.cierre)){
+      html = `<span class="pill p-yellow">Reto de la semana ${esc(r.semana)}</span><h2>${esc(r.tema)}</h2><p class="reto-desc">${esc(r.descripcion)}</p>
+        <p class="reto-cierre">Sube tu dibujo desde la app antes del <b>${cuandoW(r.cierre)}</b>.</p>
+        <div class="ctas">${appBtn}<a class="btn b-ghost" data-link="padlet" href="#">Ver los dibujos en el Padlet</a></div>`;
+    } else if (r && d.proximo){
+      html = `<span class="pill p-yellow">Semana ${esc(r.semana)} cerrada</span><h2>El próximo reto sale el ${cuandoW(d.proximo)}</h2>
+        <p class="reto-desc">Instala la app para enterarte primero. Los miembros del Club Estrella lo ven 24 horas antes.</p><div class="ctas">${appBtn}</div>`;
+    } else if (!r && d.proximo){
+      html = `<span class="pill p-yellow">#RetoMenteMilenial · Temporada 2027</span><h2>El primer reto sale el ${cuandoW(d.proximo)}</h2>
+        <p class="reto-desc">Descarga la app, crea tu cuenta y prepárate: desde ahí ves cada reto, subes tu dibujo y empiezas tu racha.</p><div class="ctas">${appBtn}</div>`;
+    }
+    if (!html) return;
+    cajas.forEach(c => {
+      const sec = c.closest('.reto-sec');
+      if (sec && sec.hasAttribute('data-solo-post') && !POST_EVENTO) return;   // en el inicio, solo después del festival
+      c.innerHTML = html; c.hidden = false; if (sec) sec.hidden = false;
+    });
+    wireLinks();
+  }).catch(() => {});
+}
+
+wirePostEvento(); wireMenu(); wireLinks(); wireFechas(); wireRetoWeb(); wireCuenta(); wireClics(); wireApp(); wireForms(); wireCart(); wireFloat(); wireCanal(); wireRedes(); renderAll();
