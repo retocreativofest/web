@@ -11,7 +11,7 @@ const CONFIG = {
   patreon: 'https://www.patreon.com/RetoMenteMilenial',
   app: '',                                  // enlace de la app (PWA). Vacío = «Llega en diciembre». Al lanzarla, pega aquí la URL y la web cambia sola a «Instálala».
   postEvento: '2026-12-06T00:00:00-04:00',  // desde esta fecha la web deja el festival atrás: sin concurso, «Bazar creativo» → «Planes de patrocinio» y todo apunta a la app
-  retoWeb: ''                               // URL del Apps Script «Reto de la semana · web» (termina en /exec). Vacío = la tarjeta del reto no aparece.
+  retoWeb: 'https://script.google.com/macros/s/AKfycbxk2KkAccQuJHmErsKb8VTIrJtKTaiN3jgsIlue3S3hgVabA_BjcD3j8qQZ36hyBKzh4g/exec'                               // URL del Apps Script «Reto de la semana · web» (termina en /exec). Vacío = la tarjeta del reto no aparece.
 };
 const POST_EVENTO = Date.now() >= Date.parse(CONFIG.postEvento);
 

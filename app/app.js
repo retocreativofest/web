@@ -7,7 +7,7 @@ const CONFIG = {
   web: 'https://retocreativofest.com',
   whatsapp: '584120390423',   // pagos del Club por Pago Móvil, Binance o Zinli
   patreon: 'https://www.patreon.com/RetoMenteMilenial',
-  extra: ''   // URL /exec del Apps Script «Reto de la semana · web» (reenviar el correo del representante y ver rebotes). Vacío = sin botón de reenviar.
+  extra: 'https://script.google.com/macros/s/AKfycbxk2KkAccQuJHmErsKb8VTIrJtKTaiN3jgsIlue3S3hgVabA_BjcD3j8qQZ36hyBKzh4g/exec'   // URL /exec del Apps Script «Reto de la semana · web» (reenviar el correo del representante y ver rebotes). Vacío = sin botón de reenviar.
 };
 
 /* ---------- utilidades ---------- */
