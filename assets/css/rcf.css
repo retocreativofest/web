@@ -198,7 +198,7 @@ label.fl{display:grid;gap:6px;font-weight:700;font-size:14px}
 .cell b{font-family:var(--display);font-weight:600;display:block}
 .cell small{font-size:15px}
 .c-time{background:var(--teal);color:var(--white);font-family:var(--display);font-weight:600;font-size:18px;line-height:1.25}
-.c-y{background:var(--yellow)} .c-y0{background:#F9E66A} .c-p{background:var(--purple)} .c-c{background:var(--cyan)} .c-h{background:var(--hot);color:var(--ink);font-family:var(--display);font-weight:600;letter-spacing:.02em}
+.c-y{background:var(--yellow)} .c-y0{background:#F9E66A} .c-off{background:var(--soft);color:var(--muted)} .c-p{background:var(--purple)} .c-c{background:var(--cyan)} .c-h{background:var(--hot);color:var(--ink);font-family:var(--display);font-weight:600;letter-spacing:.02em}
 
 /* ---------- concurso ---------- */
 .page-hero .wrap{padding-block:clamp(64px,8vw,104px);display:grid;gap:22px;justify-items:start}

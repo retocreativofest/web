@@ -318,3 +318,9 @@ legend{font-weight:700;font-size:14px;padding:0;margin-bottom:6px}
 .tuto-b p{font-weight:600}
 .tuto .pasos{margin:0}
 @media (prefers-reduced-motion:reduce){.tuto-guia img{animation:none}}
+
+/* autorización del representante: estado y reenviar */
+[data-aut-estado]{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+[data-aut-estado]:empty{display:none}
+.aut-t{display:block;font-weight:600;font-size:14px}
+.aut-alerta{background:var(--rosa);border:2px solid var(--rosa-osc);border-radius:12px;padding:8px 10px}

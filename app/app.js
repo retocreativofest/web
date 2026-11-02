@@ -6,7 +6,8 @@ const CONFIG = {
   autorizacion: 'https://docs.google.com/forms/d/e/1FAIpQLSeTf_vZNjg5LU_mMs1X9tqmrgBddUGMDKuzvqV9U7NuXeXW7A/viewform',
   web: 'https://retocreativofest.com',
   whatsapp: '584120390423',   // pagos del Club por Pago Móvil, Binance o Zinli
-  patreon: 'https://www.patreon.com/RetoMenteMilenial'
+  patreon: 'https://www.patreon.com/RetoMenteMilenial',
+  extra: ''   // URL /exec del Apps Script «Reto de la semana · web» (reenviar el correo del representante y ver rebotes). Vacío = sin botón de reenviar.
 };
 
 /* ---------- utilidades ---------- */
@@ -149,6 +150,59 @@ function pintar(html, alPintar) {
   const h = $app.querySelector('h1, h2');
   if (h) h.setAttribute('tabindex', '-1');
   if (alPintar) alPintar($app);
+  estadoAutorizacion();
+}
+
+/* ---------- autorización del representante: en qué va, reenviar el correo y rebotes ----------
+   Usa el Apps Script aparte (CONFIG.extra). Se consulta como mucho una vez por minuto. */
+let autCache = null, autPidiendo = false;
+async function estadoAutorizacion(forzar) {
+  const caja = $app.querySelector('[data-aut-estado]');
+  if (!caja || !E.sesion) return;
+  if (!CONFIG.extra) { caja.innerHTML = cajaAutTexto({ estado: 'sin_extra' }); return; }
+  if (autCache && !forzar && Date.now() - autCache.t < 6e4) { caja.innerHTML = cajaAutTexto(autCache.r); conectarAut(caja); return; }
+  caja.innerHTML = cajaAutTexto(autCache ? autCache.r : { estado: 'sin_extra' });
+  if (autPidiendo) return;
+  autPidiendo = true;
+  let r;
+  try {
+    const res = await fetch(CONFIG.extra, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ accion: 'autorizacion_estado', sesion: E.sesion }) });
+    r = await res.json();
+  } catch (e) { r = null; }
+  autPidiendo = false;
+  if (!r || !r.ok) return;
+  autCache = { t: Date.now(), r };
+  const ahora = $app.querySelector('[data-aut-estado]');
+  if (ahora) { ahora.innerHTML = cajaAutTexto(r); conectarAut(ahora); }
+  if (r.estado === 'confirmada' && E.perfil && E.perfil.bloqueado) {   // ya confirmó: refresca el perfil para desbloquear
+    const p = await api('perfil', { sesion: E.sesion });
+    if (p.ok) { E.perfil = p.perfil; guardar('perfil', E.perfil); if (!bloqueado()) { aviso('🎉 ¡Tu representante confirmó! Ya puedes subir tus dibujos.'); ir(estaEn || 'hoy'); } }
+  }
+}
+function cajaAutTexto(r) {
+  const spam = 'Si no lo ve, que revise <b>spam</b> y <b>Promociones</b> y agregue retocreativofest@gmail.com a sus contactos.';
+  if (r.estado === 'pendiente') return `<span class="aut-t">📬 Le enviamos el correo a <b>${esc(r.correo)}</b>. ${spam}</span>
+    ${r.reenviosQuedan > 0 ? '<button type="button" class="btn blanco chico" data-reenviar>✉️ REENVIAR EL CORREO</button>' : '<span class="aut-t">Hoy ya reenviamos el correo varias veces. Mañana puedes reenviarlo otra vez.</span>'}`;
+  if (r.estado === 'rebotado') return `<span class="aut-t aut-alerta">⚠️ El correo de tu representante (<b>${esc(r.correo)}</b>) no recibió nuestro mensaje: puede estar lleno o mal escrito. Pídele que llene el formulario otra vez con otro correo.</span>`;
+  if (r.estado === 'sin_formulario') return '<span class="aut-t">Tu representante todavía no llena el formulario. Mándaselo por WhatsApp con el botón de abajo.</span>';
+  if (r.estado === 'confirmada') return '<span class="aut-t">✅ Tu representante ya confirmó. Estamos desbloqueando tu cuenta…</span>';
+  return `<span class="aut-t">Cuando tu representante llene el formulario, le llega un correo de retocreativofest@gmail.com para confirmar. ${spam}</span>`;
+}
+function conectarAut(caja) {
+  const b = caja.querySelector('[data-reenviar]');
+  if (!b) return;
+  b.addEventListener('click', async () => {
+    b.disabled = true; b.textContent = 'Reenviando…';
+    let r;
+    try {
+      const res = await fetch(CONFIG.extra, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ accion: 'autorizacion_reenviar', sesion: E.sesion }) });
+      r = await res.json();
+    } catch (e) { r = { ok: false, error: 'red' }; }
+    if (r.ok) { aviso('✉️ Listo: le reenviamos el correo a ' + r.correo + '.'); autCache = null; return estadoAutorizacion(true); }
+    const msj = { limite_reenvio: 'Hoy ya reenviamos el correo 3 veces. Intenta mañana.', espera_reenvio: 'Acabamos de reenviarlo. Espera 10 minutos antes de pedirlo otra vez.', rebotado: 'Ese correo no recibe mensajes. Tu representante tiene que llenar el formulario con otro correo.', confirmada: '¡Tu representante ya confirmó!', limite: ERRORES.limite, sesion: ERRORES.sesion };
+    aviso(msj[r.error] || textoError(r.error));
+    autCache = null; estadoAutorizacion(true);
+  });
 }
 const on = (sel, ev, fn) => { const el = $app.querySelector(sel); if (el) el.addEventListener(ev, fn); return el; };
 
@@ -349,6 +403,7 @@ function vistaEdad(error) {
       ${vzla ? `<div class="caja agua">Vives en Venezuela: compites en el ranking global y por los premios.</div>` : ''}
       ${menor ? `<div class="caja crema"><strong class="t">Tu representante tiene que autorizarte</strong>
           <span style="display:block;font-weight:600;margin-bottom:8px">Mándale este formulario. Hasta que lo llene y confirme el correo que le llega, puedes ver el reto y hacer la Chispa del día, pero todavía no subir dibujos ni agregar amigos.</span>
+          <span style="display:block;font-weight:600;margin-bottom:8px">📬 El correo llega de retocreativofest@gmail.com. Si no lo ve, que revise spam y Promociones.</span>
           <a class="btn turquesa chico" href="https://wa.me/?text=${msj}" target="_blank" rel="noopener">📲 MANDAR EL FORMULARIO POR WHATSAPP</a></div>` : ''}
       ${mayor ? `
         <label class="campo" for="tel">WhatsApp <span class="ayuda">(opcional)</span>
@@ -479,8 +534,9 @@ function calendarioAdviento(adv) {
 }
 /* Menores de 18 sin autorización confirmada (LOPNNA): ven el reto y la Chispa, pero no publican ni tienen amigos. */
 const bloqueado = () => !!(E.perfil && E.perfil.bloqueado);
-const MSJ_AUTORIZACION = () => encodeURIComponent('Hola. Quiero participar en el #RetoMenteMilenial, un reto semanal de dibujo, y como soy menor de edad necesito tu autorización. Es este formulario: ' + CONFIG.autorizacion);
+const MSJ_AUTORIZACION = () => encodeURIComponent('Hola. Quiero participar en el #RetoMenteMilenial, un reto semanal de dibujo, y como soy menor de edad necesito tu autorización. Es este formulario: ' + CONFIG.autorizacion + '\n\nAl enviarlo te llega un correo de retocreativofest@gmail.com con el botón «Confirmar la autorización». Si no lo ves, revisa spam y Promociones.');
 const cajaAutorizacion = () => `<div class="caja crema"><strong class="t">🔒 Falta la autorización de tu representante</strong>
+  <div data-aut-estado></div>
   <span style="display:block;font-weight:600;margin-bottom:8px">Mientras tanto puedes ver el reto y hacer la Chispa del día. Cuando tu representante llene el formulario y confirme el correo que le llega, se desbloquea solo: podrás subir tus dibujos y agregar amigos.</span>
   <a class="btn turquesa chico" href="https://wa.me/?text=${MSJ_AUTORIZACION()}" target="_blank" rel="noopener">📲 MANDARLE EL FORMULARIO POR WHATSAPP</a></div>`;
 const yaSubio = () => !!(E.hoy && E.hoy.actual && E.semana && E.semana.id === semanaId(E.hoy.actual) && E.semana.subido);
