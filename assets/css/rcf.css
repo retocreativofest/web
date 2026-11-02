@@ -586,3 +586,6 @@ html,body{overflow-x:clip}
 .aliados-web>div{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
 .aliados-web img{height:50px;width:auto;max-width:150px;object-fit:contain;display:block}
 @media (max-width:600px){.reto-ya .reto-logo{width:72px;height:72px}.reto-ya.con-logo h2,.reto-ya.con-logo .reto-desc{padding-right:84px}}
+.planes .plan-h{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:clamp(20px,2.2vw,26px);margin-top:44px}
+.planes .stand .mas{font-weight:700;color:var(--violet);font-size:14px}
+.planes .plan-extra{margin-top:22px;font-size:16px;max-width:70ch}
