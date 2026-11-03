@@ -345,19 +345,20 @@ function vistaCorreo(estado) {
 
 /* ---------- registro: nombre y usuario ---------- */
 function vistaPerfil(error) {
-  const editando = !!(E.perfil && E.perfil.completo);   // ya tenía cuenta: viene de «Editar mis datos»
+  const completando = !!E.completando;   // 3 nov: menor que acaba de recibir el permiso de su representante
+  const editando = !!(E.perfil && E.perfil.completo) && !completando;   // ya tenía cuenta: viene de «Editar mis datos»
   const b = E.borrador;
   pintar(`
     <header class="barra">
       ${editando ? `<button type="button" class="volver" id="v" aria-label="Volver">${ICO.volver}</button>` : ''}
-      <div style="flex:1"><h1>Tu cuenta</h1><span class="sub">Así te verán en el Padlet</span></div>
+      <div style="flex:1"><h1>Tu cuenta</h1><span class="sub">${completando ? '🎉 ¡Tu representante confirmó! Completa tus datos' : 'Así te verán en el Padlet'}</span></div>
       <img class="cara" src="${caraGuia(E.guia)}" alt="">
     </header>
     <form class="cont" id="f" novalidate>
       ${E.correo ? `<div class="caja agua" style="display:flex;align-items:center;gap:8px"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">✓ ${esc(E.correo)}</span><button type="button" class="enlace" id="salir" style="min-height:0;padding:0 4px;font-size:12px">Cambiar</button></div>` : ''}
       <label class="campo" for="nom">Nombre y apellido
         <input id="nom" type="text" autocomplete="name" maxlength="60" value="${esc(b.nombre || '')}" required>
-        <span class="ayuda">Si eres menor de edad, solo mostraremos tu nombre de pila.</span>
+        <span class="ayuda">Si eres menor de edad, solo mostraremos tu nombre de pila, y lo guardamos cuando tu representante te autorice.</span>
       </label>
       <label class="campo" for="usr">Tu usuario en redes
         <input id="usr" type="text" autocapitalize="none" autocomplete="username" spellcheck="false" maxlength="31" value="${b.usuario ? '@' + esc(b.usuario) : ''}" placeholder="@tu.usuario" required>
@@ -386,6 +387,7 @@ function vistaPerfil(error) {
       const nombre = nom.value.trim().replace(/\s+/g, ' '), usuario = norm(usr.value);
       E.borrador.nombre = nombre; E.borrador.usuario = usuario;
       if (nombre.length < 2) return vistaPerfil(ERRORES.nombre);
+      guardar('nombreLocal', nombre.split(' ')[0]);   // solo en este teléfono: sirve para completar los datos de un menor después del permiso
       if (!/^[a-z0-9._]{3,30}$/.test(usuario)) return vistaPerfil(ERRORES.usuario_invalido);
       vistaEdad();
     });
@@ -410,6 +412,10 @@ function vistaEdad(error) {
   if (b.pais == null) b.pais = p.pais || '';
   const [cm, cd] = String(b.cumple || '').split('-');
   const mayor = b.mayor === 'Sí', menor = b.mayor === 'No', vzla = b.venezuela === 'Sí', fuera = b.venezuela === 'No';
+  /* 3 nov 2026 (COPPA y Google Play Familias): antes del permiso del representante, de un menor solo se guarda el usuario
+     y si vive o no en Venezuela. El nombre de pila, el cumpleaños y el estado o país se piden cuando el representante confirma. */
+  const previo = menor && !(p.mayor === 'No' && p.bloqueado === false && p.usuario);
+  const conDatos = conCumple && !previo;
   const tel = String(b.whatsapp || '').replace(/^\+58/, '');
   const msj = encodeURIComponent('Hola. Quiero participar en el #RetoMenteMilenial, un reto semanal de dibujo, y como soy menor de edad necesito tu autorización. Es este formulario: ' + CONFIG.autorizacion);
   pintar(`
@@ -422,27 +428,28 @@ function vistaEdad(error) {
       <fieldset><legend>¿Cuántos años tienes?</legend>
         <div class="par"><button type="button" class="opcion" data-k="mayor" data-v="Sí" aria-pressed="${mayor}">Tengo 18 o más</button><button type="button" class="opcion" data-k="mayor" data-v="No" aria-pressed="${menor}">Tengo menos de 18</button></div>
       </fieldset>
-      ${conCumple ? `<fieldset><legend>Tu cumpleaños <span class="ayuda">(opcional)</span></legend>
+      ${conDatos ? `<fieldset><legend>Tu cumpleaños <span class="ayuda">(opcional)</span></legend>
         <div class="par"><select id="cd" aria-label="Día"><option value="">Día</option>${Array.from({ length: 31 }, (_, i) => `<option value="${String(i + 1).padStart(2, '0')}" ${cd === String(i + 1).padStart(2, '0') ? 'selected' : ''}>${i + 1}</option>`).join('')}</select><select id="cm" aria-label="Mes"><option value="">Mes</option>${MESES.map((m, i) => `<option value="${String(i + 1).padStart(2, '0')}" ${cm === String(i + 1).padStart(2, '0') ? 'selected' : ''}>${m}</option>`).join('')}</select></div>
         <span class="ayuda">Solo el día y el mes, sin el año. Ese día te llega una sorpresa del Reto 🎂</span></fieldset>` : ''}
       <fieldset><legend>¿Dónde vives?</legend>
         <div class="par"><button type="button" class="opcion" data-k="venezuela" data-v="Sí" aria-pressed="${vzla}">Vivo en Venezuela</button><button type="button" class="opcion" data-k="venezuela" data-v="No" aria-pressed="${fuera}">Vivo en otro país</button></div>
       </fieldset>
       ${fuera ? `<div class="caja rosa" role="note"><strong class="t">Vives fuera de Venezuela</strong>Puedes participar, subir tus dibujos y tener racha con tus amigos. Pero tus puntos no cuentan para el ranking global ni para los premios: son para personas que viven en Venezuela.</div>` : ''}
-      ${fuera && conCumple ? `<label class="campo" for="pais">¿En qué país vives?
+      ${fuera && conDatos ? `<label class="campo" for="pais">¿En qué país vives?
         <select id="pais" required><option value="">Elige tu país</option>
           ${b.pais && PAISES.indexOf(b.pais) < 0 && b.pais !== OTRO_PAIS ? `<option selected>${esc(b.pais)}</option>` : ''}
           <optgroup label="Más frecuentes">${PAISES_FRECUENTES.map(x => `<option ${b.pais === x ? 'selected' : ''}>${x}</option>`).join('')}</optgroup>
           <optgroup label="Todos los países">${PAISES.filter(x => PAISES_FRECUENTES.indexOf(x) < 0).map(x => `<option ${b.pais === x ? 'selected' : ''}>${x}</option>`).join('')}<option ${b.pais === OTRO_PAIS ? 'selected' : ''}>${OTRO_PAIS}</option></optgroup>
         </select>
       </label>` : ''}
-      ${vzla && conCumple ? `<label class="campo" for="est">¿En qué estado vives?
+      ${vzla && conDatos ? `<label class="campo" for="est">¿En qué estado vives?
         <select id="est" required><option value="">Elige tu estado</option>${ESTADOS.map(e => `<option ${b.estado === e ? 'selected' : ''}>${e}</option>`).join('')}</select>
       </label>` : ''}
       ${vzla ? `<div class="caja agua">Vives en Venezuela: compites en el ranking global y por los premios.</div>` : ''}
       ${menor ? `<div class="caja crema"><strong class="t">Tu representante tiene que autorizarte</strong>
           <span style="display:block;font-weight:600;margin-bottom:8px">Mándale este formulario. Hasta que lo llene y confirme el correo que le llega, puedes ver el reto y hacer la Chispa del día, pero todavía no subir dibujos ni agregar amigos.</span>
           <span style="display:block;font-weight:600;margin-bottom:8px">📬 El correo llega de retocreativofest@gmail.com. Si no lo ve, que revise spam y Promociones.</span>
+          ${previo ? '<span style="display:block;font-weight:600;margin-bottom:8px">🔒 Por ahora solo guardamos tu usuario. Cuando tu representante confirme, te pedimos tu nombre, tu estado o país y tu cumpleaños.</span>' : ''}
           <a class="btn turquesa chico" href="https://wa.me/?text=${msj}" target="_blank" rel="noopener">📲 MANDAR EL FORMULARIO POR WHATSAPP</a></div>` : ''}
       ${mayor ? `
         <label class="campo" for="tel">WhatsApp <span class="ayuda">(opcional)</span>
@@ -471,14 +478,14 @@ function vistaEdad(error) {
       leerCampos();
       if (!b.mayor || !b.venezuela) return vistaEdad(ERRORES.edad);
       const d = root.querySelector('#cd'), m = root.querySelector('#cm');
-      if (conCumple && b.venezuela === 'Sí' && !b.estado) return vistaEdad(ERRORES.estado);
-      if (conCumple && b.venezuela === 'No' && (b.pais || '').length < 2) return vistaEdad(ERRORES.pais);
+      if (conDatos && b.venezuela === 'Sí' && !b.estado) return vistaEdad(ERRORES.estado);
+      if (conDatos && b.venezuela === 'No' && (b.pais || '').length < 2) return vistaEdad(ERRORES.pais);
       if (d && m && (!!d.value !== !!m.value || (b.cumple && !fechaValida(b.cumple)))) return vistaEdad(ERRORES.cumple);
       ev.currentTarget.disabled = true; ev.currentTarget.textContent = 'Guardando…';
       const r = await api('perfil_guardar', {
         sesion: E.sesion, correo: E.correo, nombre: b.nombre, usuario: b.usuario,
         mayor: b.mayor, venezuela: b.venezuela, whatsapp: b.mayor === 'Sí' ? b.whatsapp : '', ofertas: b.mayor === 'Sí' ? b.ofertas : 'No',
-        ...(conCumple ? { cumple: b.cumple || '', estado: b.venezuela === 'Sí' ? b.estado || '' : '', pais: b.venezuela === 'No' ? b.pais || '' : '' } : {})
+        ...(conDatos ? { cumple: b.cumple || '', estado: b.venezuela === 'Sí' ? b.estado || '' : '', pais: b.venezuela === 'No' ? b.pais || '' : '' } : {})
       });
       if (!r.ok) {
         if (r.error === 'sesion') return cerrarSesion(true);
@@ -486,6 +493,7 @@ function vistaEdad(error) {
         return vistaEdad(textoError(r.error));
       }
       E.perfil = r.perfil; guardar('perfil', E.perfil); E.borrador = {};
+      if (E.completando) { E.completando = false; guardar('nombreLocal', null); }
       aviso('¡Listo! Bienvenid@ al #RetoMenteMilenial');
       ir('hoy');
     });
@@ -1373,6 +1381,10 @@ let estaEn = '';
 function ir(donde) {
   if (!E.sesion) return vistaBienvenida();
   if (!E.perfil || !E.perfil.completo) { E.borrador = { nombre: (E.perfil || {}).nombre || '', usuario: (E.perfil || {}).usuario || '' }; return vistaPerfil(); }
+  if (E.perfil.mayor === 'No' && E.perfil.bloqueado === false && !E.perfil.nombre && !E.completando) {   // menor con permiso nuevo: completa sus datos
+    E.completando = true; E.borrador = { nombre: leer('nombreLocal') || '', usuario: E.perfil.usuario || '', mayor: 'No', venezuela: E.perfil.venezuela };
+    return vistaPerfil();
+  }
   if ((donde === 'club' || donde === 'chispa') && estaEn !== donde) E.volverA = estaEn || 'hoy';
   estaEn = donde;
   if (donde === 'subir' && bloqueado()) { aviso(ERRORES.autorizacion); estaEn = 'hoy'; donde = 'hoy'; }
