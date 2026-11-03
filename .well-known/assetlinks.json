@@ -1,8 +1,11 @@
 [{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.retocreativofest.retomentemilenial",
-        "sha256_cert_fingerprints": ["22:8A:2D:50:EE:0A:C8:C7:86:06:95:29:8F:C5:7B:26:C0:11:66:3D:10:3B:E8:DA:A8:2B:47:E0:84:96:B5:8C"]
-      }
-    }]
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.retocreativofest.retomentemilenial",
+    "sha256_cert_fingerprints": [
+      "DE:5D:42:17:3D:62:8A:E8:18:7E:90:05:91:23:C0:76:43:87:45:24:8E:93:3E:B4:19:AD:87:B6:FA:8D:57:14",
+      "22:8A:2D:50:EE:0A:C8:C7:86:06:95:29:8F:C5:7B:26:C0:11:66:3D:10:3B:E8:DA:A8:2B:47:E0:84:96:B5:8C"
+    ]
+  }
+}]
