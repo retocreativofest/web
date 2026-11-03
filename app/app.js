@@ -129,6 +129,7 @@ const ERRORES = {
   voto_cerrado: 'La votación ya cerró. Mira el podio.',
   voto_finalista: 'Ese dibujo no está entre las finalistas.',
   reporte: 'Elige el motivo del reporte.',
+  bloqueaste: 'Bloqueaste a esa persona. Si quieres agregarla, primero desbloquéala abajo, en «Bloqueados».',
   reporte_limite: 'Ya enviaste 5 reportes hoy. Si es urgente, escríbenos a retocreativofest@gmail.com.',
   voto_propio: 'No puedes votar por tu propio dibujo.',
   voto_participa: 'Para votar, sube al menos un dibujo esta temporada.',
@@ -978,15 +979,19 @@ function dibujarAmigos(d, mensaje, error) {
   else {
     if (d.solicitudes.length) cuerpo += `<h2 class="sub-t">Te quieren agregar</h2>` + d.solicitudes.map(x => `
       <div class="amigo"><span class="avatar">${inicial(x.nombre)}</span><div class="info"><b>${esc(x.nombre)}</b><small>@${esc(x.usuario)}</small></div>
-        <button type="button" class="btn turquesa chico mini" data-aceptar="${esc(x.usuario)}">Aceptar</button><button type="button" class="enlace mini" data-rechazar="${esc(x.usuario)}">No</button></div>`).join('');
+        <button type="button" class="btn turquesa chico mini" data-aceptar="${esc(x.usuario)}">Aceptar</button><button type="button" class="enlace mini" data-rechazar="${esc(x.usuario)}">No</button>${botonMas(x, false)}</div>`).join('');
     cuerpo += `<h2 class="sub-t">Tus amigos${d.amigos.length ? ' (' + d.amigos.length + ')' : ''}</h2>`;
     cuerpo += d.amigos.length ? d.amigos.map(x => `
       <div class="amigo"><span class="avatar">${inicial(x.nombre)}</span>
         <div class="info"><b>${esc(x.nombre)}</b><small>@${esc(x.usuario)}</small>
           <span class="chips"><span class="chip fuego">🔥 ${x.rachaJuntos} ${x.rachaJuntos === 1 ? 'semana' : 'semanas'} juntos</span>${d.semanaAbierta ? `<span class="chip ${x.subio ? 'ok' : ''}">${x.subio ? '✓ Ya subió' : '⏳ Aún no sube'}</span>` : ''}</span></div>
-        <button type="button" class="btn ${x.toqueHoy ? 'blanco' : 'amarillo'} chico mini" data-toque="${esc(x.usuario)}" data-nombre="${esc(x.nombre)}" ${x.toqueHoy ? 'disabled' : ''}>${x.toqueHoy ? 'Toque ✓' : '👆 Toque'}</button></div>`).join('')
+        <button type="button" class="btn ${x.toqueHoy ? 'blanco' : 'amarillo'} chico mini" data-toque="${esc(x.usuario)}" data-nombre="${esc(x.nombre)}" ${x.toqueHoy ? 'disabled' : ''}>${x.toqueHoy ? 'Toque ✓' : '👆 Toque'}</button>${botonMas(x, true)}</div>`).join('')
       : `<div class="caja">Todavía no tienes amigos en la app. Agrégalos con el usuario que usan en el reto (el de Instagram o TikTok). Cuando los dos suben su dibujo la misma semana, crece su racha juntos 🔥</div>`;
     if (d.enviadas.length) cuerpo += `<p class="nota izq">Esperando respuesta: ${d.enviadas.map(x => '@' + esc(x.usuario)).join(', ')}</p>`;
+    if (d.bloqueados && d.bloqueados.length) cuerpo += `<h2 class="sub-t">Bloqueados (${d.bloqueados.length})</h2>
+      <p class="nota izq">No pueden mandarte solicitudes ni toques. No les avisamos que los bloqueaste.</p>` + d.bloqueados.map(x => `
+      <div class="amigo"><span class="avatar">${inicial(x.nombre)}</span><div class="info"><b>${esc(x.nombre)}</b><small>@${esc(x.usuario)}</small></div>
+        <button type="button" class="btn blanco chico mini" data-desbloquear="${esc(x.usuario)}">Desbloquear</button></div>`).join('');
     cuerpo += `<p class="nota">Los toques son stickers dentro de la app: sin chat. Uno por amigo al día.</p>`;
   }
   conNav('amigos', cabecera('Amigos') + `<main class="cont con-nav">${cuerpo}</main>`, root => {
@@ -1002,6 +1007,60 @@ function dibujarAmigos(d, mensaje, error) {
     root.querySelectorAll('[data-aceptar]').forEach(b => b.addEventListener('click', async () => { b.disabled = true; await api('amigo_responder', { sesion: E.sesion, usuario: b.dataset.aceptar, accionAmigo: 'aceptar' }); vistaAmigos('¡Ahora son amigos! 🎉'); }));
     root.querySelectorAll('[data-rechazar]').forEach(b => b.addEventListener('click', async () => { b.disabled = true; await api('amigo_responder', { sesion: E.sesion, usuario: b.dataset.rechazar, accionAmigo: 'rechazar' }); vistaAmigos(); }));
     root.querySelectorAll('[data-toque]').forEach(b => b.addEventListener('click', () => ventanaToque(b.dataset.toque, b.dataset.nombre)));
+    root.querySelectorAll('[data-mas]').forEach(b => b.addEventListener('click', () => ventanaUsuario(b.dataset.mas, b.dataset.nombre, b.dataset.amigo === '1')));
+    root.querySelectorAll('[data-desbloquear]').forEach(b => b.addEventListener('click', async () => {
+      b.disabled = true;
+      const r = await api('amigo_responder', { sesion: E.sesion, usuario: b.dataset.desbloquear, accionAmigo: 'desbloquear' });
+      if (!r.ok) { b.disabled = false; return aviso(textoError(r.error)); }
+      vistaAmigos('Desbloqueaste a @' + b.dataset.desbloquear + '. Si quieren ser amigos otra vez, uno tiene que mandar la solicitud.');
+    }));
+  });
+}
+
+/* ---------- 3 nov 2026: quitar, bloquear o reportar a un usuario (lo pide Google Play para apps con contenido de usuarios) ---------- */
+const botonMas = (x, amigo) => `<button type="button" class="btn blanco chico mini" data-mas="${esc(x.usuario)}" data-nombre="${esc(x.nombre)}" data-amigo="${amigo ? 1 : 0}" aria-label="Más opciones para @${esc(x.usuario)}: bloquear o reportar" title="Bloquear o reportar">⋯</button>`;
+function ventanaUsuario(usuario, nombre, esAmigo) {
+  ventana(`<h2 id="v-h" tabindex="-1">${esc(nombre)} <small style="font-weight:600;font-size:14px">@${esc(usuario)}</small></h2>
+    ${esAmigo ? '<button type="button" class="btn blanco chico" id="u-quitar">Quitar de mis amigos</button>' : ''}
+    <button type="button" class="btn blanco chico" id="u-bloquear">🚫 Bloquear</button>
+    <p class="nota izq" style="margin:-4px 0 4px">No podrá mandarte solicitudes ni toques, y dejarán de ser amigos. No le avisamos.</p>
+    <button type="button" class="btn blanco chico" id="u-reportar">🚩 Reportar</button>
+    <p class="nota izq" style="margin:-4px 0 4px">Si te molesta o te hace sentir mal, repórtalo: lo revisa el equipo del reto. Si eres menor de edad, cuéntale también a tu representante.</p>`, (v, cerrar) => {
+    const q = v.querySelector('#u-quitar');
+    if (q) q.addEventListener('click', async () => { cerrar(); await api('amigo_responder', { sesion: E.sesion, usuario, accionAmigo: 'quitar' }); vistaAmigos(); });
+    v.querySelector('#u-bloquear').addEventListener('click', async ev => {
+      ev.currentTarget.disabled = true;
+      const r = await api('amigo_responder', { sesion: E.sesion, usuario, accionAmigo: 'bloquear' });
+      cerrar();
+      if (!r.ok) return aviso(textoError(r.error));
+      vistaAmigos('Bloqueaste a @' + usuario + '. Puedes desbloquearlo abajo, en «Bloqueados».');
+    });
+    v.querySelector('#u-reportar').addEventListener('click', () => { cerrar(); ventanaReportarUsuario(usuario, nombre); });
+  });
+}
+const MOTIVOS_USUARIO = [['Me molesta o me hace sentir mal', 'Toques o solicitudes que no quieres, burlas o acoso'], ['Contenido inapropiado', 'Su nombre o usuario es ofensivo o no es para todo público'], ['Se hace pasar por otra persona', 'Usa el nombre o el usuario de otro artista'], ['Otro', 'Otra razón: cuéntanos abajo']];
+function ventanaReportarUsuario(usuario, nombre) {
+  let motivo = '';
+  ventana(`<h2 id="v-h" tabindex="-1" style="margin:0;font-family:var(--display)">Reportar a ${esc(nombre)} (@${esc(usuario)})</h2>
+    <p style="margin:0;font-size:14px">Lo revisa el equipo del reto. Nadie más sabe que fuiste tú.</p>
+    <div class="motivos" role="radiogroup" aria-label="Motivo">${MOTIVOS_USUARIO.map(m => `<button type="button" class="opcion" role="radio" aria-checked="false" aria-pressed="false" data-m="${esc(m[0])}" style="text-align:left;display:flex;flex-direction:column;gap:2px;padding:10px 12px"><b>${esc(m[0])}</b><small style="font-weight:600">${esc(m[1])}</small></button>`).join('')}</div>
+    <label class="campo" for="rep-det">Detalle <span class="ayuda">(opcional)</span><textarea id="rep-det" maxlength="300" rows="3" style="border:3px solid var(--ink);border-radius:12px;padding:10px 12px;font:600 15px var(--texto);width:100%"></textarea></label>
+    <label style="display:flex;gap:8px;align-items:center;font-weight:700;font-size:14px"><input type="checkbox" id="rep-bloq" checked style="width:20px;height:20px"> Bloquearlo también</label>
+    <div class="error" role="alert" id="rep-err" hidden></div>
+    <button type="button" class="btn" id="rep-ok">ENVIAR REPORTE</button>`, (velo, cerrar) => {
+    velo.querySelectorAll('[data-m]').forEach(b => b.addEventListener('click', () => {
+      motivo = b.dataset.m;
+      velo.querySelectorAll('[data-m]').forEach(x => { const on = x === b; x.setAttribute('aria-pressed', on); x.setAttribute('aria-checked', on); });
+    }));
+    velo.querySelector('#rep-ok').addEventListener('click', async ev => {
+      const err = velo.querySelector('#rep-err');
+      if (!motivo) { err.textContent = ERRORES.reporte; err.hidden = false; return; }
+      const bloquear = velo.querySelector('#rep-bloq').checked;
+      ev.currentTarget.disabled = true; ev.currentTarget.textContent = 'Enviando…';
+      const r = await api('reportar_usuario', { sesion: E.sesion, usuario, motivo, detalle: velo.querySelector('#rep-det').value.trim(), bloquear });
+      if (!r.ok) { err.textContent = textoError(r.error); err.hidden = false; ev.currentTarget.disabled = false; ev.currentTarget.textContent = 'ENVIAR REPORTE'; return; }
+      cerrar(); aviso('🚩 Gracias. El equipo del reto lo va a revisar.'); vistaAmigos(bloquear ? 'Bloqueaste a @' + usuario + '. Puedes desbloquearlo abajo, en «Bloqueados».' : null);
+    });
   });
 }
 
@@ -1012,7 +1071,7 @@ function ventanaToque(usuario, nombre) {
     <p style="font-size:14px">Le aparecerá en su app con el sticker que elijas.</p>
     <div class="stickers">${STICKERS.map((st, i) => `<button type="button" class="sticker" data-st="${i}" aria-pressed="${i === elegido}"><img src="${st[0]}" alt="" width="80" height="80"><span>${esc(st[1])}</span></button>`).join('')}</div>
     <button type="button" class="btn amarillo" id="dar">DAR TOQUE</button>
-    <button type="button" class="enlace" id="quitar" style="font-size:12px;color:var(--muted)">Quitar a @${esc(usuario)} de mis amigos</button>`, (v, cerrar) => {
+    <button type="button" class="enlace" id="quitar" style="font-size:12px;color:var(--muted)">Quitar, bloquear o reportar a @${esc(usuario)}</button>`, (v, cerrar) => {
     v.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => { elegido = +b.dataset.st; v.querySelectorAll('[data-st]').forEach(x => x.setAttribute('aria-pressed', String(+x.dataset.st === elegido))); }));
     v.querySelector('#dar').addEventListener('click', async ev => {
       ev.currentTarget.disabled = true; ev.currentTarget.textContent = 'Enviando…';
@@ -1020,7 +1079,7 @@ function ventanaToque(usuario, nombre) {
       cerrar();
       if (r.ok) { aviso('¡Toque enviado a ' + nombre + '!'); vistaAmigos(); } else aviso(textoError(r.error));
     });
-    v.querySelector('#quitar').addEventListener('click', async () => { cerrar(); await api('amigo_responder', { sesion: E.sesion, usuario, accionAmigo: 'quitar' }); vistaAmigos(); });
+    v.querySelector('#quitar').addEventListener('click', () => { cerrar(); ventanaUsuario(usuario, nombre, true); });
   });
 }
 
@@ -1272,7 +1331,8 @@ const TUTO = {
   ranking: [['El ranking', 'Aquí ves cómo vas en cada categoría de premios y tus semanas para el Premio a la constancia. Compiten por los premios quienes viven en Venezuela.']],
   amigos: [
     ['Tus amigos', 'Busca a tus amigos por su usuario y mándales una solicitud.'],
-    ['Rachas con amigos', 'Cuando los dos suben su dibujo la misma semana, crece la racha de los dos. Puedes darles un toque con un sticker una vez al día para animarlos.']
+    ['Rachas con amigos', 'Cuando los dos suben su dibujo la misma semana, crece la racha de los dos. Puedes darles un toque con un sticker una vez al día para animarlos.'],
+    ['Tú decides', 'Con el botón ⋯ puedes quitar, bloquear o reportar a alguien. Si algo te hace sentir mal, cuéntaselo también a un adulto de confianza.']
   ],
   yo: [['Tu perfil', 'Aquí están tus datos, tu progreso y los avisos. Activa los avisos para que te recordemos antes del cierre. También puedes cambiar de guía o ver este tutorial otra vez.']],
   votar: [['La votación', 'Los 5 dibujos con más «Me gusta» en el Padlet son las finalistas. Tienes un voto, no se puede cambiar y no puedes votar por tu propio dibujo. Cierra el martes a las 9:00 p. m.']],
