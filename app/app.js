@@ -616,7 +616,7 @@ function dibujarHoy(h, error) {
           ? `<button type="button" class="btn blanco chico" id="proteger">🎂 Usar tu protector de cumpleaños (vence el ${fechaCorta(E.club.cumple.hasta)})</button>`
           : E.club && E.club.activo
           ? (E.club.protectores > 0 ? `<button type="button" class="btn blanco chico" id="proteger">🛡️ Usar un protector de racha (te quedan ${E.club.protectores})</button>` : '<p class="nota">Ya usaste tus 2 protectores de este mes.</p>')
-          : '<button type="button" class="enlace" data-ir="club" style="font-size:13px">🛡️ Con el Club Estrella tienes 2 protectores al mes para que tu racha no se apague</button>') : ''}
+          : PLAY ? '' : '<button type="button" class="enlace" data-ir="club" style="font-size:13px">🛡️ Con el Club Estrella tienes 2 protectores al mes para que tu racha no se apague</button>') : ''}
       </section>
       ${franjaAliados()}`;
   } else {
@@ -1039,7 +1039,7 @@ function vistaClub(error, escribiendo) {
   pintar(`
     <header class="barra club-barra">
       <button type="button" class="volver" id="v" aria-label="Volver">${ICO.volver}</button>
-      <div style="flex:1"><h1>Club Estrella</h1><span class="sub">${PLAY ? 'Apoya el reto y desbloquea más' : 'Apoya el reto y desbloquea más · 5,50 $ al mes'}</span></div>
+      <div style="flex:1"><h1>Club Estrella</h1><span class="sub">${PLAY ? 'Para miembros del Club' : 'Apoya el reto y desbloquea más · 5,50 $ al mes'}</span></div>
     </header>
     <main class="cont">
       <div class="estrellas" aria-label="Tu estrella crece con tus meses en el Club">
@@ -1050,6 +1050,7 @@ function vistaClub(error, escribiendo) {
       ${c.activo ? `<div class="club-yo"><img src="img/estrella-${c.estrella}.webp" alt="" width="54" height="54"><div><b>✓ Club activo hasta el ${fechaCorta(c.hasta)}</b><span>Llevas ${c.meses} ${c.meses === 1 ? 'mes' : 'meses'} · ${c.protectores} protectores este mes</span></div></div>` : ''}
       <ul class="perks">${PERKS.map((p, i) => `<li class="perk p${i} ${p[2] || ''}">${p[2] === 'pronto' ? '<span class="pronto-tag">PRÓXIMAMENTE</span>' : ''}<strong>${esc(p[0])}</strong><span>${esc(p[1])}</span></li>`).join('')}</ul>
       ${c.activo ? (c.patreon ? '<span class="nota">✓ Vinculado con Patreon. Se revisa solo cada día.</span>' : '') : PLAY ? `
+        <span class="nota">¿Ya eres miembro del Club Estrella? Vincula tu cuenta para activar tus ventajas en la app.</span>
         <button type="button" class="btn turquesa chico" id="vincular">${c.patreon ? 'Vincular otra cuenta de Patreon' : 'Ya soy miembro: vincular mi Patreon'}</button>
         ${c.patreon ? '<button type="button" class="enlace" id="revisar">Revisar mi membresía</button>' : ''}` : `
         <a class="btn amarillo" href="${CONFIG.patreon}" target="_blank" rel="noopener">UNIRME POR PATREON</a>
@@ -1211,7 +1212,7 @@ function vistaYo() {
       </div>
       ${E.club && E.club.activo
         ? `<div class="club-yo"><img src="img/estrella-${E.club.estrella}.webp" alt="" width="54" height="54"><div><b>Club Estrella activo</b><span>Hasta el ${fechaCorta(E.club.hasta)} · llevas ${E.club.meses} ${E.club.meses === 1 ? 'mes' : 'meses'}${E.club.protectores ? ' · ' + E.club.protectores + ' protectores' : ''}</span></div></div>`
-        : '<button type="button" class="btn blanco chico" data-ir="club">★ Conocer el Club Estrella</button>'}
+        : `<button type="button" class="btn blanco chico" data-ir="club">${PLAY ? '★ Club Estrella: vincular mi cuenta' : '★ Conocer el Club Estrella'}</button>`}
       ${E.club && E.club.cumple && E.club.cumple.disponible ? `<div class="caja crema"><strong class="t">🎂 Tu regalo de cumpleaños</strong>Tienes un protector de racha hasta el ${fechaCorta(E.club.cumple.hasta)}. Úsalo en «Hoy» si tu racha está en riesgo.</div>` : ''}
       ${avisosHtml()}
       ${instalada ? '' : `<button type="button" class="btn amarillo chico" id="instalar">📲 Instalar la app en mi teléfono</button>`}
@@ -1275,7 +1276,7 @@ const TUTO = {
   ],
   yo: [['Tu perfil', 'Aquí están tus datos, tu progreso y los avisos. Activa los avisos para que te recordemos antes del cierre. También puedes cambiar de guía o ver este tutorial otra vez.']],
   votar: [['La votación', 'Los 5 dibujos con más «Me gusta» en el Padlet son las finalistas. Tienes un voto, no se puede cambiar y no puedes votar por tu propio dibujo. Cierra el martes a las 9:00 p. m.']],
-  club: [['El Club Estrella', 'Es la membresía de Patreon del reto: ves el reto 24 horas antes, tienes protectores para tu racha y tu estrella cambia según los meses que llevas.']],
+  club: [['El Club Estrella', PLAY ? 'Aquí ves las ventajas del Club Estrella: el reto 24 horas antes, protectores para tu racha y tu estrella según los meses que llevas. Si ya eres miembro, vincula tu cuenta.' : 'Es la membresía de Patreon del reto: ves el reto 24 horas antes, tienes protectores para tu racha y tu estrella cambia según los meses que llevas.']],
   chispa: [['La Chispa del día', 'Es un mini reto para calentar la mano. Sale una nueva cada día: hazla cuando quieras.']]
 };
 function tutorial(clave, intento) {
