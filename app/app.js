@@ -1210,11 +1210,22 @@ function vistaYo() {
       <button type="button" class="btn blanco chico" id="tuto">👋 Ver el tutorial otra vez</button>
       <a class="btn blanco chico" href="${CONFIG.web}/preguntas-frecuentes.html" target="_blank" rel="noopener">Preguntas frecuentes</a>
       <button type="button" class="enlace" id="salir">Cerrar sesión</button>
-      <span class="nota"><a href="${CONFIG.web}/bases.html#reto" target="_blank" rel="noopener">Bases del reto</a> · <a href="${CONFIG.web}/privacidad.html" target="_blank" rel="noopener">Privacidad</a></span>
+      <button type="button" class="enlace" id="borrar" style="font-size:12px;color:var(--muted)">Borrar mi cuenta</button>
+      <span class="nota"><a href="${CONFIG.web}/bases.html#reto" target="_blank" rel="noopener">Bases del reto</a> · <a href="${CONFIG.web}/terminos.html" target="_blank" rel="noopener">Términos</a> · <a href="${CONFIG.web}/privacidad.html" target="_blank" rel="noopener">Privacidad</a></span>
     </main>`, root => {
     root.querySelectorAll('[data-guia]').forEach(b => b.addEventListener('click', () => { E.guia = b.dataset.guia; guardar('guia', E.guia); vistaYo(); }));
     on('#editar', 'click', () => { E.borrador = { nombre: p.nombre, usuario: p.usuario }; vistaPerfil(); });
     on('#salir', 'click', () => cerrarSesion());
+    on('#borrar', 'click', () => {
+      const cuerpo = 'Hola, quiero borrar mi cuenta de la app Reto Mente Milenial.\n\nMi usuario: @' + (p.usuario || '') + (p.correo ? '\nCorreo de la cuenta: ' + p.correo : '') + '\n\nEntiendo que se borran mi perfil, mis amigos, mis votos, mis avisos y mi vínculo con el Club. (Si también quieres que quitemos tus dibujos del Padlet, escríbelo aquí.)';
+      const mail = 'mailto:retocreativofest@gmail.com?subject=' + encodeURIComponent('Borrar mi cuenta de la app') + '&body=' + encodeURIComponent(cuerpo);
+      ventana(`<h2 id="v-h" tabindex="-1">Borrar mi cuenta</h2>
+        <p>Se borran tu perfil, tus amigos y toques, tus votos, tus avisos y tu vínculo con el Club Estrella. Tu racha no se puede recuperar.</p>
+        <p>Tus dibujos ya publicados en el Padlet se quedan, salvo que nos pidas quitarlos en el mismo correo.</p>
+        <p style="font-size:14px">Toca el botón: se abre tu correo con el mensaje listo. Envíalo <b>desde el correo con el que entras a la app</b>${p.mayor === 'Sí' ? '' : ' (o que lo envíe tu representante desde su correo)'}. Lo hacemos en 7 días o menos y te confirmamos.</p>
+        <a class="btn blanco" href="${mail}">✉️ Escribir para borrar mi cuenta</a>
+        <p class="nota" style="margin-top:8px">¿No se abre tu correo? Escribe a <b>retocreativofest@gmail.com</b> con el asunto «Borrar mi cuenta de la app» y tu usuario. <a href="${CONFIG.web}/borrar-cuenta.html" target="_blank" rel="noopener">Más información</a></p>`);
+    });
     on('#tuto', 'click', () => { guardar('tuto', null); ir('hoy'); });
     activarAvisosEn(root, vistaYo);
     on('#instalar', 'click', async () => {
