@@ -17,6 +17,12 @@ const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', '
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const guardar = (k, v) => { try { v == null ? localStorage.removeItem('rcf.' + k) : localStorage.setItem('rcf.' + k, JSON.stringify(v)); } catch (e) {} };
 const leer = k => { try { const v = localStorage.getItem('rcf.' + k); return v == null ? null : JSON.parse(v); } catch (e) { return null; } };
+/* ¿Se abrió desde la app de Google Play? (envoltorio Android, TWA). Google no permite vender beneficios digitales
+   por fuera de su sistema de pagos dentro de una app de la tienda: ahí el Club solo se vincula, no se compra. */
+const PLAY = (() => {
+  const desdePlay = String(document.referrer || '').indexOf('android-app://com.retocreativofest.retomentemilenial') === 0;
+  try { if (desdePlay) localStorage.setItem('rcf.play', '1'); return desdePlay || localStorage.getItem('rcf.play') === '1'; } catch (e) { return desdePlay; }
+})();
 const fecha = iso => { const d = new Date(iso); return DIAS[d.getDay()] + ' ' + d.getDate() + ' de ' + MESES[d.getMonth()]; };
 const hora = iso => { const d = new Date(iso); let h = d.getHours(); const m = String(d.getMinutes()).padStart(2, '0'); const pm = h >= 12; h = h % 12 || 12; return h + ':' + m + (pm ? ' p. m.' : ' a. m.'); };
 const ICO = {
@@ -1033,7 +1039,7 @@ function vistaClub(error, escribiendo) {
   pintar(`
     <header class="barra club-barra">
       <button type="button" class="volver" id="v" aria-label="Volver">${ICO.volver}</button>
-      <div style="flex:1"><h1>Club Estrella</h1><span class="sub">Apoya el reto y desbloquea más · 5,50 $ al mes</span></div>
+      <div style="flex:1"><h1>Club Estrella</h1><span class="sub">${PLAY ? 'Apoya el reto y desbloquea más' : 'Apoya el reto y desbloquea más · 5,50 $ al mes'}</span></div>
     </header>
     <main class="cont">
       <div class="estrellas" aria-label="Tu estrella crece con tus meses en el Club">
@@ -1043,7 +1049,9 @@ function vistaClub(error, escribiendo) {
       </div>
       ${c.activo ? `<div class="club-yo"><img src="img/estrella-${c.estrella}.webp" alt="" width="54" height="54"><div><b>✓ Club activo hasta el ${fechaCorta(c.hasta)}</b><span>Llevas ${c.meses} ${c.meses === 1 ? 'mes' : 'meses'} · ${c.protectores} protectores este mes</span></div></div>` : ''}
       <ul class="perks">${PERKS.map((p, i) => `<li class="perk p${i} ${p[2] || ''}">${p[2] === 'pronto' ? '<span class="pronto-tag">PRÓXIMAMENTE</span>' : ''}<strong>${esc(p[0])}</strong><span>${esc(p[1])}</span></li>`).join('')}</ul>
-      ${c.activo ? (c.patreon ? '<span class="nota">✓ Vinculado con Patreon. Se revisa solo cada día.</span>' : '') : `
+      ${c.activo ? (c.patreon ? '<span class="nota">✓ Vinculado con Patreon. Se revisa solo cada día.</span>' : '') : PLAY ? `
+        <button type="button" class="btn turquesa chico" id="vincular">${c.patreon ? 'Vincular otra cuenta de Patreon' : 'Ya soy miembro: vincular mi Patreon'}</button>
+        ${c.patreon ? '<button type="button" class="enlace" id="revisar">Revisar mi membresía</button>' : ''}` : `
         <a class="btn amarillo" href="${CONFIG.patreon}" target="_blank" rel="noopener">UNIRME POR PATREON</a>
         <button type="button" class="btn turquesa chico" id="vincular">${c.patreon ? 'Vincular otra cuenta de Patreon' : 'Ya soy miembro: vincular mi Patreon'}</button>
         ${c.patreon ? '<button type="button" class="enlace" id="revisar">Revisar mi membresía</button>' : ''}
