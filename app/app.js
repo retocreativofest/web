@@ -206,6 +206,7 @@ function mostrarBanner(b) {
     <button type="button" class="ban-x" aria-label="Cerrar" hidden>✕</button>
     <div class="ban-pie"><span class="ban-txt" role="status">Subiendo tu dibujo…</span><div class="ban-barra"><i></i></div><small>Reto presentado por ${esc(b.marca || 'nuestra marca aliada')}</small></div>`;
   document.body.appendChild(ov);
+  try { fetch(CONFIG.banner + '?visto=1&t=' + encodeURIComponent(b.temporada) + '&s=' + encodeURIComponent(b.semana), { credentials: 'omit', mode: 'no-cors' }).catch(() => {}); } catch (e) {}   // contador del informe para la marca
   let cerrado = false, avisar = null;
   const x = ov.querySelector('.ban-x');
   const cerrar = () => { if (cerrado) return; cerrado = true; ov.remove(); if (avisar) avisar(); };
