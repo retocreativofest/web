@@ -7,7 +7,8 @@ const CONFIG = {
   web: 'https://retocreativofest.com',
   whatsapp: '584120390423',   // pagos del Club por Pago Móvil, Binance o Zinli
   patreon: 'https://www.patreon.com/RetoMenteMilenial',
-  extra: 'https://script.google.com/macros/s/AKfycbxk2KkAccQuJHmErsKb8VTIrJtKTaiN3jgsIlue3S3hgVabA_BjcD3j8qQZ36hyBKzh4g/exec'   // URL /exec del Apps Script «Reto de la semana · web» (reenviar el correo del representante y ver rebotes). Vacío = sin botón de reenviar.
+  extra: 'https://script.google.com/macros/s/AKfycbxk2KkAccQuJHmErsKb8VTIrJtKTaiN3jgsIlue3S3hgVabA_BjcD3j8qQZ36hyBKzh4g/exec',
+  banner: ''   // URL /exec del Apps Script «Banner del patrocinador · app». Vacío = sin banner mientras se sube el dibujo.   // URL /exec del Apps Script «Reto de la semana · web» (reenviar el correo del representante y ver rebotes). Vacío = sin botón de reenviar.
 };
 
 /* ---------- utilidades ---------- */
@@ -177,6 +178,48 @@ async function cargarPatrocinio() {
 function marcaReto(a) {
   const r = E.patro && E.patro.r && E.patro.r.reto;
   return r && a && r.marca && Number(r.semana) === Number(a.semana) && String(r.temporada) === String(a.temporada) ? r.marca : null;
+}
+/* ---------- banner del patrocinador mientras se sube el dibujo (6 nov 2026) ----------
+   Va incluido en el Reto Aliado. Solo para mayores de edad, a pantalla completa, sin enlace.
+   Se ve al menos 4 segundos; después aparece la X. La barra muestra que el dibujo se está subiendo. */
+async function cargarBanner(a) {
+  if (!CONFIG.banner || !E.perfil || E.perfil.mayor !== 'Sí') return;
+  if (!(E.banner && Date.now() - E.banner.t < 6e5)) {
+    try { const r = await (await fetch(CONFIG.banner, { credentials: 'omit' })).json(); E.banner = { t: Date.now(), b: r && r.ok ? r.banner : null }; }
+    catch (e) { return; }
+  }
+  const b = E.banner.b;
+  if (b && b.url && a && Number(b.semana) === Number(a.semana) && String(b.temporada) === String(a.temporada) && !E.banner.img) {
+    const img = new Image(); img.src = b.url; E.banner.img = img;   // se descarga antes, así sale al instante
+  }
+}
+function bannerListo(a) {
+  const b = E.banner && E.banner.b, img = E.banner && E.banner.img;
+  if (!b || !img || !img.complete || !img.naturalWidth || !E.perfil || E.perfil.mayor !== 'Sí') return null;
+  return Number(b.semana) === Number(a.semana) && String(b.temporada) === String(a.temporada) ? b : null;
+}
+function mostrarBanner(b) {
+  const MIN = 4000, t0 = Date.now();
+  const ov = document.createElement('div');
+  ov.className = 'ban-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Presentado por ' + (b.marca || 'nuestra marca aliada'));
+  ov.innerHTML = `<img src="${esc(b.url)}" alt="${esc(b.descripcion || 'Banner de ' + (b.marca || 'la marca aliada'))}">
+    <button type="button" class="ban-x" aria-label="Cerrar" hidden>✕</button>
+    <div class="ban-pie"><span class="ban-txt" role="status">Subiendo tu dibujo…</span><div class="ban-barra"><i></i></div><small>Reto presentado por ${esc(b.marca || 'nuestra marca aliada')}</small></div>`;
+  document.body.appendChild(ov);
+  let cerrado = false, avisar = null;
+  const x = ov.querySelector('.ban-x');
+  const cerrar = () => { if (cerrado) return; cerrado = true; ov.remove(); if (avisar) avisar(); };
+  x.addEventListener('click', cerrar);
+  setTimeout(() => { if (!cerrado) { x.hidden = false; x.focus(); } }, MIN);
+  /* Al terminar la subida: si falló, se quita ya; si salió bien, llena la barra y espera la X (o 4 s más). */
+  return ok => new Promise(listo => {
+    if (cerrado) return listo();
+    if (!ok) { cerrar(); return listo(); }
+    avisar = listo;
+    ov.querySelector('.ban-txt').textContent = '¡Listo! Tu dibujo ya está en el Padlet';
+    ov.querySelector('.ban-barra').classList.add('llena');
+    setTimeout(cerrar, Math.max(MIN - (Date.now() - t0), 0) + 4000);
+  });
 }
 function franjaAliados() {
   const al = ((E.patro && E.patro.r && E.patro.r.aliados) || []).filter(x => x.codigo);
@@ -852,6 +895,7 @@ function vistaSubir(error) {
   const S = E.subida, p = E.perfil || {};
   if (S.id !== semanaId(a)) { Object.keys(S).forEach(k => delete S[k]); S.id = semanaId(a); S.tecnica = E.guia === 'tradi' ? 'Tradicional' : ''; }
   const titulo = (p.nombre || '').split(' ')[0] + ' · @' + (p.usuario || '');
+  cargarBanner(a);
   pintar(`
     <header class="barra">
       <button type="button" class="volver" id="v" aria-label="Volver">${ICO.volver}</button>
@@ -910,7 +954,9 @@ function vistaSubir(error) {
         }, true));
       if (!confirmado) return;
       const ok = root.querySelector('#ok'); ok.disabled = true; ok.textContent = 'Publicando… no cierres la app';
+      const ban = bannerListo(a), finBanner = ban ? mostrarBanner(ban) : null;
       const r = await api('subir', { sesion: E.sesion, imagen: S.base64, tecnica: S.tecnica, descripcion: S.descripcion.trim(), propio: true });
+      if (finBanner) await finBanner(r.ok);
       if (r.ok || r.error === 'ya_subiste') {
         E.semana = { id: semanaId(a), subido: true, padlet: r.padlet || '' }; guardar('semana', E.semana);
         if (S.vista) URL.revokeObjectURL(S.vista);
