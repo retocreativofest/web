@@ -1359,9 +1359,11 @@ function vistaYo() {
     on('#borrar', 'click', () => {
       // Automático desde el 6 nov 2026: lo hace el Apps Script «Reto de la semana · web» (archivo «Borrar cuenta»).
       ventana(`<h2 id="v-h" tabindex="-1">Borrar mi cuenta</h2>
-        <p>Se borran <b>ya mismo</b> tu perfil, tus amigos y toques, tus avisos y tu vínculo con el Club Estrella. Tu racha no se puede recuperar.</p>
-        <label style="display:flex;gap:8px;align-items:flex-start;font-size:14px"><input type="checkbox" id="bc-dib" style="margin-top:3px"> Quitar también mis dibujos del Padlet</label>
-        <label style="font-size:14px">Para confirmar, escribe <b>BORRAR</b>:<input id="bc-txt" autocomplete="off" autocapitalize="characters" style="display:block;width:100%;margin-top:6px;padding:10px;border:3px solid var(--ink);border-radius:12px;font:inherit"></label>
+        <div style="background:#FFE3EF;border:3px solid var(--ink);border-radius:14px;padding:12px 14px;box-shadow:4px 4px 0 var(--ink)">
+          <b style="display:block;font-family:var(--display);font-size:19px;line-height:1.2;margin-bottom:6px">⚠️ Esto es permanente y no tiene vuelta atrás</b>
+          <span style="font-size:14px;line-height:1.45">Se borran <b>ya mismo</b> tu perfil, <b>todos tus dibujos</b> (también del Padlet), tu racha, tus puntos, tus amigos, tus avisos y tu vínculo con el Club Estrella. Si quedaste en un podio o una categoría, pierdes ese lugar. <b>Nadie puede recuperarlo, ni nosotros.</b></span>
+        </div>
+        <label style="font-size:14px">Si de verdad quieres borrarla, escribe <b>BORRAR</b>:<input id="bc-txt" autocomplete="off" autocapitalize="characters" style="display:block;width:100%;margin-top:6px;padding:10px;border:3px solid var(--ink);border-radius:12px;font:inherit"></label>
         <button type="button" class="btn blanco" id="bc-ok" disabled>Borrar mi cuenta para siempre</button>
         <p class="nota" id="bc-msg" role="status" style="margin:0"></p>`, (velo, cerrarV) => {
         const txt = velo.querySelector('#bc-txt'), ok = velo.querySelector('#bc-ok'), msg = velo.querySelector('#bc-msg');
@@ -1371,7 +1373,7 @@ function vistaYo() {
           ok.disabled = true; msg.textContent = 'Borrando…';
           try {
             const res = await fetch(CONFIG.extra, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              body: JSON.stringify({ accion: 'borrar_cuenta', sesion: E.sesion, dibujos: velo.querySelector('#bc-dib').checked }) });
+              body: JSON.stringify({ accion: 'borrar_cuenta', sesion: E.sesion, dibujos: true }) });
             const r = await res.json();
             if (!r.ok) throw new Error(r.error || 'servidor');
             cerrarV();
