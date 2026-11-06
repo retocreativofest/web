@@ -1357,14 +1357,34 @@ function vistaYo() {
     on('#editar', 'click', () => { E.borrador = { nombre: p.nombre, usuario: p.usuario }; vistaPerfil(); });
     on('#salir', 'click', () => cerrarSesion());
     on('#borrar', 'click', () => {
-      const cuerpo = 'Hola, quiero borrar mi cuenta de la app Reto Mente Milenial.\n\nMi usuario: @' + (p.usuario || '') + (p.correo ? '\nCorreo de la cuenta: ' + p.correo : '') + '\n\nEntiendo que se borran mi perfil, mis amigos, mis votos, mis avisos y mi vínculo con el Club. (Si también quieres que quitemos tus dibujos del Padlet, escríbelo aquí.)';
-      const mail = 'mailto:retocreativofest@gmail.com?subject=' + encodeURIComponent('Borrar mi cuenta de la app') + '&body=' + encodeURIComponent(cuerpo);
+      // Automático desde el 6 nov 2026: lo hace el Apps Script «Reto de la semana · web» (archivo «Borrar cuenta»).
       ventana(`<h2 id="v-h" tabindex="-1">Borrar mi cuenta</h2>
-        <p>Se borran tu perfil, tus amigos y toques, tus votos, tus avisos y tu vínculo con el Club Estrella. Tu racha no se puede recuperar.</p>
-        <p>Tus dibujos ya publicados en el Padlet se quedan, salvo que nos pidas quitarlos en el mismo correo.</p>
-        <p style="font-size:14px">Toca el botón: se abre tu correo con el mensaje listo. Envíalo <b>desde el correo con el que entras a la app</b>${p.mayor === 'Sí' ? '' : ' (o que lo envíe tu representante desde su correo)'}. Lo hacemos en 7 días o menos y te confirmamos.</p>
-        <a class="btn blanco" href="${mail}">✉️ Escribir para borrar mi cuenta</a>
-        <p class="nota" style="margin-top:8px">¿No se abre tu correo? Escribe a <b>retocreativofest@gmail.com</b> con el asunto «Borrar mi cuenta de la app» y tu usuario. <a href="${CONFIG.web}/borrar-cuenta.html" target="_blank" rel="noopener">Más información</a></p>`);
+        <p>Se borran <b>ya mismo</b> tu perfil, tus amigos y toques, tus avisos y tu vínculo con el Club Estrella. Tu racha no se puede recuperar.</p>
+        <label style="display:flex;gap:8px;align-items:flex-start;font-size:14px"><input type="checkbox" id="bc-dib" style="margin-top:3px"> Quitar también mis dibujos del Padlet</label>
+        <label style="font-size:14px">Para confirmar, escribe <b>BORRAR</b>:<input id="bc-txt" autocomplete="off" autocapitalize="characters" style="display:block;width:100%;margin-top:6px;padding:10px;border:3px solid var(--ink);border-radius:12px;font:inherit"></label>
+        <button type="button" class="btn blanco" id="bc-ok" disabled>Borrar mi cuenta para siempre</button>
+        <p class="nota" id="bc-msg" role="status" style="margin:0"></p>`, (velo, cerrarV) => {
+        const txt = velo.querySelector('#bc-txt'), ok = velo.querySelector('#bc-ok'), msg = velo.querySelector('#bc-msg');
+        txt.addEventListener('input', () => { ok.disabled = txt.value.trim().toUpperCase() !== 'BORRAR'; });
+        ok.addEventListener('click', async () => {
+          if (!CONFIG.extra) { msg.textContent = 'No se pudo conectar. Escríbenos a retocreativofest@gmail.com.'; return; }
+          ok.disabled = true; msg.textContent = 'Borrando…';
+          try {
+            const res = await fetch(CONFIG.extra, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({ accion: 'borrar_cuenta', sesion: E.sesion, dibujos: velo.querySelector('#bc-dib').checked }) });
+            const r = await res.json();
+            if (!r.ok) throw new Error(r.error || 'servidor');
+            cerrarV();
+            const A = leer('avisos'); if (A && A.token) desactivarAvisos(true);
+            E.sesion = E.correo = E.perfil = E.hoy = E.semana = E.progreso = E.ranking = E.amigos = E.novedades = E.club = null; E.borrador = {}; E.subida = {};
+            ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso', 'club', 'autorizacion'].forEach(k => guardar(k, null));
+            vistaBienvenida('Tu cuenta se borró. ¡Gracias por dibujar con nosotros! 💛');
+          } catch (e) {
+            ok.disabled = false;
+            msg.innerHTML = 'No se pudo borrar ahora. Intenta en unos minutos o escríbenos a <b>retocreativofest@gmail.com</b> con el asunto «Borrar mi cuenta de la app».';
+          }
+        });
+      });
     });
     on('#tuto', 'click', () => { guardar('tuto', null); ir('hoy'); });
     activarAvisosEn(root, vistaYo);
