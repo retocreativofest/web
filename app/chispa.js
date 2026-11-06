@@ -1,6 +1,7 @@
 /* #RetoMenteMilenial · Chispa del día: un mini reto de 3 minutos (opcional, no suma puntos ni racha).
-   Gratis: pincel mediano, borrador, deshacer, 22 colores y marco Clásico.
-   Club Estrella (Chispa Pro): 3 tamaños, cubeta, cambiar la chispa 1 vez al día, marcos Sol y Mar, video acelerado. */
+   Gratis: pincel mediano, borrador, deshacer y 22 colores. Toda chispa se guarda con el marco y la marca de agua del reto.
+   Club Estrella (Chispa Pro): 3 tamaños, cubeta, cambiar la chispa 1 vez al día y video acelerado (también con marca de agua).
+   6 nov 2026: sin selector de marcos. Quien gana el Adviento recibe una insignia y su marco pasa a verde navideño. */
 const POOL = ['3 gatos azules', '2 bomberos verdes', '1 taza rosada', '2 perros amarillos', '3 peces naranja', '1 sombrero morado',
   '2 zapatos rojos', '1 cara feliz amarilla', '3 pájaros rojos', '2 doctoras moradas', '1 elefante rosado', '3 camisas verdes',
   '2 caras tristes azules', '1 tortuga marrón', '3 manzanas moradas', '2 cocineros naranja', '1 vaca azul', '3 medias rosadas',
@@ -13,11 +14,11 @@ const GAMAS = [['Rojo', '#FF5A5A', '#B30000'], ['Naranja', '#FFB04D', '#E06A00']
   ['Marrón', '#C68B59', '#6B3E1E'], ['Piel', '#F6D3B3', '#A86B3C'], ['Negro', '#FFFFFF', '#000000'], ['Gris', '#C8C8C8', '#6E6E6E']];
 const PALETA = GAMAS.map(g => [g[0] === 'Negro' ? 'Blanco' : g[0] + ' claro', g[1]]).concat(GAMAS.map(g => [g[0] === 'Negro' ? 'Negro' : g[0] + ' oscuro', g[2]]));
 const SIZES = [['Fino', 6, 20], ['Mediano', 12, 36], ['Grueso', 26, 64]];
-const MARCOS = [['clasico', 'Clásico', '#6B3FA0', '#FFFFFF', '#FFD60A', false], ['sol', 'Sol', '#FFD60A', '#0B0B0F', '#F0479B', true], ['mar', 'Mar', '#84D7DF', '#0B0B0F', '#6B3FA0', true],
-  ['navidad', 'Navidad', '#1E7A3A', '#FFFFFF', '#FFD60A', 'adviento']];   // se gana con 15 chispas del Adviento
+/* [fondo, texto, título]. El verde es el premio del Adviento (15 de 22 chispas): queda para siempre en ese teléfono. */
+const MARCO = { clasico: ['#6B3FA0', '#FFFFFF', '#FFD60A'], navidad: ['#1E7A3A', '#FFFFFF', '#FFD60A'] };
 
 /* Adviento de Chispas: del 1 al 22 de diciembre, una chispa navideña por día (mientras llega la 3.ª temporada).
-   Misma regla del banco: cantidad + cosa + color. Con 15 de 22 se gana el marco Navidad (para siempre, en ese teléfono). */
+   Misma regla del banco: cantidad + cosa + color. Con 15 de 22 se gana la insignia del Adviento y el marco verde (para siempre, en ese teléfono). */
 const ADVIENTO = { desde: '2026-12-01', hasta: '2026-12-22', meta: 15, lista: [
   '1 árbol de Navidad azul', '3 bolas de Navidad moradas', '2 hallacas verdes', '1 pan de jamón marrón', '3 estrellas amarillas',
   '2 renos rosados', '1 muñeco de nieve naranja', '3 regalos rojos', '2 gorros navideños verdes', '1 campana morada', '3 velas azules',
@@ -67,8 +68,8 @@ const hexRgb = h => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 25
 export function abrirChispa(ctx) {
   const { root, esc } = ctx, club = !!ctx.club;
   const hoy = chispaDeHoy();
-  const S = { fase: 'lista', quedan: LIMITE, herramienta: 'pincel', color: '#000000', tam: 1, marco: 'clasico', ops: 0, video: false, chispa: hoy.chispa, cambiada: hoy.cambiada };
-  let hist = [], cuadros = [], foto = null, reloj = null, dibujando = false, ultimo = null, bloqueoT = null;
+  const S = { fase: 'lista', quedan: LIMITE, herramienta: 'pincel', color: '#000000', tam: 1, ops: 0, video: false, chispa: hoy.chispa, cambiada: hoy.cambiada };
+  let hist = [], cuadros = [], foto = null, reloj = null, dibujando = false, ultimo = null, bloqueoT = null, promo = null;
   const candado = club ? '' : ' 🔒';
 
   root.innerHTML = `
@@ -216,75 +217,24 @@ export function abrirChispa(ctx) {
   });
   $('#ch-v').addEventListener('click', () => { parar(); ctx.volver(); });
 
-  function marcoAbierto(m) { return m[5] === 'adviento' ? navidadGanada() : !m[5] || club; }
-  function marcoVisible(m) { return m[5] !== 'adviento' || navidadGanada() || !!adviento(); }
-  function bloqueadoNavidad() {
-    const l = $('#ch-lock'), a = adviento();
-    l.innerHTML = `🎄 El marco <b>Navidad</b> se gana haciendo ${ADVIENTO.meta} chispas del Adviento${a ? ' (llevas ' + a.hechas.length + ')' : ''}.`;
-    l.hidden = false; clearTimeout(bloqueoT); bloqueoT = setTimeout(() => { l.hidden = true; }, 3500);
-  }
-  /* Marco Navidad: estrellitas (como la del logo), copos de nieve y el sello del Adviento. Todo dibujado con código. */
-  function adornosNavidad(y, ancho) {
-    const estrella = (cx, cy, r) => {
-      const k = r * 0.3; y.beginPath();
-      [[0, -r], [k, -k], [r, 0], [k, k], [0, r], [-k, k], [-r, 0], [-k, -k]].forEach((p, i) => i ? y.lineTo(cx + p[0], cy + p[1]) : y.moveTo(cx + p[0], cy + p[1]));
-      y.closePath(); y.fillStyle = '#FFD60A'; y.fill(); y.lineWidth = 2.5; y.strokeStyle = '#0B0B0F'; y.stroke();
-    };
-    const copo = (cx, cy, r) => {
-      y.save(); y.translate(cx, cy); y.strokeStyle = '#FFFFFF'; y.lineWidth = 3; y.lineCap = 'round';
-      for (let i = 0; i < 6; i++) {
-        y.rotate(Math.PI / 3); y.beginPath();
-        y.moveTo(0, 0); y.lineTo(0, -r);
-        y.moveTo(0, -r * 0.55); y.lineTo(-r * 0.28, -r * 0.8); y.moveTo(0, -r * 0.55); y.lineTo(r * 0.28, -r * 0.8);
-        y.stroke();
-      }
-      y.restore();
-    };
-    // Solo en los bordes verdes de los lados: nada tapa el dibujo ni el texto.
-    [[19, 120, 13], [ancho - 19, 330, 15], [19, 470, 12], [ancho - 19, 640, 13]].forEach(e => estrella(e[0], e[1], e[2]));
-    [[ancho - 19, 160, 13], [19, 300, 14], [ancho - 19, 500, 12], [19, 640, 14]].forEach(e => copo(e[0], e[1], e[2]));
-  }
-  /* Sello del Adviento (medalla roja). */
-  function selloAdviento(y, cx, cy, r) {
-    const k = r / 74;
-    y.save(); y.translate(cx, cy); y.rotate(-0.14);
-    y.beginPath(); y.arc(0, 0, r, 0, Math.PI * 2); y.fillStyle = '#D62839'; y.fill(); y.lineWidth = 5 * k; y.strokeStyle = '#0B0B0F'; y.stroke();
-    y.setLineDash([6 * k, 6 * k]); y.beginPath(); y.arc(0, 0, r - 12 * k, 0, Math.PI * 2); y.lineWidth = 2.5 * k; y.strokeStyle = '#FFFFFF'; y.stroke(); y.setLineDash([]);
-    y.textAlign = 'center'; y.fillStyle = '#FFFFFF';
-    y.font = '800 ' + Math.round(19 * k) + 'px Poppins, sans-serif'; y.fillText('ADVIENTO', 0, -14 * k);
-    y.font = '700 ' + Math.round(15 * k) + 'px Quicksand, sans-serif'; y.fillText('de Chispas', 0, 6 * k);
-    y.fillStyle = '#FFD60A'; y.font = '800 ' + Math.round(26 * k) + 'px Poppins, sans-serif'; y.fillText(ADVIENTO.desde.slice(0, 4), 0, 36 * k);
-    y.restore();
-  }
-  function conMarco() {
-    const m = MARCOS.find(f => f[0] === S.marco) || MARCOS[0];
-    const o = document.createElement('canvas'); o.width = ANCHO + 80; o.height = ALTO + 200;
-    const y = o.getContext('2d');
-    y.fillStyle = m[2]; y.fillRect(0, 0, o.width, o.height);
+  /* Marco con la marca de agua del reto. Se dibuja sobre «o» (canvas de ANCHO+80 × ALTO+200). */
+  function pintarMarco(o, src) {
+    const m = navidadGanada() ? MARCO.navidad : MARCO.clasico, y = o.getContext('2d');
+    y.fillStyle = m[0]; y.fillRect(0, 0, o.width, o.height);
     y.fillStyle = '#0B0B0F'; y.fillRect(34, 34, ANCHO + 12, ALTO + 12);
-    y.drawImage(c, 40, 40);
-    if (m[0] === 'navidad') {   // abajo: el sello a la izquierda y el texto alineado a su lado
-      adornosNavidad(y, o.width);
-      const adv = adviento(), base = ALTO + 46, x0 = 192, maxW = o.width - x0 - 40;
-      selloAdviento(y, 104, base + 78, 62);
-      const ajustar = (txt, peso, fs, fam) => { y.font = peso + ' ' + fs + 'px ' + fam; while (y.measureText(txt).width > maxW && fs > 14) { fs -= 2; y.font = peso + ' ' + fs + 'px ' + fam; } };
-      y.textAlign = 'left';
-      ajustar('#RetoMenteMilenial', '800', 40, 'Poppins, sans-serif'); y.fillStyle = m[4]; y.fillText('#RetoMenteMilenial', x0, base + 56);
-      const t = adv ? 'Día ' + adv.dia + ' · ' + S.chispa : 'Chispa del día: ' + S.chispa;
-      ajustar(t, '700', 28, 'Quicksand, sans-serif'); y.fillStyle = m[3]; y.fillText(t, x0, base + 98);
-      y.font = '700 21px Quicksand, sans-serif'; y.fillStyle = '#CDEBD5'; y.fillText('Reto Creativo Fest', x0, base + 132);
-      return o;
-    }
+    y.drawImage(src || c, 40, 40);
     y.textAlign = 'center';
-    y.fillStyle = m[4]; y.font = '800 40px Poppins, sans-serif'; y.fillText('#RetoMenteMilenial', o.width / 2, ALTO + 112);
+    y.fillStyle = m[2]; y.font = '800 40px Poppins, sans-serif'; y.fillText('#RetoMenteMilenial', o.width / 2, ALTO + 112);
     const adv = adviento();
     const linea = (adv ? 'Adviento de Chispas · día ' + adv.dia + ': ' : 'Chispa del día: ') + S.chispa;
     let fs = 30; y.font = '700 ' + fs + 'px Quicksand, sans-serif';
     while (y.measureText(linea).width > o.width - 48 && fs > 16) { fs -= 2; y.font = '700 ' + fs + 'px Quicksand, sans-serif'; }
-    y.fillStyle = m[3]; y.fillText(linea, o.width / 2, ALTO + 156);
-    y.font = '700 22px Quicksand, sans-serif'; y.fillText('Reto Creativo Fest', o.width / 2, ALTO + 188);
+    y.fillStyle = m[1]; y.fillText(linea, o.width / 2, ALTO + 156);
+    y.font = '700 22px Quicksand, sans-serif'; y.fillText('Reto Creativo Fest · retocreativofest.com', o.width / 2, ALTO + 188);
     return o;
   }
+  function lienzoMarco() { const o = document.createElement('canvas'); o.width = ANCHO + 80; o.height = ALTO + 200; return o; }
+  function conMarco() { return pintarMarco(lienzoMarco()); }
   function descargar(href, nombre) { const a = document.createElement('a'); a.href = href; a.download = nombre; document.body.appendChild(a); a.click(); a.remove(); }
   async function compartirOdescargar() {
     const o = conMarco();
@@ -299,23 +249,36 @@ export function abrirChispa(ctx) {
     if (!club) return bloqueado('El video acelerado');
     if (!cuadros.length || S.video) return;
     S.video = true; pintarAbajo();
-    let rec = null; const trozos = [];
-    if (c.captureStream && window.MediaRecorder) {
+    let rec = null; const trozos = [], o = lienzoMarco();   // el video también lleva el marco y la marca de agua
+    if (o.captureStream && window.MediaRecorder) {
       try {
         const tipo = ['video/mp4', 'video/webm;codecs=vp9', 'video/webm'].find(t => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t));
-        rec = new MediaRecorder(c.captureStream(30), tipo ? { mimeType: tipo } : undefined);
+        pintarMarco(o);
+        rec = new MediaRecorder(o.captureStream(30), tipo ? { mimeType: tipo } : undefined);
         rec.ondataavailable = e => { if (e.data && e.data.size) trozos.push(e.data); };
         rec.onstop = () => { const b = new Blob(trozos, { type: rec.mimeType || 'video/webm' }); descargar(URL.createObjectURL(b), 'chispa-acelerada.' + ((rec.mimeType || '').includes('mp4') ? 'mp4' : 'webm')); };
         rec.start();
       } catch (e) { rec = null; }
     }
     const lista = cuadros.slice(), pausa = Math.max(60, Math.min(300, 5000 / lista.length));
-    let i = 0; blanco();
+    let i = 0; blanco(); pintarMarco(o);
     const sig = () => {
       if (i >= lista.length) { setTimeout(() => { if (rec) rec.stop(); S.video = false; pintarAbajo(); }, 900); return; }
-      const img = new Image(); img.onload = () => { x.drawImage(img, 0, 0); i++; setTimeout(sig, pausa); }; img.src = lista[i];
+      const img = new Image(); img.onload = () => { x.drawImage(img, 0, 0); pintarMarco(o); i++; setTimeout(sig, pausa); }; img.src = lista[i];
     };
     setTimeout(sig, 300);
+  }
+  /* Banner del Club Estrella (6 nov 2026): tarjeta fija debajo de «Guardar o compartir». Las estrellas son las de Stefany. */
+  function bannerClub() {
+    const destello = '<svg class="dst" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l2.6 8.4L23 12l-8.4 2.6L12 23l-2.6-8.4L1 12l8.4-2.6z"/></svg>';
+    return `<section class="club-ban" aria-labelledby="club-ban-t">${destello}${destello}
+      <div class="club-ban-est"><img src="img/estrella-1.webp" alt="" width="46" height="40"><img src="img/estrella-3.webp" alt="" width="42" height="42"><img src="img/estrella-6.webp" alt="" width="44" height="42"></div>
+      <span class="club-ban-pill">CLUB ESTRELLA</span>
+      <h3 id="club-ban-t">¿Te quedaste con ganas de más?</h3>
+      <p>Ve el reto <b>24 horas antes</b>, cuida tu racha con <b>2 protectores al mes</b> y desbloquea la Chispa Pro: cubeta, 3 tamaños y video acelerado.</p>
+      <button type="button" class="btn amarillo chico" id="ch-club-b">★ CONOCER EL CLUB ESTRELLA</button>
+      <small>5,50 $ al mes · participar en el reto es gratis siempre</small>
+    </section>`;
   }
   function pintarAbajo() {
     const ab = $('#ch-abajo');
@@ -339,21 +302,18 @@ export function abrirChispa(ctx) {
       $('#ch-otra').addEventListener('click', () => abrirChispa(ctx));
       return;
     }
+    if (promo === null) promo = !!(ctx.promoClub && ctx.promoClub());   // banner del Club: lo decide app.js (no menores, no miembros, no Play, 1 vez al día)
+    const adv = adviento();
     ab.innerHTML = `
       <div class="caja agua" style="text-align:center">${S.video ? '🎬 Grabando el video acelerado…' : S.quedan === 0 ? '⏰ ¡Se acabó el tiempo! Tu chispa quedó así.' : '🎉 ¡Chispa terminada!'}</div>
-      <div class="fila-t"><strong>Marco</strong><span>Para guardarla o compartirla</span></div>
-      <div class="marcos">${MARCOS.filter(marcoVisible).map(m => `<button type="button" class="marco" data-marco="${m[0]}" aria-pressed="${S.marco === m[0]}" style="background:${m[2]};color:${m[3]}">${m[1]}${marcoAbierto(m) ? '' : ' 🔒'}</button>`).join('')}</div>
+      ${adv && navidadGanada() ? '<div class="caja crema ch-insignia">🎄 <b>Insignia del Adviento ganada.</b> Tu marco ahora es verde navideño.</div>' : ''}
+      <button type="button" class="btn turquesa chico" id="ch-video" ${S.video ? 'disabled' : ''}>🎬 Video acelerado${candado}</button>
       <button type="button" class="btn amarillo" id="ch-desc">⬇ GUARDAR O COMPARTIR</button>
-      <button type="button" class="btn blanco chico" id="ch-video" ${S.video ? 'disabled' : ''}>🎬 Video acelerado${candado}</button>
+      ${promo ? bannerClub() : ''}
       <button type="button" class="enlace" id="ch-salir">Volver a Hoy · mañana hay otra chispa</button>`;
-    root.querySelectorAll('[data-marco]').forEach(b => b.addEventListener('click', () => {
-      const m = MARCOS.find(f => f[0] === b.dataset.marco);
-      if (m[5] === 'adviento' && !marcoAbierto(m)) return bloqueadoNavidad();
-      if (!marcoAbierto(m)) return bloqueado('El marco ' + m[1]);
-      S.marco = m[0]; pintarAbajo();
-    }));
     $('#ch-desc').addEventListener('click', compartirOdescargar);
     $('#ch-video').addEventListener('click', video);
+    const bc = $('#ch-club-b'); if (bc) bc.addEventListener('click', () => { parar(); ctx.irClub(); });
     $('#ch-salir').addEventListener('click', () => ctx.volver());
   }
   pintarReloj(); sortear(S.chispa);

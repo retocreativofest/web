@@ -1,5 +1,5 @@
 /* #RetoMenteMilenial · app: entrar, registro, Hoy, subir al Padlet, rachas, ranking, amigos, Chispa del día y Club Estrella */
-import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento } from './chispa.js?v=10';
+import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada } from './chispa.js?v=11';
 const CONFIG = {
   api: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
@@ -578,7 +578,7 @@ function calendarioAdviento(adv) {
   }).join('');
   const faltan = Math.max(0, adv.meta - adv.hechas.length);
   return `<ol class="adv-cal" aria-label="Adviento de Chispas">${dias}</ol>
-    <small class="sem-ch">${adv.marco ? '🎄 ¡Ganaste el marco Navidad para tus chispas!' : 'Llevas ' + adv.hechas.length + ' de ' + adv.total + ' · con ' + adv.meta + ' ganas el marco Navidad' + (faltan ? ' (te faltan ' + faltan + ')' : '')}</small>`;
+    <small class="sem-ch">${adv.marco ? '🎄 ¡Ganaste la insignia del Adviento! Tus chispas ahora salen con marco verde navideño.' : 'Llevas ' + adv.hechas.length + ' de ' + adv.total + ' · con ' + adv.meta + ' ganas la insignia del Adviento y el marco verde' + (faltan ? ' (te faltan ' + faltan + ')' : '')}</small>`;
 }
 /* Menores de 18 sin autorización confirmada (LOPNNA): ven el reto y la Chispa, pero no publican ni tienen amigos. */
 const bloqueado = () => !!(E.perfil && E.perfil.bloqueado);
@@ -1092,12 +1092,13 @@ function ventanaToque(usuario, nombre) {
 }
 
 /* ---------- Club Estrella ---------- */
+const ADV_META = 15;
 const fechaCorta = iso => { if (!iso) return ''; const [y, m, d] = iso.split('-').map(Number); return d + ' de ' + MESES[m - 1]; };
 const PERKS = [
   ['Reto 24 h antes', 'Un día extra para pensar tu idea'], ['Discord privado', 'Comunidad y feedback de artistas'],
   ['2 protectores al mes', 'Tu llama no se apaga'], ['Insignia en el ranking', 'Tu estrella junto a tu nombre: crece con los meses que sumas en el Club'],
   ['Prioridad en preventas', 'Del concurso de dibujo en vivo y la Ruta creativa'], ['Masterclass pregrabadas', 'Para marcas creativas'],
-  ['Chispa del día Pro', 'Pincel en 3 tamaños, cubeta, cambiar la chispa 1 vez al día, video acelerado y marcos especiales', 'ancho'],
+  ['Chispa del día Pro', 'Pincel en 3 tamaños, cubeta, cambiar la chispa 1 vez al día y video acelerado', 'ancho'],
   ['Mención en nuestro podcast', 'Sales en los créditos y en cada capítulo sorteamos 3 dibujos de miembros', 'pronto']
 ];
 function vistaClub(error, escribiendo) {
@@ -1158,10 +1159,18 @@ function vistaClub(error, escribiendo) {
 }
 
 let cerrarChispa = null;
+/* Banner del Club al terminar la chispa (6 nov 2026): solo mayores de edad (los menores nunca reciben ofertas),
+   nunca a miembros, nunca en la versión de Google Play (política de pagos) y máximo una vez al día por teléfono. */
+function promoClub() {
+  if (PLAY || (E.club && E.club.activo) || !E.perfil || E.perfil.mayor !== 'Sí') return false;
+  const dia = new Date(Date.now() - 4 * 36e5).toISOString().slice(0, 10);
+  if (leer('promoClub') === dia) return false;
+  guardar('promoClub', dia); return true;
+}
 function vistaChispa() {
   pintar('<div id="chispa"></div>', root => {
     cerrarChispa = abrirChispa({ root: root.querySelector('#chispa'), esc, club: PLAY || !!(E.club && E.club.activo),   /* en Google Play, sin candados (política de pagos) */ icoVolver: ICO.volver,
-      volver: () => ir('hoy'), irClub: () => ir('club') });
+      volver: () => ir('hoy'), irClub: () => ir('club'), promoClub });
   });
 }
 
@@ -1280,6 +1289,7 @@ function vistaYo() {
       ${E.club && E.club.activo
         ? `<div class="club-yo"><img src="img/estrella-${E.club.estrella}.webp" alt="" width="54" height="54"><div><b>Club Estrella activo</b><span>Hasta el ${fechaCorta(E.club.hasta)} · llevas ${E.club.meses} ${E.club.meses === 1 ? 'mes' : 'meses'}${E.club.protectores ? ' · ' + E.club.protectores + ' protectores' : ''}</span></div></div>`
         : `<button type="button" class="btn blanco chico" data-ir="club">${PLAY ? '★ Club Estrella: vincular mi cuenta' : '★ Conocer el Club Estrella'}</button>`}
+      ${navidadGanada() ? '<div class="club-yo adv-ins"><span class="adv-ins-ico" aria-hidden="true">🎄</span><div><b>Insignia del Adviento de Chispas</b><span>Hiciste ' + ADV_META + ' chispas navideñas o más · tus chispas salen con marco verde</span></div></div>' : ''}
       ${E.club && E.club.cumple && E.club.cumple.disponible ? `<div class="caja crema"><strong class="t">🎂 Tu regalo de cumpleaños</strong>Tienes un protector de racha hasta el ${fechaCorta(E.club.cumple.hasta)}. Úsalo en «Hoy» si tu racha está en riesgo.</div>` : ''}
       ${avisosHtml()}
       ${instalada ? '' : `<button type="button" class="btn amarillo chico" id="instalar">📲 Instalar la app en mi teléfono</button>`}

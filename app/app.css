@@ -340,3 +340,22 @@ legend{font-weight:700;font-size:14px;padding:0;margin-bottom:6px}
 .codigo-app img{height:30px;width:auto;max-width:70px;object-fit:contain;flex:none}
 .codigo-btn{flex:none;border:2px dashed var(--ink);background:var(--white);border-radius:10px;padding:6px 10px;font-family:var(--display);font-weight:800;font-size:14px;cursor:pointer;letter-spacing:.04em}
 .codigo-btn small{font-family:var(--texto);font-weight:700;font-size:11px;color:var(--morado);margin-left:4px;letter-spacing:0}
+
+/* ---------- 6 nov 2026: franja de la barra de estado, banner del Club y insignia del Adviento ---------- */
+/* En iPhone con la app instalada, el contenido pasaba por debajo de la hora y el wifi al hacer scroll. */
+body::before{content:'';position:fixed;top:0;left:0;right:0;height:var(--safe-t);background:var(--ink);z-index:90;pointer-events:none}
+.club-ban{position:relative;overflow:hidden;background:var(--morado);color:var(--white);border:3px solid var(--ink);border-radius:20px;box-shadow:6px 6px 0 var(--ink);padding:16px 16px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;margin-top:6px}
+.club-ban-est{display:flex;align-items:flex-end;gap:6px}
+.club-ban-est img{height:42px;width:auto;filter:drop-shadow(2px 2px 0 var(--ink))}
+.club-ban-pill{background:var(--amarillo);color:var(--ink);border:2px solid var(--ink);border-radius:999px;padding:1px 10px;font-size:11px;font-weight:800;letter-spacing:.06em}
+.club-ban h3{margin:0;font-family:var(--display);font-weight:800;font-size:20px;line-height:1.15;color:var(--amarillo)}
+.club-ban p{margin:0;font-size:14px;line-height:1.35}
+.club-ban p b{color:var(--cian)}
+.club-ban .btn{width:100%}
+.club-ban small{font-size:11px;opacity:.85}
+.club-ban .dst{position:absolute;width:22px;height:22px;fill:var(--amarillo);stroke:var(--ink);stroke-width:1.5}
+.club-ban .dst:nth-of-type(1){top:12px;left:14px}
+.club-ban .dst:nth-of-type(2){top:46px;right:16px;width:16px;height:16px;fill:#F0479B}
+.ch-insignia{text-align:center;font-size:13px}
+.adv-ins{background:#1E7A3A}
+.adv-ins-ico{width:54px;height:54px;flex:none;display:grid;place-items:center;font-size:32px;background:var(--white);border:3px solid var(--ink);border-radius:50%}
