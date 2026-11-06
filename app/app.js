@@ -1361,7 +1361,7 @@ function vistaYo() {
       ventana(`<h2 id="v-h" tabindex="-1">Borrar mi cuenta</h2>
         <div style="background:#FFE3EF;border:3px solid var(--ink);border-radius:14px;padding:12px 14px;box-shadow:4px 4px 0 var(--ink)">
           <b style="display:block;font-family:var(--display);font-size:19px;line-height:1.2;margin-bottom:6px">⚠️ Esto es permanente y no tiene vuelta atrás</b>
-          <span style="font-size:14px;line-height:1.45">Se borran <b>ya mismo</b> tu perfil, <b>todos tus dibujos</b> (también del Padlet), tu racha, tus puntos, tus amigos, tus avisos y tu vínculo con el Club Estrella. Si quedaste en un podio o una categoría, pierdes ese lugar. <b>Nadie puede recuperarlo, ni nosotros.</b></span>
+          <span style="font-size:14px;line-height:1.45">Se borran <b>ya mismo</b> tu perfil, tu racha, tus puntos, tus amigos, tus avisos y tu vínculo con el Club Estrella. <b>Tus dibujos dejan de contar al instante</b>: si quedaste en un podio o una categoría, pierdes ese lugar. En el Padlet pueden verse unos días más hasta que los quitamos (7 días o menos). <b>Nadie puede recuperarlo, ni nosotros.</b></span>
         </div>
         <label style="font-size:14px">Si de verdad quieres borrarla, escribe <b>BORRAR</b>:<input id="bc-txt" autocomplete="off" autocapitalize="characters" style="display:block;width:100%;margin-top:6px;padding:10px;border:3px solid var(--ink);border-radius:12px;font:inherit"></label>
         <button type="button" class="btn blanco" id="bc-ok" disabled>Borrar mi cuenta para siempre</button>
