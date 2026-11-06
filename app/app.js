@@ -1,5 +1,5 @@
 /* #RetoMenteMilenial · app: entrar, registro, Hoy, subir al Padlet, rachas, ranking, amigos, Chispa del día y Club Estrella */
-import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana } from './chispa.js?v=14';
+import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe } from './chispa.js?v=15';
 const CONFIG = {
   api: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
@@ -686,7 +686,7 @@ function dibujarHoy(h, error) {
       ${tarjetaVoto(h.votacion)}
       <section class="reto chispa-hero${adv ? ' adviento' : ''}" aria-labelledby="chispa-h">
         <span class="pill">${adv ? '🎄 Adviento de Chispas' : '✨ Chispa del día'}</span>
-        <h2 id="chispa-h">${hecha ? '¡Lista por hoy!' : adv ? 'Día ' + adv.dia + ' de ' + adv.total : 'Un mini reto de 3 minutos'}</h2>
+        <h2 id="chispa-h">${hecha ? '¡Lista por hoy!' : adv ? 'Día ' + adv.dia + ' de ' + adv.total : fiestaDe() ? esc(fiestaDe().aviso) : 'Un mini reto de 3 minutos'}</h2>
         <p>${hecha ? 'Mañana sale una chispa nueva. Si quieres, puedes repetir la de hoy.' : adv ? 'Cada día hasta el ' + adv.total + ' de diciembre, un mini dibujo navideño de 3 minutos. Toca el botón y descubre el de hoy.' : 'Toca el botón y descubre qué te toca dibujar hoy. No suma puntos ni racha: es para practicar y divertirte.'}</p>
         ${adv ? calendarioAdviento(adv) : circulosChispa()}
         <button type="button" class="btn ${hecha ? 'blanco' : 'turquesa'}" data-ir="chispa">${hecha ? 'REPETIR LA CHISPA' : '¡HACER LA CHISPA DE HOY!'}</button>
@@ -702,7 +702,7 @@ function dibujarHoy(h, error) {
   }
   const chispaAbajo = !h || !!(h.actual || votando);
   conNav('hoy', cabecera('Hoy') + `<main class="cont con-nav">${cuerpo}
-      ${chispaAbajo ? `<section class="prox" aria-label="Chispa del día"><span class="ico">${ICO.chispa}</span><div style="flex:1;min-width:0"><h3>${adviento() ? '🎄 Adviento de Chispas · día ' + adviento().dia : 'Chispa del día'}</h3><span>${chispaHechaHoy() ? '✓ ¡Lista por hoy! Mañana sale otra.' : '¿Qué te tocará hoy?'}</span>${adviento() ? '' : circulosChispa()}</div><button type="button" class="btn ${chispaHechaHoy() ? 'blanco' : 'turquesa'} chico mini" data-ir="chispa">${chispaHechaHoy() ? '✓ Hecha<br><small>repetir</small>' : '¡Hacerla!<br><small>3 min</small>'}</button></section>` : ''}
+      ${chispaAbajo ? `<section class="prox" aria-label="Chispa del día"><span class="ico">${ICO.chispa}</span><div style="flex:1;min-width:0"><h3>${adviento() ? '🎄 Adviento de Chispas · día ' + adviento().dia : fiestaDe() ? esc(fiestaDe().aviso) : 'Chispa del día'}</h3><span>${chispaHechaHoy() ? '✓ ¡Lista por hoy! Mañana sale otra.' : '¿Qué te tocará hoy?'}</span>${adviento() ? '' : circulosChispa()}</div><button type="button" class="btn ${chispaHechaHoy() ? 'blanco' : 'turquesa'} chico mini" data-ir="chispa">${chispaHechaHoy() ? '✓ Hecha<br><small>repetir</small>' : '¡Hacerla!<br><small>3 min</small>'}</button></section>` : ''}
     </main>`, root => {
     on('#re', 'click', vistaHoy);
     on('#subir', 'click', () => ir('subir'));

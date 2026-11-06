@@ -19,11 +19,42 @@ const MARCO = { clasico: ['#6B3FA0', '#FFFFFF', '#FFD60A'], navidad: ['#1E7A3A',
 
 /* Adviento de Chispas: del 1 al 22 de diciembre, una chispa navideña por día (mientras llega la 3.ª temporada).
    Misma regla del banco: cantidad + cosa + color. Con 15 de 22 se gana la insignia del Adviento y el marco verde (para siempre, en ese teléfono). */
-const ADVIENTO = { desde: '2026-12-01', hasta: '2026-12-22', meta: 15, lista: [
+const ADVIENTO = { meta: 15, lista: [
   '1 árbol de Navidad azul', '3 bolas de Navidad moradas', '2 hallacas verdes', '1 pan de jamón marrón', '3 estrellas amarillas',
   '2 renos rosados', '1 muñeco de nieve naranja', '3 regalos rojos', '2 gorros navideños verdes', '1 campana morada', '3 velas azules',
   '2 galletas marrones', '1 trineo amarillo', '2 medias navideñas azules', '3 bastones de caramelo verdes', '1 corona navideña rosada',
   '2 tambores rojos', '1 cuatro venezolano marrón', '2 maracas moradas', '1 taza de chocolate rosada', '3 luces de Navidad naranja', '2 ángeles azules'] };
+/* Chispas 2027+ (6 nov 2026, aprobadas por Stefany): 305 normales por fecha (MM-DD), fechas especiales fijas y móviles. Generado desde Chispas-2027-para-revisar.xlsx. */
+const CAL = {"01-02": "1 jirafa verde", "01-03": "2 turpiales naranja", "01-04": "2 gorras rosadas", "01-05": "3 manzanas moradas", "01-06": "3 sombrillas naranja", "01-07": "3 flores naranja", "01-08": "1 maestra amarilla", "01-09": "2 caras tristes azules", "01-10": "1 vaca azul", "01-11": "3 arepas amarillas", "01-12": "3 camisas verdes", "01-13": "2 helados morados", "01-14": "2 casas moradas", "01-15": "3 nubes rosadas", "01-16": "2 doctoras moradas", "01-17": "2 caras sorprendidas verdes", "01-18": "1 pulpo rojo", "01-19": "2 guacamayas rojas", "01-20": "2 zapatos rojos", "01-21": "1 dona azul", "01-22": "1 taza rosada", "01-23": "3 estrellas marrones", "01-24": "2 cocineros naranja", "01-25": "1 cara enojada morada", "01-26": "3 pájaros rojos", "01-27": "1 chigüire marrón", "01-28": "1 sombrero morado", "01-29": "2 peras marrones", "01-30": "3 globos verdes", "01-31": "2 árboles azules", "02-01": "2 pintores rojos", "02-02": "1 cara feliz amarilla", "02-03": "2 perros amarillos", "02-04": "3 cayenas rojas", "02-05": "1 bufanda azul", "02-06": "2 fresas amarillas", "02-07": "1 vela verde", "02-10": "2 cactus naranja", "02-11": "2 bomberos verdes", "02-12": "1 cara dormida azul", "02-13": "3 gatos azules", "02-15": "1 tequeño verde", "02-16": "3 medias rosadas", "02-17": "2 pizzas moradas", "02-18": "3 macetas naranja", "02-19": "2 soles azules", "02-20": "1 enfermero rojo", "02-21": "3 caras asustadas moradas", "02-22": "1 tortuga marrón", "02-23": "2 cachapas rosadas", "02-24": "1 falda marrón", "02-25": "2 cerezas azules", "02-26": "1 escoba morada", "02-27": "2 hojas naranja", "02-28": "3 panaderas rojas", "03-01": "2 conejos marrones", "03-02": "3 chinchorros rosados", "03-03": "2 chaquetas marrones", "03-04": "1 plátano verde", "03-05": "3 lápices marrones", "03-06": "1 piedra naranja", "03-07": "3 pilotos amarillos", "03-09": "1 caracol amarillo", "03-10": "2 orquídeas azules", "03-11": "3 mochilas verdes", "03-12": "2 piñas marrones", "03-13": "3 ollas moradas", "03-14": "1 hongo amarillo", "03-15": "3 carteros rosados", "03-16": "1 elefante rosado", "03-17": "3 araguaneyes azules", "03-18": "2 guantes rosados", "03-19": "1 empanada amarilla", "03-23": "2 libros azules", "03-24": "3 lunas rojas", "03-25": "2 músicos rosados", "03-26": "3 peces naranja", "03-27": "2 vestidos morados", "03-28": "1 tomate rosado", "03-29": "2 sofás morados", "03-30": "1 volcán azul", "03-31": "2 jardineras verdes", "04-01": "1 oveja naranja", "04-03": "3 pantalones rosados", "04-04": "1 pan naranja", "04-05": "3 aviones rojos", "04-06": "1 montaña naranja", "04-07": "2 astronautas azules", "04-08": "1 mariposa marrón", "04-09": "2 botas rojas", "04-10": "3 galletas amarillas", "04-11": "2 relojes rojos", "04-12": "1 isla rosada", "04-13": "3 serpientes moradas", "04-14": "2 corbatas naranja", "04-15": "3 zanahorias moradas", "04-16": "1 tren marrón", "04-17": "3 leones verdes", "04-18": "2 tortas azules", "04-19": "3 camas marrones", "04-20": "2 cangrejos azules", "04-21": "1 huevo naranja", "04-24": "3 ventanas azules", "04-25": "1 pingüino rosado", "04-26": "2 sandías azules", "04-27": "3 barcos amarillos", "04-28": "1 mono morado", "04-30": "2 limones amarillos", "05-01": "3 regalos verdes", "05-02": "1 búho marrón", "05-03": "2 teléfonos rojos", "05-04": "1 ratón verde", "05-05": "3 llaves rojas", "05-06": "2 ballenas moradas", "05-07": "1 cuchara azul", "05-08": "3 ranas verdes", "05-10": "1 carro rosado", "05-11": "2 patos verdes", "05-12": "3 lámparas marrones", "05-13": "2 cerdos rosados", "05-14": "1 bicicleta marrón", "05-16": "2 dinosaurios morados", "05-17": "3 puertas verdes", "05-18": "2 osos marrones", "05-19": "3 cohetes azules", "05-21": "1 abeja marrón", "05-22": "3 sillas verdes", "05-23": "2 gallinas amarillas", "05-24": "3 caballos naranja", "05-25": "2 jirafas rojas", "05-26": "3 turpiales azules", "05-27": "1 gorra roja", "05-28": "2 manzanas marrones", "05-29": "1 sombrilla morada", "05-31": "2 flores rosadas", "06-01": "3 maestras rojas", "06-02": "1 cara triste morada", "06-03": "2 vacas rosadas", "06-04": "1 arepa marrón", "06-06": "2 camisas amarillas", "06-07": "3 helados naranja", "06-09": "1 casa verde", "06-10": "2 nubes azules", "06-11": "1 doctora naranja", "06-12": "3 caras sorprendidas amarillas", "06-13": "2 pulpos naranja", "06-14": "1 guacamaya marrón", "06-15": "3 zapatos amarillos", "06-16": "2 donas naranja", "06-17": "3 tazas verdes", "06-18": "2 estrellas moradas", "06-19": "3 cocineros rojos", "06-22": "2 caras enojadas rosadas", "06-23": "1 pájaro amarillo", "06-24": "2 chigüires rojos", "06-25": "3 sombreros rosados", "06-26": "1 pera naranja", "06-28": "2 globos azules", "06-29": "3 árboles rosados", "06-30": "1 pintor amarillo", "07-01": "2 caras felices verdes", "07-02": "3 perros rosados", "07-03": "2 cayenas verdes", "07-04": "3 bufandas amarillas", "07-05": "1 fresa azul", "07-06": "3 velas naranja", "07-07": "1 cactus morado", "07-08": "3 bomberos rojos", "07-09": "2 caras dormidas amarillas", "07-10": "1 gato rosado", "07-11": "2 tequeños azules", "07-12": "1 media verde", "07-13": "3 pizzas rojas", "07-14": "1 maceta amarilla", "07-15": "3 soles naranja", "07-16": "2 enfermeros rosados", "07-17": "1 cara asustada naranja", "07-19": "2 tortugas verdes", "07-21": "1 cachapa azul", "07-22": "3 faldas amarillas", "07-23": "1 cereza morada", "07-24": "3 escobas naranja", "07-25": "1 hoja amarilla", "07-26": "2 panaderas verdes", "07-27": "3 conejos rosados", "07-28": "1 chinchorro naranja", "07-29": "3 chaquetas rojas", "07-31": "2 plátanos rosados", "08-01": "1 lápiz rojo", "08-02": "2 piedras marrones", "08-03": "1 piloto morado", "08-04": "3 caracoles marrones", "08-05": "1 orquídea naranja", "08-06": "2 mochilas rosadas", "08-07": "3 piñas rojas", "08-09": "1 olla rosada", "08-10": "2 hongos morados", "08-11": "1 cartero naranja", "08-12": "2 elefantes verdes", "08-13": "1 araguaney rojo", "08-14": "3 guantes amarillos", "08-15": "2 empanadas moradas", "08-16": "3 libros amarillos", "08-17": "1 luna rosada", "08-18": "3 músicos naranja", "08-20": "2 peces azules", "08-21": "3 vestidos verdes", "08-22": "2 tomates marrones", "08-23": "1 sofá rojo", "08-24": "3 volcanes morados", "08-25": "1 jardinera roja", "08-27": "3 ovejas rosadas", "08-28": "1 pantalón azul", "08-29": "2 panes morados", "08-30": "1 avión azul", "08-31": "3 montañas verdes", "09-01": "1 astronauta naranja", "09-02": "2 mariposas verdes", "09-03": "3 botas moradas", "09-04": "2 galletas verdes", "09-05": "1 reloj morado", "09-06": "3 islas marrones", "09-07": "2 serpientes rojas", "09-08": "1 corbata rosada", "09-09": "2 zanahorias amarillas", "09-10": "3 trenes verdes", "09-12": "2 leones marrones", "09-13": "3 tortas amarillas", "09-14": "2 camas naranja", "09-15": "1 cangrejo rosado", "09-16": "2 huevos marrones", "09-17": "1 ventana rosada", "09-18": "2 pingüinos naranja", "09-19": "3 sandías rosadas", "09-20": "2 barcos marrones", "09-22": "3 monos azules", "09-23": "1 limón rojo", "09-24": "2 regalos marrones", "09-25": "3 búhos naranja", "09-26": "1 teléfono rosado", "09-28": "3 ratones morados", "09-29": "1 llave amarilla", "09-30": "3 ballenas marrones", "10-02": "2 cucharas rojas", "10-03": "1 rana naranja", "10-05": "2 carros amarillos", "10-06": "1 pato rosado", "10-07": "2 lámparas verdes", "10-08": "1 cerdo marrón", "10-09": "3 bicicletas rojas", "10-10": "1 dinosaurio amarillo", "10-11": "2 puertas moradas", "10-12": "1 oso azul", "10-13": "2 cohetes naranja", "10-14": "3 abejas azules", "10-15": "2 sillas marrones", "10-16": "3 gallinas azules", "10-17": "2 caballos rosados", "10-18": "3 jirafas azules", "10-19": "1 turpial marrón", "10-20": "3 gorras azules", "10-21": "1 manzana naranja", "10-22": "2 sombrillas amarillas", "10-23": "1 flor roja", "10-24": "2 maestras verdes", "10-25": "3 caras tristes naranja", "10-26": "1 vaca morada", "10-27": "2 arepas verdes", "10-28": "1 camisa marrón", "10-29": "2 helados verdes", "10-30": "3 casas naranja", "11-01": "1 nube verde", "11-02": "3 doctoras rojas", "11-03": "1 cara sorprendida azul", "11-04": "3 pulpos morados", "11-05": "1 guacamaya rosada", "11-06": "2 zapatos verdes", "11-07": "3 donas amarillas", "11-08": "2 tazas naranja", "11-09": "1 estrella rosada", "11-10": "3 cocineros amarillos", "11-11": "1 cara enojada naranja", "11-12": "2 pájaros marrones", "11-14": "3 chigüires rosados", "11-15": "2 sombreros rojos", "11-16": "3 peras azules", "11-17": "1 globo marrón", "11-18": "2 árboles rojos", "11-19": "3 pintores verdes", "11-21": "1 cara feliz rosada", "11-22": "3 perros naranja", "11-23": "1 cayena morada", "11-24": "2 bufandas naranja", "11-25": "3 fresas moradas", "11-26": "2 velas rojas", "11-27": "3 cactus marrones", "11-28": "1 bombero morado", "11-29": "3 caras dormidas rojas", "11-30": "2 gatos morados", "12-23": "3 tequeños rosados", "12-26": "2 medias azules", "12-27": "1 pizza naranja", "12-28": "2 macetas moradas", "12-29": "1 sol verde", "12-30": "3 enfermeros morados"};
+const FIESTAS = {"01-01": ["Año Nuevo", "🎆 ¡Feliz Año Nuevo!", "tu deseo para este año"], "02-14": ["Día del Amor y la Amistad", "💕 Hoy es el Día del Amor y la Amistad", "a tu mejor amigo o amiga como si fuera un animal"], "03-08": ["Día Internacional de la Mujer", "💜 Hoy es el Día Internacional de la Mujer", "a una mujer que admiras haciendo lo que mejor sabe hacer"], "03-20": ["Día Internacional de la Felicidad", "😄 Hoy es el Día de la Felicidad", "algo que siempre te hace feliz"], "03-21": ["Día Internacional de los Bosques", "🌳 Hoy es el Día de los Bosques", "un bosque con 3 animales escondidos"], "03-22": ["Día Mundial del Agua", "💧 Hoy es el Día Mundial del Agua", "una gota de agua con cara y emociones"], "04-02": ["Día del Libro Infantil", "📖 Hoy es el Día del Libro Infantil", "al personaje de un cuento inventado por ti"], "04-22": ["Día de la Tierra", "🌍 Hoy es el Día de la Tierra", "la Tierra con una cara feliz"], "04-23": ["Día del Libro", "📚 Hoy es el Día del Libro", "una pila de libros que se convierte en ciudad"], "04-29": ["Día de la Danza", "💃 Hoy es el Día de la Danza", "algo que baila: un objeto, un animal o tú"], "05-15": ["Día de la Familia", "🏡 Hoy es el Día de la Familia", "a tu familia como si fueran frutas"], "05-20": ["Día de las Abejas", "🐝 Hoy es el Día de las Abejas", "una abeja trabajando en algo inesperado"], "06-05": ["Día del Medio Ambiente", "♻️ Hoy es el Día del Medio Ambiente", "un objeto reciclado con una vida nueva"], "06-08": ["Día de los Océanos", "🌊 Hoy es el Día de los Océanos", "un pez que nadie ha visto nunca"], "06-21": ["Día de la Música", "🎵 Hoy es el Día de la Música", "un instrumento musical con patas"], "06-27": ["Día del Periodista (Venezuela)", "🎙️ Hoy es el Día del Periodista", "un micrófono entrevistando a un animal"], "07-20": ["Llegada a la Luna", "🚀 Un día como hoy se llegó a la Luna", "tu casa en la Luna"], "07-30": ["Día Internacional de la Amistad", "🤝 Hoy es el Día de la Amistad", "dos objetos que serían mejores amigos"], "08-08": ["Día del Gato", "🐱 Hoy es el Día del Gato", "un gato haciendo tu trabajo o tu tarea"], "08-19": ["Día de la Fotografía", "📷 Hoy es el Día de la Fotografía", "una cámara y lo que está fotografiando"], "08-26": ["Día del Perro", "🐶 Hoy es el Día del Perro", "un perro con tu peinado"], "09-21": ["Día Internacional de la Paz", "🕊️ Hoy es el Día de la Paz", "una paloma que lleva algo bonito a alguien"], "09-27": ["Día del Turismo", "🧳 Hoy es el Día del Turismo", "la postal de un lugar de Venezuela que te encanta"], "10-01": ["Día del Café", "☕ Hoy es el Día del Café", "una taza de café con personalidad"], "10-04": ["Día de los Animales", "🐾 Hoy es el Día de los Animales", "tu animal favorito en su versión más tierna"], "10-31": ["Halloween", "🎃 ¡Feliz Halloween!", "una calabaza con una cara divertida"], "11-13": ["Día de la Amabilidad", "🤗 Hoy es el Día de la Amabilidad", "algo amable que alguien hizo por ti"], "11-20": ["Día Universal del Niño", "🎈 Hoy es el Día Universal del Niño", "lo que querías ser de grande cuando eras pequeño"], "12-24": ["Nochebuena", "🎄 ¡Feliz Nochebuena!", "tu cena de Nochebuena: hallacas, pan de jamón, ensalada de gallina…"], "12-25": ["Navidad", "🎁 ¡Feliz Navidad!", "el regalo que te gustaría recibir"], "12-31": ["Fin de año", "🎇 ¡Último día del año!", "lo mejor que te pasó este año"]};
+const MOVILES = {"carnaval1": ["Carnaval (lunes)", "🎭 ¡Es Carnaval!", "tu disfraz de Carnaval soñado"], "carnaval2": ["Carnaval (martes)", "🎉 ¡Sigue el Carnaval!", "una máscara de Carnaval con solo 3 colores"], "madre": ["Día de la Madre (Venezuela)", "💐 Hoy es el Día de la Madre", "un ramo de flores para mamá o para quien te cuida"], "arbol": ["Día del Árbol (Venezuela)", "🌱 Hoy es el Día del Árbol", "un árbol que da algo distinto a frutas"], "padre": ["Día del Padre (Venezuela)", "👔 Hoy es el Día del Padre", "a papá o a quien te cuida como un superhéroe inventado por ti"], "nino": ["Día del Niño (Venezuela)", "🧸 Hoy es el Día del Niño", "tu juguete favorito de cuando eras pequeño"], "arepa": ["Día Mundial de la Arepa", "🫓 Hoy es el Día Mundial de la Arepa", "tu arepa favorita con su relleno"]};
+const BANCO = Object.values(CAL);
+/* Rango del Adviento del año de ese día (1 al 22 de diciembre). */
+const advRango = dia => { const y = (dia || diaCaracas()).slice(0, 4); return { desde: y + '-12-01', hasta: y + '-12-22' }; };
+/* Fechas especiales que cambian cada año: Carnaval (Pascua − 48 y − 47), Madre (2.º dom. de mayo), Árbol (último dom. de mayo),
+   Padre (3.er dom. de junio), Niño (3.er dom. de julio), Día de la Arepa (2.º sáb. de septiembre). */
+function pascua(y) {
+  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+  return new Date(Date.UTC(y, Math.floor((h + l - 7 * m + 114) / 31) - 1, ((h + l - 7 * m + 114) % 31) + 1));
+}
+const isoUTC = d => d.toISOString().slice(0, 10);
+function enesimo(y, mes, diaSemana, n) {   // n-ésimo día de la semana del mes (n = -1: el último)
+  if (n < 0) { const d = new Date(Date.UTC(y, mes, 0)); while (d.getUTCDay() !== diaSemana) d.setUTCDate(d.getUTCDate() - 1); return isoUTC(d); }
+  const d = new Date(Date.UTC(y, mes - 1, 1)); while (d.getUTCDay() !== diaSemana) d.setUTCDate(d.getUTCDate() + 1);
+  d.setUTCDate(d.getUTCDate() + 7 * (n - 1)); return isoUTC(d);
+}
+function movilesDe(y) {
+  const p = pascua(y), menos = n => isoUTC(new Date(p.getTime() - n * 864e5));
+  return { [menos(48)]: 'carnaval1', [menos(47)]: 'carnaval2', [enesimo(y, 5, 0, 2)]: 'madre', [enesimo(y, 5, 0, -1)]: 'arbol',
+    [enesimo(y, 6, 0, 3)]: 'padre', [enesimo(y, 7, 0, 3)]: 'nino', [enesimo(y, 9, 6, 2)]: 'arepa' };
+}
+/* La fiesta de ese día (o null): { nombre, aviso, chispa }. Solo fiestas no religiosas ni patrias, más Nochebuena y Navidad. */
+export function fiestaDe(dia) {
+  dia = dia || diaCaracas();
+  const m = movilesDe(+dia.slice(0, 4))[dia], f = m ? MOVILES[m] : FIESTAS[dia.slice(5)];
+  return f ? { nombre: f[0], aviso: f[1], chispa: f[2] } : null;
+}
 const LIMITE = 180, ANCHO = 648, ALTO = 700;
 
 const leerLS = k => { try { return JSON.parse(localStorage.getItem('rcf.' + k)); } catch (e) { return null; } };
@@ -31,15 +62,16 @@ const guardarLS = (k, v) => { try { localStorage.setItem('rcf.' + k, JSON.string
 export function diaCaracas(d) { return new Date((d || new Date()).getTime() - 4 * 36e5).toISOString().slice(0, 10); }
 export function adviento(dia) {
   dia = dia || diaCaracas();
-  if (dia < ADVIENTO.desde || dia > ADVIENTO.hasta) return null;
-  const n = Math.round((Date.parse(dia) - Date.parse(ADVIENTO.desde)) / 864e5);
-  const hechas = (leerLS('chispas') || []).filter(d => d >= ADVIENTO.desde && d <= ADVIENTO.hasta);
+  const r = advRango(dia);
+  if (dia < r.desde || dia > r.hasta) return null;
+  const n = Math.round((Date.parse(dia) - Date.parse(r.desde)) / 864e5);
+  const hechas = (leerLS('chispas') || []).filter(d => d >= r.desde && d <= r.hasta);
   return { dia: n + 1, total: ADVIENTO.lista.length, meta: ADVIENTO.meta, hechas: hechas, hoyHecha: hechas.indexOf(dia) >= 0, chispa: ADVIENTO.lista[n],
-           desde: ADVIENTO.desde, marco: navidadGanada() };
+           desde: r.desde, marco: navidadGanada() };
 }
 export function navidadGanada() {
   if (leerLS('marcoNavidad')) return true;
-  const n = (leerLS('chispas') || []).filter(d => d >= ADVIENTO.desde && d <= ADVIENTO.hasta).length;
+  const r = advRango(), n = (leerLS('chispas') || []).filter(d => d >= r.desde && d <= r.hasta).length;
   if (n >= ADVIENTO.meta) { guardarLS('marcoNavidad', true); return true; }
   return false;
 }
@@ -48,7 +80,10 @@ export function chispaDeHoy() {
   if (guardada && guardada.chispa) return guardada;
   const adv = adviento(dia);
   if (adv) return { chispa: adv.chispa, cambiada: false };
-  const n = Math.floor((Date.parse(dia) - Date.parse('2026-01-01')) / 864e5);
+  const f = fiestaDe(dia);
+  if (f) return { chispa: f.chispa, cambiada: false, fiesta: f };
+  if (CAL[dia.slice(5)]) return { chispa: CAL[dia.slice(5)], cambiada: false };
+  const n = Math.floor((Date.parse(dia) - Date.parse('2026-01-01')) / 864e5);   // días sin chispa en el calendario (29 de feb., fechas móviles de 2027 en otros años)
   return { chispa: POOL[((n % POOL.length) + POOL.length) % POOL.length], cambiada: false };
 }
 export function chispasDeLaSemana() {   // cuántas hiciste desde el lunes
@@ -88,7 +123,7 @@ export function abrirChispa(ctx) {
       <span class="reloj-ch" id="ch-reloj" role="timer" aria-live="off">3:00</span>
     </header>
     <main class="cont ch">
-      <div class="ch-tit"><span class="pill-ch">${adviento() ? '🎄 ADVIENTO · DÍA ' + adviento().dia + ' DE ' + adviento().total + ' · TU CHISPA ES…' : 'TU CHISPA DE HOY ES…'}</span><h2 id="ch-t">Dibuja ${esc(S.chispa)}</h2></div>
+      <div class="ch-tit"><span class="pill-ch">${adviento() ? '🎄 ADVIENTO · DÍA ' + adviento().dia + ' DE ' + adviento().total + ' · TU CHISPA ES…' : hoy.fiesta ? esc(hoy.fiesta.aviso) : 'TU CHISPA DE HOY ES…'}</span><h2 id="ch-t">Dibuja ${esc(S.chispa)}</h2></div>
       <div class="lienzo"><canvas id="ch-c" width="${ANCHO}" height="${ALTO}" aria-label="Lienzo para dibujar"></canvas><div class="ch-empezar" id="ch-emp">Toca el lienzo para empezar ✏️</div></div>
       <div class="ch-tools" id="ch-tools">
         <button type="button" class="tool" data-tool="pincel" aria-pressed="true" aria-label="Pincel" title="Pincel">🖌️<span class="tt"> Pincel</span></button>
@@ -127,7 +162,7 @@ export function abrirChispa(ctx) {
     S.fase = 'sorteo'; t.setAttribute('aria-busy', 'true'); t.textContent = 'Sorteando…'; aviso.textContent = 'Sorteando tu chispa… 🎲'; pintarAbajo();
     const ov = document.createElement('div');
     ov.className = 'ch-sorteo'; ov.setAttribute('aria-hidden', 'true');
-    ov.innerHTML = `<div class="ch-sorteo-caja"><span class="pill-ch">${adviento() ? '🎄 DÍA ' + adviento().dia + ' DE ' + adviento().total : 'TU CHISPA DE HOY ES…'}</span><b class="girando"></b><span class="ch-sorteo-dado">🎲</span></div>`;
+    ov.innerHTML = `<div class="ch-sorteo-caja"><span class="pill-ch">${adviento() ? '🎄 DÍA ' + adviento().dia + ' DE ' + adviento().total : hoy.fiesta && !S.cambiada ? esc(hoy.fiesta.aviso) : 'TU CHISPA DE HOY ES…'}</span><b class="girando"></b><span class="ch-sorteo-dado">🎲</span></div>`;
     document.body.appendChild(ov);
     centrarEnLienzo(ov.querySelector('.ch-sorteo-caja'));
     const b = ov.querySelector('b');
@@ -141,7 +176,7 @@ export function abrirChispa(ctx) {
         setTimeout(() => { ov.classList.add('sale'); setTimeout(() => { ov.remove(); if (root.contains(t)) { fin(); t.classList.add('cae'); setTimeout(() => t.classList.remove('cae'), 700); } }, 300); }, 1100);
         return;
       }
-      let o; do { o = POOL[Math.floor(Math.random() * POOL.length)]; } while (o === previo || o === final);
+      let o; do { o = BANCO[Math.floor(Math.random() * BANCO.length)]; } while (o === previo || o === final);
       previo = o; b.textContent = 'Dibuja ' + o; paso++;
       setTimeout(tick, 45 + paso * paso * 1.6);
     };
@@ -242,7 +277,8 @@ export function abrirChispa(ctx) {
     y.textAlign = 'center';
     y.fillStyle = m[2]; y.font = '800 40px Poppins, sans-serif'; y.fillText('#RetoMenteMilenial', o.width / 2, ALTO + 98);   // 6 nov: las 3 líneas centradas en la franja de abajo
     const adv = adviento();
-    const linea = (adv ? 'Adviento de Chispas · día ' + adv.dia + ': ' : 'Chispa del día: ') + S.chispa;
+    const fi = !S.cambiada && hoy.fiesta;
+    const linea = (adv ? 'Adviento de Chispas · día ' + adv.dia + ': ' : fi ? fi.nombre + ': ' : 'Chispa del día: ') + S.chispa;
     let fs = 30; y.font = '700 ' + fs + 'px Quicksand, sans-serif';
     while (y.measureText(linea).width > o.width - 48 && fs > 16) { fs -= 2; y.font = '700 ' + fs + 'px Quicksand, sans-serif'; }
     y.fillStyle = m[1]; y.fillText(linea, o.width / 2, ALTO + 138);
@@ -321,7 +357,7 @@ export function abrirChispa(ctx) {
       if (ca) ca.addEventListener('click', () => {
         if (S.cambiada) return;
         if (!club) return bloqueado('Cambiar la chispa');
-        const banco = adviento() ? ADVIENTO.lista : POOL;
+        const banco = adviento() ? ADVIENTO.lista : BANCO;
         let n = Math.floor(Math.random() * banco.length); if (banco[n] === S.chispa) n = (n + 1) % banco.length;
         S.chispa = banco[n]; S.cambiada = true; guardarLS('chispa.' + diaCaracas(), { chispa: S.chispa, cambiada: true });
         sortear(S.chispa);
