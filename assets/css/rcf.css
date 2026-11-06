@@ -600,3 +600,7 @@ html,body{overflow-x:clip}
 .video-frame figcaption{font-size:14px;padding-top:12px;display:flex;flex-wrap:wrap;gap:6px 14px}
 .video-frame figcaption a{color:var(--violet,#6B3FA0);font-weight:700}
 @media (max-width:600px){.video-frame{padding:10px;box-shadow:6px 6px 0 var(--pink)}}
+/* «Nuestra historia» va pegada a «Acerca de»: sin doble espacio entre las dos secciones */
+.sec.historia{padding-top:0}
+.historia .h-sec{margin-top:14px}
+.historia .video-frame{margin-top:32px}
