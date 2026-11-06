@@ -57,6 +57,15 @@ export function chispasDeLaSemana() {   // cuántas hiciste desde el lunes
   const desde = lunes.toISOString().slice(0, 10);
   return hechas.filter(d => d >= desde).length;
 }
+/* Los 7 días de esta semana (lunes a domingo, hora de Caracas) para el contador de círculos de «Hoy». */
+export function diasChispaSemana() {
+  const hechas = leerLS('chispas') || [], hoy = new Date(Date.now() - 4 * 36e5), hoyIso = hoy.toISOString().slice(0, 10);
+  const lunes = new Date(hoy); lunes.setUTCDate(hoy.getUTCDate() - ((hoy.getUTCDay() + 6) % 7));
+  return ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((letra, i) => {
+    const d = new Date(lunes); d.setUTCDate(lunes.getUTCDate() + i); const iso = d.toISOString().slice(0, 10);
+    return { letra, iso, hecha: hechas.indexOf(iso) >= 0, hoy: iso === hoyIso };
+  });
+}
 export function chispaHechaHoy() { return (leerLS('chispas') || []).indexOf(diaCaracas()) >= 0; }
 function marcarHecha() {
   const dia = diaCaracas(), hechas = (leerLS('chispas') || []).filter(d => d !== dia);
@@ -119,7 +128,8 @@ export function abrirChispa(ctx) {
     const ov = document.createElement('div');
     ov.className = 'ch-sorteo'; ov.setAttribute('aria-hidden', 'true');
     ov.innerHTML = `<div class="ch-sorteo-caja"><span class="pill-ch">${adviento() ? '🎄 DÍA ' + adviento().dia + ' DE ' + adviento().total : 'TU CHISPA DE HOY ES…'}</span><b class="girando"></b><span class="ch-sorteo-dado">🎲</span></div>`;
-    root.appendChild(ov);
+    document.body.appendChild(ov);
+    centrarEnLienzo(ov.querySelector('.ch-sorteo-caja'));
     const b = ov.querySelector('b');
     let paso = 0, previo = '';
     const total = 14;
@@ -136,6 +146,12 @@ export function abrirChispa(ctx) {
       setTimeout(tick, 45 + paso * paso * 1.6);
     };
     tick();
+  }
+  /* La cajita del sorteo (y la ventana del Club) se centran sobre el lienzo, no sobre toda la pantalla (6 nov 2026). */
+  function centrarEnLienzo(caja) {
+    const r = c.getBoundingClientRect(), h = caja.getBoundingClientRect().height;
+    const arriba = Math.max(12, Math.min(window.innerHeight - h - 12, r.top + r.height / 2 - h / 2));
+    caja.parentNode.style.placeItems = 'start center'; caja.style.marginTop = (arriba - parseFloat(getComputedStyle(caja.parentNode).paddingTop || 0)) + 'px';
   }
   function guardarFoto() { try { foto = c.toDataURL('image/png'); } catch (e) {} }
   function empezar() {
@@ -253,7 +269,7 @@ export function abrirChispa(ctx) {
     const ov = document.createElement('div');
     ov.className = 'club-modal'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-labelledby', 'club-ban-t');
     ov.innerHTML = `<div class="club-modal-caja"><button type="button" class="club-modal-x" aria-label="Cerrar">✕</button>${bannerClub()}</div>`;
-    root.appendChild(ov);
+    document.body.appendChild(ov);
     const cerrar = () => ov.remove();
     ov.querySelector('.club-modal-x').addEventListener('click', cerrar);
     ov.addEventListener('click', e => { if (e.target === ov) cerrar(); });
