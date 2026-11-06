@@ -1237,7 +1237,7 @@ function vistaPronto(cual) {
 }
 
 /* ---------- avisos ---------- */
-const TIPOS_AVISO = [['reto', 'Reto nuevo', 'cuando sale el reto de la semana'], ['racha', 'Racha en riesgo', 'domingo 6:00 p. m., si aún no subes'], ['amigos', 'Amigos', 'toques y solicitudes de amistad']];
+const TIPOS_AVISO = [['reto', 'Reto nuevo', 'cuando sale el reto de la semana'], ['racha', 'Racha en riesgo', 'domingo 6:00 p. m., si aún no subes'], ['amigos', 'Amigos', 'toques y solicitudes de amistad'], ['chispa', 'Chispa del día', 'todos los días a las 4:00 p. m.']];
 const esIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const instalada = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 function estadoAvisos() {
