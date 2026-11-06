@@ -69,7 +69,7 @@ export function abrirChispa(ctx) {
   const { root, esc } = ctx, club = !!ctx.club;
   const hoy = chispaDeHoy();
   const S = { fase: 'lista', quedan: LIMITE, herramienta: 'pincel', color: '#000000', tam: 1, ops: 0, video: false, chispa: hoy.chispa, cambiada: hoy.cambiada };
-  let hist = [], cuadros = [], foto = null, reloj = null, dibujando = false, ultimo = null, bloqueoT = null, promo = null;
+  let hist = [], cuadros = [], foto = null, reloj = null, dibujando = false, ultimo = null, bloqueoT = null;
   const candado = club ? '' : ' 🔒';
 
   root.innerHTML = `
@@ -241,9 +241,24 @@ export function abrirChispa(ctx) {
     const blob = await new Promise(ok => o.toBlob(ok, 'image/png'));
     const archivo = blob && new File([blob], 'chispa-del-dia.png', { type: 'image/png' });
     if (archivo && navigator.canShare && navigator.canShare({ files: [archivo] })) {
-      try { await navigator.share({ files: [archivo], text: 'Mi chispa del día: ' + S.chispa + ' #RetoMenteMilenial' }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+      try { await navigator.share({ files: [archivo], text: 'Mi chispa del día: ' + S.chispa + ' #RetoMenteMilenial' }); return ventanaClub(); } catch (e) { if (e && e.name === 'AbortError') return; }
     }
     descargar(o.toDataURL('image/png'), 'chispa-del-dia.png');
+    setTimeout(ventanaClub, 700);   // deja ver el aviso de la descarga
+  }
+  /* 6 nov 2026: la ventana del Club sale DESPUÉS de guardar o compartir la chispa (no tapa el dibujo antes).
+     Quién la ve lo decide app.js: solo mayores, nunca miembros, nunca en Google Play, 1 vez al día. */
+  function ventanaClub() {
+    if (!(ctx.promoClub && ctx.promoClub()) || document.querySelector('.club-modal')) return;
+    const ov = document.createElement('div');
+    ov.className = 'club-modal'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-labelledby', 'club-ban-t');
+    ov.innerHTML = `<div class="club-modal-caja"><button type="button" class="club-modal-x" aria-label="Cerrar">✕</button>${bannerClub()}</div>`;
+    root.appendChild(ov);
+    const cerrar = () => ov.remove();
+    ov.querySelector('.club-modal-x').addEventListener('click', cerrar);
+    ov.addEventListener('click', e => { if (e.target === ov) cerrar(); });
+    ov.querySelector('#ch-club-b').addEventListener('click', () => { cerrar(); parar(); ctx.irClub(); });
+    ov.querySelector('.club-modal-x').focus();
   }
   function video() {
     if (!club) return bloqueado('El video acelerado');
@@ -268,7 +283,7 @@ export function abrirChispa(ctx) {
     };
     setTimeout(sig, 300);
   }
-  /* Banner del Club Estrella (6 nov 2026): tarjeta fija debajo de «Guardar o compartir». Las estrellas son las de Stefany. */
+  /* Banner del Club Estrella (6 nov 2026). Las estrellas son las de Stefany. */
   function bannerClub() {
     const destello = '<svg class="dst" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l2.6 8.4L23 12l-8.4 2.6L12 23l-2.6-8.4L1 12l8.4-2.6z"/></svg>';
     return `<section class="club-ban" aria-labelledby="club-ban-t">${destello}${destello}
@@ -302,18 +317,15 @@ export function abrirChispa(ctx) {
       $('#ch-otra').addEventListener('click', () => abrirChispa(ctx));
       return;
     }
-    if (promo === null) promo = !!(ctx.promoClub && ctx.promoClub());   // banner del Club: lo decide app.js (no menores, no miembros, no Play, 1 vez al día)
     const adv = adviento();
     ab.innerHTML = `
       <div class="caja agua" style="text-align:center">${S.video ? '🎬 Grabando el video acelerado…' : S.quedan === 0 ? '⏰ ¡Se acabó el tiempo! Tu chispa quedó así.' : '🎉 ¡Chispa terminada!'}</div>
       ${adv && navidadGanada() ? '<div class="caja crema ch-insignia">🎄 <b>Insignia del Adviento ganada.</b> Tu marco ahora es verde navideño.</div>' : ''}
       <button type="button" class="btn turquesa chico" id="ch-video" ${S.video ? 'disabled' : ''}>🎬 Video acelerado${candado}</button>
       <button type="button" class="btn amarillo" id="ch-desc">⬇ GUARDAR O COMPARTIR</button>
-      ${promo ? bannerClub() : ''}
       <button type="button" class="enlace" id="ch-salir">Volver a Hoy · mañana hay otra chispa</button>`;
     $('#ch-desc').addEventListener('click', compartirOdescargar);
     $('#ch-video').addEventListener('click', video);
-    const bc = $('#ch-club-b'); if (bc) bc.addEventListener('click', () => { parar(); ctx.irClub(); });
     $('#ch-salir').addEventListener('click', () => ctx.volver());
   }
   pintarReloj(); sortear(S.chispa);

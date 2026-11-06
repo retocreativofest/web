@@ -371,3 +371,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:var(--safe-t)
 .ban-pie small{font-size:11px;opacity:.85}
 @keyframes ban-va{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
 @media (prefers-reduced-motion:reduce){.ban-barra i{animation:none;width:60%}}
+.club-modal{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:20px;background:rgba(11,11,15,.6);animation:ch-entra .2s ease-out}
+.club-modal-caja{position:relative;width:100%;max-width:360px}
+.club-modal .club-ban{margin:0}
+.club-modal-x{position:absolute;top:-14px;right:-10px;z-index:2;width:42px;height:42px;border-radius:50%;background:var(--white);color:var(--ink);border:3px solid var(--ink);font-size:18px;font-weight:800;cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
