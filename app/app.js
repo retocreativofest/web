@@ -1,4 +1,5 @@
 /* #RetoMenteMilenial · app: entrar, registro, Hoy, subir al Padlet, rachas, ranking, amigos, Chispa del día y Club Estrella */
+import * as PJ from './personaje.js?v=1';
 import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe } from './chispa.js?v=16';
 const CONFIG = {
   api: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',
@@ -145,6 +146,7 @@ const textoError = e => ERRORES[e] || ERRORES.servidor;
 
 /* ---------- estado ---------- */
 const E = {
+  pj: leer('personaje'), pjs: {},
   sesion: leer('sesion'), correo: leer('correo'), perfil: leer('perfil'),
   guia: leer('guia') || 'digi', borrador: {}, hoy: leer('hoy'), semana: leer('semana'), progreso: leer('progreso'), novedades: null, amigos: null, ranking: null, club: leer('club'), subida: {}, instalar: null
 };
@@ -556,11 +558,95 @@ function conNav(activa, cuerpo, alPintar) {
     if (alPintar) alPintar(root);
   });
 }
+/* ---------- personaje (avatar armable, 6 nov 2026) ----------
+   Se guarda en el teléfono («rcf.personaje») y en «Reto de la semana · web» (pestaña «personajes»).
+   Los de los demás se piden por usuario y se guardan en E.pjs. Nunca fotos. */
+const pjClub = () => !!(E.club && E.club.activo);
+const pjTexto = x => [x.forma, x.ojos, x.pelo, x.acc, x.color].join('|');
+const pjDeTexto = t => { const [forma, ojos, pelo, acc, color] = String(t || '').split('|'); return forma ? PJ.limpiar({ forma, ojos, pelo, acc, color }, true) : null; };
+const pjUsuario = u => String(u || '').trim().toLowerCase().replace(/^@+/, '').replace(/\s+/g, '');
+async function extra(accion, datos) {
+  if (!CONFIG.extra) return { ok: false, error: 'red' };
+  try {
+    const res = await fetch(CONFIG.extra, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ accion, sesion: E.sesion }, datos || {})) });
+    return await res.json();
+  } catch (e) { return { ok: false, error: 'red' }; }
+}
+function pjGuardar(x) {
+  E.pj = x; guardar('personaje', x);
+  if (E.perfil && E.perfil.usuario) E.pjs[pjUsuario(E.perfil.usuario)] = x;
+  return extra('personaje_guardar', { p: x });
+}
+/* Pide los personajes que faltan (una vez por usuario) y vuelve a pintar la pantalla si llegan. */
+async function pjPedir(usuarios, repintar) {
+  const faltan = [...new Set(usuarios.map(pjUsuario).filter(u => u && !(u in E.pjs)))];
+  if (!faltan.length || !E.sesion) return;
+  faltan.forEach(u => { E.pjs[u] = null; });
+  const r = await extra('personajes', { usuarios: faltan });
+  if (!r.ok || !r.p) return;
+  let hay = false;
+  Object.keys(r.p).forEach(u => { const x = pjDeTexto(r.p[u]); if (x) { E.pjs[u] = x; hay = true; } });
+  if (hay && repintar) repintar();
+}
+/* El mío: lo busca en el servidor la primera vez; si no tiene, le toca uno al azar. Si dejó el Club, lo pasa a opciones libres. */
+let pjRevisando = false;
+function pjRevisar() {
+  if (!E.sesion || !E.perfil || !E.perfil.completo || pjRevisando) return;
+  const yo = pjUsuario(E.perfil.usuario);
+  if (!E.pj && !E.pjBuscado) {
+    E.pjBuscado = true; pjRevisando = true;
+    extra('personajes', { usuarios: [yo] }).then(r => {
+      pjRevisando = false;
+      const x = r.ok && r.p && pjDeTexto(r.p[yo]);
+      if (x) { E.pj = x; guardar('personaje', x); E.pjs[yo] = x; } else pjGuardar(PJ.nuevo());
+      if (estaEn) mostrar(estaEn);
+    });
+    return;
+  }
+  if (E.pj && E.club && !E.club.activo) {
+    const libre = PJ.limpiar(E.pj, false);
+    if (pjTexto(libre) !== pjTexto(E.pj)) pjGuardar(libre);
+  }
+}
+const pjAvatar = (u, nombre) => { const x = E.pjs[pjUsuario(u)]; return x ? `<span class="avatar pj">${PJ.svg(x)}</span>` : `<span class="avatar">${esc((nombre || '?').charAt(0).toUpperCase())}</span>`; };
+function ventanaPersonaje() {
+  const club = pjClub();
+  let sel = PJ.limpiar(E.pj || PJ.nuevo(), club);
+  const pasos = [['forma', '1 · Forma'], ['ojos', '2 · Ojos'], ['pelo', '3 · Cabello'], ['acc', '4 · Accesorios <span style="color:var(--morado)">★ Club Estrella</span>']];
+  ventana(`<h2 id="v-h" tabindex="-1">Tu personaje</h2>
+    <div class="pj-prev"><span class="avatar pj grande" id="pj-prev"></span><span class="nota" style="margin:0;text-align:left">Así te ven tus amigos y el Ranking.${club ? '' : ' Lo marcado con ★ es del Club Estrella.'}</span></div>
+    <div id="pj-ed"></div>
+    <div class="pj-btns"><button type="button" class="btn blanco chico" id="pj-azar">🎲 Sorpréndeme</button><button type="button" class="btn amarillo chico" id="pj-ok">Guardar</button></div>`, (velo, cerrarV) => {
+    velo.querySelector('.ventana').classList.add('larga');
+    const pintarEd = () => {
+      velo.querySelector('#pj-prev').innerHTML = PJ.svg(sel);
+      velo.querySelector('#pj-ed').innerHTML = pasos.map(([k, t]) => `<span class="pj-lbl">${t}</span><div class="pj-grid">${PJ.OPCIONES[k].map(v => {
+        const delClub = PJ.esDelClub(k, v), bloq = delClub && !club;
+        return `<button type="button" class="pj-op${delClub ? ' club' : ''}${bloq ? ' bloq' : ''}" data-k="${k}" data-v="${v}" aria-pressed="${sel[k] === v}" aria-label="${v}${bloq ? ' (Club Estrella)' : ''}">${PJ.muestra(k, v, sel.color)}</button>`; }).join('')}</div>`).join('')
+        + `<span class="pj-lbl">5 · Color</span><div class="pj-grid colores">${PJ.OPCIONES.color.map(c => `<button type="button" class="pj-col" data-k="color" data-v="${c}" aria-pressed="${sel.color === c}" aria-label="Color" style="background:${c}"></button>`).join('')}</div>`;
+    };
+    pintarEd();
+    velo.addEventListener('click', e => {
+      const b = e.target.closest('[data-k]');
+      if (b) {
+        if (!club && PJ.esDelClub(b.dataset.k, b.dataset.v)) { aviso('🔒 Solo para el Club Estrella ★'); return; }
+        sel[b.dataset.k] = b.dataset.v; pintarEd(); return;
+      }
+      if (e.target.closest('#pj-azar')) { sel = PJ.nuevo(); pintarEd(); }
+      if (e.target.closest('#pj-ok')) {
+        pjGuardar(sel).then(r => { if (!r.ok) aviso('Se guardó en tu teléfono; tus amigos lo verán cuando haya conexión.'); });
+        cerrarV(); aviso('Guardado ✓'); mostrar(estaEn || 'yo');
+      }
+    });
+  });
+}
+
 function cabecera(titulo) {
+  pjRevisar();
   const ini = esc((nombreCorto() || '?').charAt(0).toUpperCase());
   const pr = E.progreso, racha = pr ? pr.racha : 0;
   const fuego = pr ? `<span class="racha ${pr.enRiesgo ? 'riesgo' : ''}" aria-label="Racha de ${racha} ${racha === 1 ? 'semana' : 'semanas'}">🔥 ${racha}</span>` : '';
-  return `<header class="top"><button type="button" class="avatar" data-ir="yo" aria-label="Mi perfil">${ini}</button><h1>${esc(titulo)}</h1><span class="top-der">${fuego}<a class="redondo" href="${CONFIG.web}/preguntas-frecuentes.html" target="_blank" rel="noopener" aria-label="Preguntas frecuentes">?</a></span></header>`;
+  return `<header class="top"><button type="button" class="avatar${E.pj ? ' pj' : ''}" data-ir="yo" aria-label="Mi perfil">${E.pj ? PJ.svg(E.pj) : ini}</button><h1>${esc(titulo)}</h1><span class="top-der">${fuego}<a class="redondo" href="${CONFIG.web}/preguntas-frecuentes.html" target="_blank" rel="noopener" aria-label="Preguntas frecuentes">?</a></span></header>`;
 }
 
 let reloj, desfase = 0;   // diferencia entre la hora del servidor y la del teléfono
@@ -998,6 +1084,8 @@ async function vistaRanking() {
   else if (!E.ranking && estaEn === 'ranking') dibujarRanking(null, textoError(r.error));
 }
 
+const rkUsuario = it => ((String(it.red || '').match(/@([\w.]+)/) || [])[1] || '');
+const rkAvatar = it => it.yo && E.pj ? `<span class="avatar pj mini">${PJ.svg(E.pj)}</span>` : (E.pjs[pjUsuario(rkUsuario(it))] ? `<span class="avatar pj mini">${PJ.svg(E.pjs[pjUsuario(rkUsuario(it))])}</span>` : '');
 function dibujarRanking(r, error) {
   let cuerpo;
   if (!r) cuerpo = error ? `<div class="error" role="alert">${esc(error)}</div>` : '<div class="cargando" role="status"><span class="spin" aria-hidden="true"></span>Buscando los puntajes…</div>';
@@ -1007,11 +1095,12 @@ function dibujarRanking(r, error) {
       : `<div class="caja agua">Todavía no apareces entre los primeros. Cada semana que subes tu dibujo suma para la constancia, y los me gusta suman para las demás categorías.</div>`;
     cuerpo = `${r.lead ? `<p class="nota izq" style="margin:0">${esc(r.lead)}</p>` : ''}${mios}
       ${r.cats.map(c => `<section class="cat-app"><h2>${esc(c.nombre)}</h2>${c.def ? `<p>${esc(c.def)}</p>` : ''}<ol>${c.items.map(it =>
-        `<li class="${it.yo ? 'yo' : ''} ${it.estado === 'Va ganando' ? 'gana' : ''}"><span><b>${esc(it.nombre)}${it.estrella ? ` <img class="estrella-mini" src="img/estrella-${it.estrella}.webp" alt="Club Estrella">` : ''}${it.yo ? ' (tú)' : ''}</b>${it.red ? `<small>${esc(it.red)}</small>` : ''}</span><em>${esc(it.valor)}</em></li>`).join('')}</ol></section>`).join('')}
+        `<li class="${it.yo ? 'yo' : ''} ${it.estado === 'Va ganando' ? 'gana' : ''}"><span class="rk-q">${rkAvatar(it)}<span><b>${esc(it.nombre)}${it.estrella ? ` <img class="estrella-mini" src="img/estrella-${it.estrella}.webp" alt="Club Estrella">` : ''}${it.yo ? ' (tú)' : ''}</b>${it.red ? `<small>${esc(it.red)}</small>` : ''}</span></span><em>${esc(it.valor)}</em></li>`).join('')}</ol></section>`).join('')}
       ${r.legal ? `<p class="nota izq">${esc(r.legal)}</p>` : ''}
       <a class="btn blanco chico" href="${CONFIG.web}/reto-semanal.html" target="_blank" rel="noopener">Ver la tabla completa en la web</a>`;
   }
   conNav('ranking', cabecera('Ranking') + `<main class="cont con-nav">${cuerpo}</main>`);
+  if (r && r.cats) pjPedir(r.cats.flatMap(c => c.items.map(rkUsuario)).filter(Boolean), () => { if (estaEn === 'ranking') dibujarRanking(E.ranking); });
 }
 
 /* ---------- Amigos ---------- */
@@ -1022,6 +1111,8 @@ async function vistaAmigos(mensaje) {
     E.amigos = r;
     if (E.novedades) E.novedades.solicitudes = r.solicitudes.length;
     if (estaEn === 'amigos') dibujarAmigos(r, mensaje);
+    const us = ['amigos', 'solicitudes', 'enviadas', 'bloqueados'].flatMap(k => Array.isArray(r[k]) ? r[k].map(x => x.usuario) : []);
+    pjPedir(us, () => { if (estaEn === 'amigos') dibujarAmigos(E.amigos, mensaje); });
   } else if (r.error === 'sesion') cerrarSesion(true);
   else if (!E.amigos && estaEn === 'amigos') dibujarAmigos(null, null, textoError(r.error));
 }
@@ -1040,11 +1131,11 @@ function dibujarAmigos(d, mensaje, error) {
   if (!d) cuerpo += '<div class="cargando" role="status"><span class="spin" aria-hidden="true"></span>Buscando a tus amigos…</div>';
   else {
     if (d.solicitudes.length) cuerpo += `<h2 class="sub-t">Te quieren agregar</h2>` + d.solicitudes.map(x => `
-      <div class="amigo"><span class="avatar">${inicial(x.nombre)}</span><div class="info"><b>${esc(x.nombre)}</b><small>@${esc(x.usuario)}</small></div>
+      <div class="amigo">${pjAvatar(x.usuario, x.nombre)}<div class="info"><b>${esc(x.nombre)}</b><small>@${esc(x.usuario)}</small></div>
         <button type="button" class="btn turquesa chico mini" data-aceptar="${esc(x.usuario)}">Aceptar</button><button type="button" class="enlace mini" data-rechazar="${esc(x.usuario)}">No</button>${botonMas(x, false)}</div>`).join('');
     cuerpo += `<h2 class="sub-t">Tus amigos${d.amigos.length ? ' (' + d.amigos.length + ')' : ''}</h2>`;
     cuerpo += d.amigos.length ? d.amigos.map(x => `
-      <div class="amigo"><span class="avatar">${inicial(x.nombre)}</span>
+      <div class="amigo">${pjAvatar(x.usuario, x.nombre)}
         <div class="info"><b>${esc(x.nombre)}</b><small>@${esc(x.usuario)}</small>
           <span class="chips"><span class="chip fuego">🔥 ${x.rachaJuntos} ${x.rachaJuntos === 1 ? 'semana' : 'semanas'} juntos</span>${d.semanaAbierta ? `<span class="chip ${x.subio ? 'ok' : ''}">${x.subio ? '✓ Ya subió' : '⏳ Aún no sube'}</span>` : ''}</span></div>
         <button type="button" class="btn ${x.toqueHoy ? 'blanco' : 'amarillo'} chico mini" data-toque="${esc(x.usuario)}" data-nombre="${esc(x.nombre)}" ${x.toqueHoy ? 'disabled' : ''}>${x.toqueHoy ? 'Toque ✓' : '👆 Toque'}</button>${botonMas(x, true)}</div>`).join('')
@@ -1052,7 +1143,7 @@ function dibujarAmigos(d, mensaje, error) {
     if (d.enviadas.length) cuerpo += `<p class="nota izq">Esperando respuesta: ${d.enviadas.map(x => '@' + esc(x.usuario)).join(', ')}</p>`;
     if (d.bloqueados && d.bloqueados.length) cuerpo += `<h2 class="sub-t">Bloqueados (${d.bloqueados.length})</h2>
       <p class="nota izq">No pueden mandarte solicitudes ni toques. No les avisamos que los bloqueaste.</p>` + d.bloqueados.map(x => `
-      <div class="amigo"><span class="avatar">${inicial(x.nombre)}</span><div class="info"><b>${esc(x.nombre)}</b><small>@${esc(x.usuario)}</small></div>
+      <div class="amigo">${pjAvatar(x.usuario, x.nombre)}<div class="info"><b>${esc(x.nombre)}</b><small>@${esc(x.usuario)}</small></div>
         <button type="button" class="btn blanco chico mini" data-desbloquear="${esc(x.usuario)}">Desbloquear</button></div>`).join('');
     cuerpo += `<p class="nota">Los toques son stickers dentro de la app: sin chat. Uno por amigo al día.</p>`;
   }
@@ -1325,7 +1416,7 @@ function vistaYo() {
   const p = E.perfil || {}, ini = esc((nombreCorto() || '?').charAt(0).toUpperCase());
   const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent), instalada = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
   conNav('yo', cabecera('Yo') + `<main class="cont con-nav">
-      <div class="perfil"><span class="avatar">${ini}</span><div style="min-width:0"><h2>${esc(p.nombre || '')}</h2><span>@${esc(p.usuario || '')}</span></div></div>
+      <div class="perfil"><span class="avatar${E.pj ? ' pj' : ''}">${E.pj ? PJ.svg(E.pj) : ini}</span><div style="min-width:0;flex:1"><h2>${esc(p.nombre || '')}</h2><span>@${esc(p.usuario || '')}</span></div><button type="button" class="btn blanco chico mini" id="pj-editar">✏️ Mi personaje</button></div>
       ${progresoHtml()}
       <div class="lista">
         ${p.correo ? `<div><span>Correo</span><span>${esc(p.correo)}</span></div>` : ''}
@@ -1356,6 +1447,7 @@ function vistaYo() {
     root.querySelectorAll('[data-guia]').forEach(b => b.addEventListener('click', () => { E.guia = b.dataset.guia; guardar('guia', E.guia); vistaYo(); }));
     on('#editar', 'click', () => { E.borrador = { nombre: p.nombre, usuario: p.usuario }; vistaPerfil(); });
     on('#salir', 'click', () => cerrarSesion());
+    on('#pj-editar', 'click', ventanaPersonaje);
     on('#borrar', 'click', () => {
       // Automático desde el 6 nov 2026: lo hace el Apps Script «Reto de la semana · web» (archivo «Borrar cuenta»).
       ventana(`<h2 id="v-h" tabindex="-1">Borrar mi cuenta</h2>
@@ -1379,7 +1471,7 @@ function vistaYo() {
             cerrarV();
             const A = leer('avisos'); if (A && A.token) desactivarAvisos(true);
             E.sesion = E.correo = E.perfil = E.hoy = E.semana = E.progreso = E.ranking = E.amigos = E.novedades = E.club = null; E.borrador = {}; E.subida = {};
-            ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso', 'club', 'autorizacion'].forEach(k => guardar(k, null));
+            ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso', 'club', 'autorizacion', 'personaje'].forEach(k => guardar(k, null)); E.pj = null; E.pjs = {}; E.pjBuscado = false;
             vistaBienvenida('Tu cuenta se borró. ¡Gracias por dibujar con nosotros! 💛');
           } catch (e) {
             ok.disabled = false;
@@ -1402,7 +1494,7 @@ function vistaYo() {
 async function cerrarSesion(vencida) {
   const s = E.sesion;
   E.sesion = E.correo = E.perfil = E.hoy = E.semana = E.progreso = E.ranking = E.amigos = E.novedades = E.club = null; E.borrador = {}; E.subida = {};
-  ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso', 'club'].forEach(k => guardar(k, null));
+  ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso', 'club', 'personaje'].forEach(k => guardar(k, null)); E.pj = null; E.pjs = {}; E.pjBuscado = false;
   const A = leer('avisos');
   if (A && A.token) { if (s && vencida !== true) api('avisos', { sesion: s, token: A.token, quitar: true }); desactivarAvisos(true); }
   if (s && vencida !== true) api('salir', { sesion: s });
