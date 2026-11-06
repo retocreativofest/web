@@ -380,3 +380,8 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:var(--safe-t)
 .ch-hist .dia{font-size:9px;gap:2px}
 .ch-hist .dia i{width:18px;height:18px}
 .ch-hist .dia.abierta i{border-width:2px}
+/* 6 nov 2026 · regla de diseño de Stefany: textos centrados y armónicos, sin palabras solitarias en la última línea.
+   balance = reparte las líneas parejas (títulos); pretty = evita la palabra sola al final (párrafos). */
+h1,h2,h3,.pill-ch,.pill,.ch-sorteo b,.club-ban h3,.ban-txt,.btn{text-wrap:balance}
+p,li,.caja,.nota,.club-ban p,.sub,small,.sem-ch{text-wrap:pretty}
+.ch-tit h2,.ch-sorteo b{text-align:center}

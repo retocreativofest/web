@@ -106,6 +106,9 @@ function marcarHecha() {
   const dia = diaCaracas(), hechas = (leerLS('chispas') || []).filter(d => d !== dia);
   hechas.push(dia); guardarLS('chispas', hechas.slice(-60)); navidadGanada();
 }
+/* Une las dos últimas palabras con un espacio que no se corta: así nunca queda una palabra sola en la última línea
+   (para los teléfonos que todavía no entienden text-wrap: balance). */
+const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 const hexRgb = h => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
 
 /* ctx: { root, esc, club (bool), volver(), irClub() } */
@@ -123,7 +126,7 @@ export function abrirChispa(ctx) {
       <span class="reloj-ch" id="ch-reloj" role="timer" aria-live="off">3:00</span>
     </header>
     <main class="cont ch">
-      <div class="ch-tit"><span class="pill-ch">${adviento() ? '🎄 ADVIENTO · DÍA ' + adviento().dia + ' DE ' + adviento().total + ' · TU CHISPA ES…' : hoy.fiesta ? esc(hoy.fiesta.aviso) : 'TU CHISPA DE HOY ES…'}</span><h2 id="ch-t">Dibuja ${esc(S.chispa)}</h2></div>
+      <div class="ch-tit"><span class="pill-ch">${adviento() ? '🎄 ADVIENTO · DÍA ' + adviento().dia + ' DE ' + adviento().total + ' · TU CHISPA ES…' : hoy.fiesta ? esc(hoy.fiesta.aviso) : 'TU CHISPA DE HOY ES…'}</span><h2 id="ch-t">${esc(sinViuda('Dibuja ' + S.chispa))}</h2></div>
       <div class="lienzo"><canvas id="ch-c" width="${ANCHO}" height="${ALTO}" aria-label="Lienzo para dibujar"></canvas><div class="ch-empezar" id="ch-emp">Toca el lienzo para empezar ✏️</div></div>
       <div class="ch-tools" id="ch-tools">
         <button type="button" class="tool" data-tool="pincel" aria-pressed="true" aria-label="Pincel" title="Pincel">🖌️<span class="tt"> Pincel</span></button>
@@ -157,7 +160,7 @@ export function abrirChispa(ctx) {
   /* Sorteo: las chispas pasan rápido en el centro de la pantalla y se van frenando hasta caer en la de hoy (~2 s). */
   function sortear(final, listo) {
     const t = $('#ch-t'), aviso = $('#ch-emp');
-    const fin = () => { S.fase = 'lista'; t.textContent = 'Dibuja ' + final; t.removeAttribute('aria-busy'); aviso.textContent = 'Toca el lienzo para empezar ✏️'; pintarAbajo(); if (listo) listo(); };
+    const fin = () => { S.fase = 'lista'; t.textContent = sinViuda('Dibuja ' + final); t.removeAttribute('aria-busy'); aviso.textContent = 'Toca el lienzo para empezar ✏️'; pintarAbajo(); if (listo) listo(); };
     if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return fin();
     S.fase = 'sorteo'; t.setAttribute('aria-busy', 'true'); t.textContent = 'Sorteando…'; aviso.textContent = 'Sorteando tu chispa… 🎲'; pintarAbajo();
     const ov = document.createElement('div');
@@ -171,13 +174,13 @@ export function abrirChispa(ctx) {
     const tick = () => {
       if (!root.contains(t)) { ov.remove(); return; }   // salió de la pantalla
       if (paso >= total) {
-        b.classList.remove('girando'); b.textContent = 'Dibuja ' + final; b.classList.add('cae');
+        b.classList.remove('girando'); b.textContent = sinViuda('Dibuja ' + final); b.classList.add('cae');
         ov.querySelector('.ch-sorteo-dado').textContent = '✨';
         setTimeout(() => { ov.classList.add('sale'); setTimeout(() => { ov.remove(); if (root.contains(t)) { fin(); t.classList.add('cae'); setTimeout(() => t.classList.remove('cae'), 700); } }, 300); }, 1100);
         return;
       }
       let o; do { o = BANCO[Math.floor(Math.random() * BANCO.length)]; } while (o === previo || o === final);
-      previo = o; b.textContent = 'Dibuja ' + o; paso++;
+      previo = o; b.textContent = sinViuda('Dibuja ' + o); paso++;
       setTimeout(tick, 45 + paso * paso * 1.6);
     };
     tick();
