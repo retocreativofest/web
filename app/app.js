@@ -8,7 +8,7 @@ const CONFIG = {
   whatsapp: '584120390423',   // pagos del Club por Pago Móvil, Binance o Zinli
   patreon: 'https://www.patreon.com/RetoMenteMilenial',
   extra: 'https://script.google.com/macros/s/AKfycbxk2KkAccQuJHmErsKb8VTIrJtKTaiN3jgsIlue3S3hgVabA_BjcD3j8qQZ36hyBKzh4g/exec',
-  banner: ''   // URL /exec del Apps Script «Banner del patrocinador · app». Vacío = sin banner mientras se sube el dibujo.   // URL /exec del Apps Script «Reto de la semana · web» (reenviar el correo del representante y ver rebotes). Vacío = sin botón de reenviar.
+  banner: 'https://script.google.com/macros/s/AKfycbxhkh2pzpAtBkoDXof1U7P5TT7p-m9F1S70eanz58PqVaKVKj3wOgxjYs2ZbipwyBnMcA/exec'   // URL /exec del Apps Script «Banner del patrocinador · app». Vacío = sin banner mientras se sube el dibujo.   // URL /exec del Apps Script «Reto de la semana · web» (reenviar el correo del representante y ver rebotes). Vacío = sin botón de reenviar.
 };
 
 /* ---------- utilidades ---------- */
