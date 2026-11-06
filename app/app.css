@@ -385,3 +385,13 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:var(--safe-t)
 h1,h2,h3,.pill-ch,.pill,.ch-sorteo b,.club-ban h3,.ban-txt,.btn{text-wrap:balance}
 p,li,.caja,.nota,.club-ban p,.sub,small,.sem-ch{text-wrap:pretty}
 .ch-tit h2,.ch-sorteo b{text-align:center}
+/* Tablets (iPad y Android grandes), 6 nov 2026: una sola regla para todas.
+   La columna crece hasta 720 px, el fondo de los lados es lila y el lienzo de la Chispa
+   se achica si la pantalla es baja (iPad acostado) para que las herramientas siempre se vean. */
+@media (min-width:700px){
+  body{background:var(--lila-2)}
+  .app,.nav,.ventana{max-width:720px}
+  .app{box-shadow:0 0 0 3px var(--ink)}
+  .lienzo{width:min(100%, calc((100dvh - 400px) * 648 / 700));min-width:300px;margin-inline:auto}
+  .paleta{grid-template-columns:repeat(11,minmax(0,42px));justify-content:center}
+}
