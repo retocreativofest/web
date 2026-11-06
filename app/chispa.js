@@ -224,13 +224,13 @@ export function abrirChispa(ctx) {
     y.fillStyle = '#0B0B0F'; y.fillRect(34, 34, ANCHO + 12, ALTO + 12);
     y.drawImage(src || c, 40, 40);
     y.textAlign = 'center';
-    y.fillStyle = m[2]; y.font = '800 40px Poppins, sans-serif'; y.fillText('#RetoMenteMilenial', o.width / 2, ALTO + 112);
+    y.fillStyle = m[2]; y.font = '800 40px Poppins, sans-serif'; y.fillText('#RetoMenteMilenial', o.width / 2, ALTO + 98);   // 6 nov: las 3 líneas centradas en la franja de abajo
     const adv = adviento();
     const linea = (adv ? 'Adviento de Chispas · día ' + adv.dia + ': ' : 'Chispa del día: ') + S.chispa;
     let fs = 30; y.font = '700 ' + fs + 'px Quicksand, sans-serif';
     while (y.measureText(linea).width > o.width - 48 && fs > 16) { fs -= 2; y.font = '700 ' + fs + 'px Quicksand, sans-serif'; }
-    y.fillStyle = m[1]; y.fillText(linea, o.width / 2, ALTO + 156);
-    y.font = '700 22px Quicksand, sans-serif'; y.fillText('Reto Creativo Fest · retocreativofest.com', o.width / 2, ALTO + 188);
+    y.fillStyle = m[1]; y.fillText(linea, o.width / 2, ALTO + 138);
+    y.font = '700 22px Quicksand, sans-serif'; y.fillText('Reto Creativo Fest · retocreativofest.com', o.width / 2, ALTO + 172);
     return o;
   }
   function lienzoMarco() { const o = document.createElement('canvas'); o.width = ANCHO + 80; o.height = ALTO + 200; return o; }
