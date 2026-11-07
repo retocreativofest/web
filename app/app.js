@@ -43,6 +43,8 @@ const ICO = {
   copiar: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>',
   externo: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>'
 };
+/* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
+const VERSION_APP = '74 · 7 nov';
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -1663,6 +1665,7 @@ function vistaYo() {
       <button type="button" class="btn blanco chico" id="tuto">👋 Ver el tutorial otra vez</button>
       <a class="btn blanco chico" href="${CONFIG.web}/preguntas-frecuentes.html" target="_blank" rel="noopener">Preguntas frecuentes</a>
       <button type="button" class="enlace" id="salir">Cerrar sesión</button>
+      <p class="nota" style="margin:0;text-align:center;font-size:12px">Versión de la app: ${VERSION_APP}</p>
       <button type="button" class="enlace" id="borrar" style="font-size:12px;color:var(--muted)">Borrar mi cuenta</button>
       <span class="nota"><a href="${CONFIG.web}/bases.html#reto" target="_blank" rel="noopener">Bases del reto</a> · <a href="${CONFIG.web}/terminos.html" target="_blank" rel="noopener">Términos</a> · <a href="${CONFIG.web}/privacidad.html" target="_blank" rel="noopener">Privacidad</a></span>
     </main>`, root => {
