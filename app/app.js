@@ -1631,8 +1631,6 @@ function progresoHtml() {
   if (!pr) return '';
   return `<section class="progreso-yo" aria-label="Tu progreso">
     <div class="stats"><div><b>${ICO.fuego} ${pr.racha}</b><span>racha actual</span></div><div><b>${pr.mejor}</b><span>mejor racha</span></div><div><b>${pr.semanas}</b><span>semanas con dibujo</span></div></div>
-    <div class="hist" aria-label="Tus semanas del reto">${pr.historial.map(punto).join('')}</div>
-    <div class="leyenda" aria-hidden="true"><span><i class="si"></i>Subiste tu dibujo</span><span><i></i>No subiste</span><span><i class="protegida"></i>Protegida</span><span><i class="abierta"></i>En curso</span></div>` : '<p class="nota" style="margin:0">Tu racha empieza con tu primer dibujo de la temporada.</p>'}
   </section>`;
 }
 function vistaYo() {
