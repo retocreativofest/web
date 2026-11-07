@@ -415,3 +415,105 @@ p,li,.caja,.nota,.club-ban p,.sub,small,.sem-ch{text-wrap:pretty}
 .pj-col{aspect-ratio:1;border:2.5px solid var(--ink);border-radius:50%;cursor:pointer;padding:0}
 .pj-col[aria-pressed=true]{outline:3px solid var(--ink);outline-offset:3px}
 .pj-btns{display:flex;gap:8px}.pj-btns .btn{flex:1}
+
+/* ---------- 7 nov 2026: cambios de los testers ---------- */
+/* Contadores de arriba: ✦ chispas (días) y 🔥 racha (semanas) */
+.top-der{gap:6px}
+.contador{display:inline-flex;align-items:center;gap:4px;font-family:var(--display);font-weight:800;font-size:15px;line-height:1;border:2px solid var(--ink);border-radius:999px;padding:5px 9px;min-height:32px;cursor:pointer;color:var(--ink)}
+.contador b{font-variant-numeric:tabular-nums}
+.contador.chispas{background:var(--lila-2);color:var(--morado)}
+.contador.racha{background:var(--crema);color:var(--naranja-osc)}
+.contador.racha.riesgo{background:var(--rosa)}
+@media (max-width:359px){.top h1{font-size:18px}.contador{padding:4px 7px;font-size:14px}}
+
+/* Tarjeta de la Chispa del día (rejilla: ícono · texto · botón; círculos debajo del texto). Igual en todos los teléfonos. */
+.chispa-card{display:grid;grid-template-columns:40px minmax(0,1fr) auto;grid-template-areas:"ico txt btn" "ico dias btn";align-items:center;column-gap:10px;row-gap:6px;background:var(--white);border:3px solid var(--ink);border-radius:20px;padding:12px}
+.chispa-card .cc-ico{grid-area:ico;width:40px;height:40px;border-radius:12px;background:var(--crema);border:2px solid var(--ink);display:grid;place-items:center}
+.chispa-card .cc-ico svg{width:20px;height:20px}
+.chispa-card .cc-txt{grid-area:txt;min-width:0}
+.chispa-card h3{margin:0;font-family:var(--display);font-size:15px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chispa-card p{margin:2px 0 0;font-size:13px;font-weight:700;color:var(--muted);line-height:1.3}
+.chispa-card .cc-dias{grid-area:dias;min-width:0}
+.chispa-card .ch-hist{margin:0;gap:2px;justify-content:space-between;max-width:150px}
+.chispa-card .ch-hist .dia i{width:16px;height:16px}
+.chispa-card .cc-btn{grid-area:btn;width:auto;min-width:84px;padding:8px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;font-size:15px;box-shadow:0 4px 0 var(--ink)}
+.chispa-card .cc-btn small{font-size:11px;font-family:var(--texto);font-weight:800}
+.chispa-card.hecha .cc-btn{font-size:14px;letter-spacing:.04em}
+@media (min-width:420px){.chispa-card{grid-template-columns:48px minmax(0,1fr) auto;column-gap:12px;padding:12px 14px}.chispa-card .cc-ico{width:48px;height:48px;border-radius:14px}.chispa-card .cc-ico svg{width:24px;height:24px}.chispa-card h3{font-size:16px}.chispa-card p{font-size:14px}.chispa-card .ch-hist .dia i{width:18px;height:18px}.chispa-card .ch-hist{max-width:180px}.chispa-card .cc-btn{min-width:96px}}
+/* Teléfonos muy angostos (menos de 340 px): el botón baja a su propia fila y nunca tapa los círculos */
+@media (max-width:339px){
+  .chispa-card{grid-template-columns:40px minmax(0,1fr);grid-template-areas:"ico txt" "dias dias" "btn btn"}
+  .chispa-card .ch-hist{max-width:none}
+  .chispa-card .cc-btn{width:100%;flex-direction:row;gap:6px}
+}
+
+/* Botones para compartir el dibujo */
+.compartir{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.compartir .btn{display:flex;align-items:center;justify-content:center;gap:8px;text-align:center}
+.compartir .cp-grande{grid-column:1/-1;font-size:17px}
+.compartir .cp-chico{font-size:14px;padding:9px 8px}
+.compartir .cp-chico span{white-space:nowrap}
+.compartir svg{flex:none}
+@media (max-width:340px){.compartir{grid-template-columns:1fr}}
+
+/* Pantalla «¡Dibujo publicado!» */
+.celebra{justify-content:center;align-items:center;text-align:center;gap:14px}
+.celebra-img{width:170px;height:auto;animation:bob 2.6s ease-in-out infinite}
+.celebra h1{margin:0;font-family:var(--display);font-size:28px;line-height:1.15}
+.celebra>p{margin:0;font-size:16px;line-height:1.45;max-width:34ch}
+.celebra .titulo-padlet{display:inline-block;margin-top:2px;background:var(--crema);border:2px solid var(--ink);border-radius:10px;padding:2px 10px}
+.celebra .caja{text-align:left;width:100%}
+.celebra .avisos-inv{width:100%}
+
+/* Registro · paso 3 */
+.listo{gap:14px}
+.listo-pj,.listo-av{background:var(--white);border:3px solid var(--ink);border-radius:18px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.listo-pj>div{display:flex;flex-direction:column;gap:2px}
+.listo-pj strong,.listo-av strong{font-family:var(--display);font-size:16px}
+.listo-pj span,.listo-av>span{font-size:14px;font-weight:600;color:var(--muted);line-height:1.4}
+.listo-pj .avatar.grande{width:96px;height:96px}
+.listo-av{background:var(--crema)}
+.listo .btn.chico{width:100%}
+
+/* Sugerencias al agregar amigos */
+.sugeridas{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.sug{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--white);border:2px solid var(--ink);border-radius:14px;padding:8px 10px;cursor:pointer;min-height:52px}
+.sug:hover,.sug:focus-visible{background:var(--crema)}
+.sug[disabled]{opacity:.6;cursor:default}
+.sug>span:not(.avatar){flex:1;min-width:0;display:flex;flex-direction:column}
+.sug b{font-size:14px} .sug small{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.sug em{font-style:normal;font-size:11px;font-weight:800;color:var(--muted);flex:none}
+.sug em.sug-mas{font-size:20px;color:var(--morado)}
+.ayuda-sug{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-top:6px}
+
+/* Tradi o Digi molestos: racha en riesgo */
+.molesto{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.molesto-img{position:relative;animation:molesto .5s ease-in-out 3}
+.molesto-img img{width:150px;height:auto;display:block;filter:drop-shadow(0 0 0 var(--rosa-osc))}
+.molesto-ira{position:absolute;top:-4px;right:-14px;font-size:38px;animation:bob 1s ease-in-out infinite}
+.molesto h2{font-size:22px;line-height:1.2}
+.molesto p{font-size:15px}
+.molesto .btn{width:100%}
+@keyframes molesto{0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg) translateX(-4px)}75%{transform:rotate(6deg) translateX(4px)}}
+
+/* Sonido del reloj de la chispa */
+.ch-barra h1{white-space:nowrap}
+.son-ch{flex:none;width:40px;height:40px;border-radius:12px;border:3px solid var(--ink);background:var(--white);font-size:18px;cursor:pointer;padding:0}
+
+/* Tablets: la app es una tarjeta con el borde completo (arriba, abajo y a los lados) y el contenido centrado */
+@media (min-width:700px){
+  body{padding:20px 0}
+  .app{min-height:calc(100dvh - 40px);border:3px solid var(--ink);border-radius:28px;box-shadow:8px 8px 0 var(--ink);overflow:clip}
+  .nav{bottom:20px;border:3px solid var(--ink);border-radius:0 0 28px 28px;max-width:720px;width:min(720px,100%)}
+  .cont{padding-left:40px;padding-right:40px}
+  .cont.con-nav{padding-bottom:calc(124px + var(--safe-b))}
+  .celebra{max-width:560px;margin:0 auto;width:100%;gap:18px}
+  .celebra-img{width:260px}
+  .celebra h1{font-size:34px}
+  .celebra>p{font-size:18px}
+  .compartir .btn{min-height:58px}
+  .compartir .cp-grande{font-size:19px}
+  .compartir .cp-chico{font-size:16px}
+  .ventana{border-radius:24px;margin-bottom:20px;border-bottom:3px solid var(--ink)}
+  .velo{align-items:center}
+}

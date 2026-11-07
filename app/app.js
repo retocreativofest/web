@@ -1,6 +1,6 @@
 /* #RetoMenteMilenial · app: entrar, registro, Hoy, subir al Padlet, rachas, ranking, amigos, Chispa del día y Club Estrella */
 import * as PJ from './personaje.js?v=1';
-import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe } from './chispa.js?v=16';
+import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe, rachaChispas, ajustarHora, mostrarPromoClub } from './chispa.js?v=17';
 const CONFIG = {
   api: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
@@ -35,8 +35,14 @@ const ICO = {
   mas: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
   amigos: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.3-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.8"/><path d="M16.5 14.6c2.6.1 4.5 1.8 5 4.9"/></svg>',
   yo: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.2 4-6.5 8-6.5s7.2 2.3 8 6.5"/></svg>',
-  chispa: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0B0B0F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg>'
+  chispa: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0B0B0F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg>',
+  chispaMini: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z" fill="#FFD60A" stroke="#0B0B0F" stroke-width="2.2" stroke-linejoin="round"/></svg>',
+  compartir: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>',
+  copiar: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>',
+  externo: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>'
 };
+/* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
+const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
 let toastT;
 function aviso(texto) {
@@ -229,6 +235,14 @@ function franjaAliados() {
   if (!al.length) return '';
   return `<div class="codigos-app"><strong>🏷️ Descuentos para la comunidad</strong>${al.map(x => `<div class="codigo-app">${x.logo ? `<img src="${esc(x.logo)}" alt="${esc(x.nombre)}" height="30">` : ''}<span><b>${esc(x.nombre)}</b>${x.descuento ? ': ' + esc(x.descuento) : ''}</span><button type="button" class="codigo-btn" data-codigo="${esc(x.codigo)}" aria-label="Copiar el código ${esc(x.codigo)}">${esc(x.codigo)} <small>Copiar</small></button></div>`).join('')}</div>`;
 }
+/* Los dos contadores de arriba: al tocarlos explican qué cuentan (7 nov 2026). */
+document.addEventListener('click', ev => {
+  const b = ev.target.closest && ev.target.closest('[data-explica]');
+  if (!b) return;
+  aviso(b.dataset.explica === 'chispas'
+    ? '✦ Chispas: días seguidos haciendo la Chispa del día. Es aparte de tu racha.'
+    : '🔥 Racha del reto: semanas seguidas subiendo tu dibujo. Esta es la que cuenta para el reto.');
+});
 /* Copiar el código de descuento de un aliado (funciona en cualquier pantalla que lo muestre). */
 document.addEventListener('click', async ev => {
   const b = ev.target.closest && ev.target.closest('[data-codigo]');
@@ -413,7 +427,7 @@ function vistaPerfil(error) {
       <div class="muestra" aria-hidden="true"><i></i><span><b id="prev">Nombre · @usuario</b><small>Así se verá el título en el Padlet</small></span></div>
       <div class="caja crema" id="cambio" role="note" hidden></div>
       ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}
-      <span class="pasos" aria-label="Paso 1 de 2"><i class="on"></i><i></i></span>
+      ${editando ? '' : '<span class="pasos" aria-label="Paso 1 de 3"><i class="on"></i><i></i><i></i></span>'}
       <button type="submit" class="btn">SIGUIENTE</button>
     </form>`, root => {
     const nom = root.querySelector('#nom'), usr = root.querySelector('#usr'), prev = root.querySelector('#prev');
@@ -504,8 +518,8 @@ function vistaEdad(error) {
         <label class="check" for="ofe"><input id="ofe" type="checkbox" ${b.ofertas === 'Sí' ? 'checked' : ''}><span>Quiero recibir ofertas y descuentos del Reto Creativo Fest por correo y WhatsApp. <span style="font-weight:600;color:var(--muted)">Puedes darte de baja cuando quieras.</span></span></label>` : ''}
       ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}
       <span class="nota izq">Nunca mostramos tu edad, tu país, tu estado, tu cumpleaños ni tu contacto en la app. Para entregar premios verificamos la edad y el país en persona.</span>
-      <span class="pasos" aria-label="Paso 2 de 2"><i></i><i class="on"></i></span>
-      <button type="button" class="btn" id="ok">EMPEZAR</button>
+      ${E.perfil && E.perfil.completo && !E.completando ? '' : '<span class="pasos" aria-label="Paso 2 de 3"><i></i><i class="on"></i><i></i></span>'}
+      <button type="button" class="btn" id="ok">${E.perfil && E.perfil.completo && !E.completando ? 'GUARDAR' : 'SIGUIENTE'}</button>
     </div>`, root => {
     const leerCampos = () => {
       const t = root.querySelector('#tel'), o = root.querySelector('#ofe');
@@ -538,12 +552,49 @@ function vistaEdad(error) {
         if (/^usuario|nombre/.test(r.error)) return vistaPerfil(textoError(r.error));
         return vistaEdad(textoError(r.error));
       }
+      const nuevo = !(E.perfil && E.perfil.completo) || E.completando;
       E.perfil = r.perfil; guardar('perfil', E.perfil); E.borrador = {};
       if (E.completando) { E.completando = false; guardar('nombreLocal', null); }
-      aviso('¡Listo! Bienvenid@ al #RetoMenteMilenial');
-      ir('hoy');
+      if (nuevo) return vistaListo();   // 7 nov 2026: paso 3, personaje y avisos
+      aviso('Guardado ✓');
+      ir('yo');
     });
   });
+}
+
+/* ---------- registro: paso 3, tu personaje y tus avisos (7 nov 2026) ----------
+   Las dos cosas son opcionales: se pueden cambiar después en «Yo». */
+function vistaListo() {
+  E.enListo = true;
+  if (!E.pj) pjRevisar();   // busca el suyo o le toca uno al azar; al llegar, vuelve a pintar esta pantalla
+  pintar(`
+    <header class="barra">
+      <div style="flex:1"><h1>¡Ya casi!</h1><span class="sub">Tu personaje y tus avisos · opcional</span></div>
+      <img class="cara" src="${caraGuia(E.guia)}" alt="">
+    </header>
+    <div class="cont listo">
+      <section class="listo-pj">
+        <span class="avatar pj grande">${E.pj ? PJ.svg(E.pj) : '<span class="spin" aria-hidden="true"></span>'}</span>
+        <div><strong>Tu personaje</strong><span>Así te ven tus amigos y el Ranking. Nunca usamos&nbsp;fotos.</span></div>
+        <button type="button" class="btn blanco chico" id="pj-editar" ${E.pj ? '' : 'disabled'}>✏️ Personalizar mi personaje</button>
+      </section>
+      ${avisosListo()}
+      <span class="pasos" aria-label="Paso 3 de 3"><i></i><i></i><i class="on"></i></span>
+      <button type="button" class="btn" id="ok">EMPEZAR</button>
+    </div>`, root => {
+    on('#pj-editar', 'click', () => ventanaPersonaje(vistaListo));
+    activarAvisosEn(root, vistaListo);
+    on('#ok', 'click', () => { E.enListo = false; aviso('¡Listo! Bienvenid@ al #RetoMenteMilenial'); ir('hoy'); });
+  });
+}
+function avisosListo() {
+  const est = estadoAvisos();
+  const caja = c => `<section class="listo-av"><strong>🔔 Avisos</strong>${c}</section>`;
+  if (est === 'activo') return caja('<span>✓ Activados. Te avisamos del reto nuevo, si tu racha está en riesgo y de tus amigos. Puedes elegir cuáles en&nbsp;«Yo».</span>');
+  if (est === 'pedir') return caja('<span>Te avisamos cuando sale el reto, si tu racha está en riesgo y cuando un amigo te da un toque. Nada de&nbsp;spam.</span><button type="button" class="btn turquesa chico" id="av-on">ACTIVAR AVISOS</button>');
+  if (est === 'instalar') return caja('<span>En iPhone los avisos funcionan con la app instalada: botón <b>Compartir</b> → <b>«Agregar a inicio»</b>. Luego actívalos en&nbsp;«Yo».</span>');
+  if (est === 'bloqueado') return caja(`<span>${esc(ERRORES.avisos_bloqueados)}</span>`);
+  return '';
 }
 
 /* ---------- pantallas con barra inferior ---------- */
@@ -599,7 +650,7 @@ function pjRevisar() {
       pjRevisando = false;
       const x = r.ok && r.p && pjDeTexto(r.p[yo]);
       if (x) { E.pj = x; guardar('personaje', x); E.pjs[yo] = x; } else pjGuardar(PJ.nuevo());
-      if (estaEn) mostrar(estaEn);
+      if (E.enListo) vistaListo(); else if (estaEn) mostrar(estaEn);
     });
     return;
   }
@@ -609,7 +660,7 @@ function pjRevisar() {
   }
 }
 const pjAvatar = (u, nombre) => { const x = E.pjs[pjUsuario(u)]; return x ? `<span class="avatar pj">${PJ.svg(x)}</span>` : `<span class="avatar">${esc((nombre || '?').charAt(0).toUpperCase())}</span>`; };
-function ventanaPersonaje() {
+function ventanaPersonaje(alGuardar) {
   const club = pjClub();
   let sel = PJ.limpiar(E.pj || PJ.nuevo(), club);
   const pasos = [['forma', '1 · Forma'], ['ojos', '2 · Ojos'], ['pelo', '3 · Cabello'], ['acc', '4 · Accesorios <span style="color:var(--morado)">★ Club Estrella</span>']];
@@ -635,7 +686,7 @@ function ventanaPersonaje() {
       if (e.target.closest('#pj-azar')) { sel = PJ.nuevo(); pintarEd(); }
       if (e.target.closest('#pj-ok')) {
         pjGuardar(sel).then(r => { if (!r.ok) aviso('Se guardó en tu teléfono; tus amigos lo verán cuando haya conexión.'); });
-        cerrarV(); aviso('Guardado ✓'); mostrar(estaEn || 'yo');
+        cerrarV(); aviso('Guardado ✓'); if (alGuardar) alGuardar(); else mostrar(estaEn || 'yo');
       }
     });
   });
@@ -644,9 +695,12 @@ function ventanaPersonaje() {
 function cabecera(titulo) {
   pjRevisar();
   const ini = esc((nombreCorto() || '?').charAt(0).toUpperCase());
-  const pr = E.progreso, racha = pr ? pr.racha : 0;
-  const fuego = pr ? `<span class="racha ${pr.enRiesgo ? 'riesgo' : ''}" aria-label="Racha de ${racha} ${racha === 1 ? 'semana' : 'semanas'}">🔥 ${racha}</span>` : '';
-  return `<header class="top"><button type="button" class="avatar${E.pj ? ' pj' : ''}" data-ir="yo" aria-label="Mi perfil">${E.pj ? PJ.svg(E.pj) : ini}</button><h1>${esc(titulo)}</h1><span class="top-der">${fuego}<a class="redondo" href="${CONFIG.web}/preguntas-frecuentes.html" target="_blank" rel="noopener" aria-label="Preguntas frecuentes">?</a></span></header>`;
+  const pr = E.progreso, racha = pr ? pr.racha : 0, ch = rachaChispas();
+  /* 7 nov 2026: dos contadores distintos para que no se confundan:
+     ✦ chispas = días seguidos haciendo la Chispa del día · 🔥 racha = semanas seguidas subiendo el dibujo del reto. */
+  const chispas = `<button type="button" class="contador chispas" data-explica="chispas" aria-label="Chispas: ${ch} ${ch === 1 ? 'día seguido' : 'días seguidos'} haciendo la Chispa del día">${ICO.chispaMini}<b>${ch}</b></button>`;
+  const fuego = `<button type="button" class="contador racha ${pr && pr.enRiesgo ? 'riesgo' : ''}" data-explica="racha" aria-label="Racha del reto: ${racha} ${racha === 1 ? 'semana seguida' : 'semanas seguidas'} subiendo tu dibujo">🔥<b>${racha}</b></button>`;
+  return `<header class="top"><button type="button" class="avatar${E.pj ? ' pj' : ''}" data-ir="yo" aria-label="Mi perfil">${E.pj ? PJ.svg(E.pj) : ini}</button><h1>${esc(titulo)}</h1><span class="top-der">${chispas}${fuego}<a class="redondo" href="${CONFIG.web}/preguntas-frecuentes.html" target="_blank" rel="noopener" aria-label="Preguntas frecuentes">?</a></span></header>`;
 }
 
 let reloj, desfase = 0;   // diferencia entre la hora del servidor y la del teléfono
@@ -669,7 +723,7 @@ async function vistaHoy() {
   if (!r.ok) { if (!E.hoy) dibujarHoy(null, textoError(r.error)); return; }
   E.hoy = r; guardar('hoy', r);   // la próxima vez se muestra al instante
   cargarPatrocinio();
-  desfase = new Date(r.ahora) - Date.now();
+  desfase = new Date(r.ahora) - Date.now(); ajustarHora(desfase);
   if (estaEn === 'hoy') dibujarHoy(r);
   const m = await api('mi_semana', { sesion: E.sesion });
   if (m.ok) {
@@ -680,12 +734,35 @@ async function vistaHoy() {
     if (estaEn === 'hoy') {
       dibujarHoy(E.hoy);
       if (toqueNuevo()) api('toques_vistos', { sesion: E.sesion });   // se muestra una vez; luego desaparece
+      setTimeout(ventanaMolesto, 900);
     }
   } else if (m.error === 'sesion') cerrarSesion(true);
   if (r.votacion && r.votacion.estado === 'abierta') {   // para las miniaturas y saber si ya votó
     const v = await api('votacion', { sesion: E.sesion });
     if (v.ok) { E.votacion = v; if (estaEn === 'hoy') dibujarHoy(E.hoy); }
   }
+}
+/* Tradi o Digi molestos (7 nov 2026): si tu racha está en riesgo y todavía no subes tu dibujo, tu guía te lo reclama.
+   Sale una vez al día por teléfono y solo si tienes racha que perder (1 semana o más) y el reto sigue abierto.
+   Si Stefany sube img/tradi-molesto.webp y img/digi-molesto.webp, se usan esas; mientras tanto, la ilustración normal con 💢. */
+function ventanaMolesto() {
+  const pr = E.progreso, a = E.hoy && E.hoy.actual;
+  if (estaEn !== 'hoy' || !pr || !pr.enRiesgo || !(pr.racha > 0) || !a || yaSubio() || bloqueado() || document.querySelector('.velo')) return;
+  const dia = new Date(ahora() - 4 * 36e5).toISOString().slice(0, 10);
+  if (leer('molesto') === dia) return;
+  guardar('molesto', dia);
+  const g = E.guia === 'tradi' ? 'tradi' : 'digi', G = g === 'tradi' ? 'Tradi' : 'Digi', nom = esc(nombreCorto());
+  ventana(`<div class="molesto">
+      <div class="molesto-img"><img src="img/${g}-molesto.webp" data-normal="${imgGuia(g)}" alt="${G} molesto" width="150" height="145"><span class="molesto-ira" aria-hidden="true">💢</span></div>
+      <h2 id="v-h" tabindex="-1">${sinViuda('¡Oye' + (nom ? ', ' + nom : '') + '! ¿Me vas a dejar así? 😤')}</h2>
+      <p>Tu racha de <b>${pr.racha} ${pr.racha === 1 ? 'semana' : 'semanas'}</b> se apaga si no subes tu dibujo. El reto cierra en <b>${cuantoFalta(a.cierre)}</b>.</p>
+      <button type="button" class="btn amarillo" id="mol-subir">SUBIR MI DIBUJO</button>
+    </div>`, (velo, cerrar) => {
+    const im = velo.querySelector('.molesto-img img');
+    im.addEventListener('error', () => { if (im.dataset.normal) { im.src = im.dataset.normal; im.dataset.normal = ''; } }, { once: false });
+    velo.querySelector('#mol-subir').addEventListener('click', () => { cerrar(); ir('subir'); });
+    velo.querySelector('[data-cerrar]').textContent = 'Ahorita no';
+  });
 }
 const STICKERS = [['img/sticker-1.webp', '¡Tú puedes!'], ['img/sticker-2.webp', '¡Qué dibujo!'], ['img/sticker-3.webp', '¡No la pierdas!']];
 const toqueNuevo = () => E.novedades && E.novedades.toques && E.novedades.toques.length ? E.novedades.toques[E.novedades.toques.length - 1] : null;
@@ -697,6 +774,18 @@ function burbujaHoy(nom, a) {
   return hola + `👋 El reto cierra en <b>${cuantoFalta(a.cierre)}</b>.`;
 }
 const semanaId = a => a.temporada + '|' + a.semana;
+/* Tarjeta de la Chispa del día debajo del reto (7 nov 2026): rejilla fija ícono · texto · botón, con los círculos debajo del texto.
+   En pantallas angostas el botón baja a su propia fila: nunca se monta sobre los círculos. */
+function tarjetaChispa() {
+  const hecha = chispaHechaHoy(), adv = adviento();
+  const titulo = adv ? '🎄 Adviento de Chispas · día ' + adv.dia : fiestaDe() ? fiestaDe().aviso : 'Chispa del día';
+  return `<section class="chispa-card${hecha ? ' hecha' : ''}" aria-label="Chispa del día">
+    <span class="cc-ico">${ICO.chispa}</span>
+    <div class="cc-txt"><h3>${esc(sinViuda(titulo))}</h3><p>${hecha ? '¡Hecho! Vuelve mañana por&nbsp;otra.' : '¿Qué te tocará&nbsp;hoy?'}</p></div>
+    ${adv ? '' : `<div class="cc-dias">${circulosChispa()}</div>`}
+    <button type="button" class="btn ${hecha ? 'blanco' : 'turquesa'} chico cc-btn" data-ir="chispa">${hecha ? 'REPETIR' : '¡Hacerla!<small>3 min</small>'}</button>
+  </section>`;
+}
 /* Contador de chispas de la semana con círculos, igual que el progreso de «Yo» (6 nov 2026):
    naranja = hecha, borde punteado = hoy sin hacer, lila = sin hacer. No afecta la racha. */
 function circulosChispa() {
@@ -762,7 +851,7 @@ function dibujarHoy(h, error) {
           ? `<button type="button" class="btn blanco chico" id="proteger">🎂 Usar tu protector de cumpleaños (vence el ${fechaCorta(E.club.cumple.hasta)})</button>`
           : E.club && E.club.activo
           ? (E.club.protectores > 0 ? `<button type="button" class="btn blanco chico" id="proteger">🛡️ Usar un protector de racha (te quedan ${E.club.protectores})</button>` : '<p class="nota">Ya usaste tus 2 protectores de este mes.</p>')
-          : PLAY ? '' : '<button type="button" class="enlace" data-ir="club" style="font-size:13px">🛡️ Con el Club Estrella tienes 2 protectores al mes para que tu racha no se apague</button>') : ''}
+          : PLAY ? '' : '<button type="button" class="enlace" data-ir="club" style="font-size:13px">🛡️ Con el Club Estrella tienes 2 protectores al mes para que tu racha no se&nbsp;apague</button>') : ''}
       </section>
       ${franjaAliados()}`;
   } else {
@@ -773,10 +862,10 @@ function dibujarHoy(h, error) {
       ${tarjetaVoto(h.votacion)}
       <section class="reto chispa-hero${adv ? ' adviento' : ''}" aria-labelledby="chispa-h">
         <span class="pill">${adv ? '🎄 Adviento de Chispas' : '✨ Chispa del día'}</span>
-        <h2 id="chispa-h">${hecha ? '¡Lista por hoy!' : adv ? 'Día ' + adv.dia + ' de ' + adv.total : fiestaDe() ? esc(fiestaDe().aviso) : 'Un mini reto de 3 minutos'}</h2>
-        <p>${hecha ? 'Mañana sale una chispa nueva. Si quieres, puedes repetir la de hoy.' : adv ? 'Cada día hasta el ' + adv.total + ' de diciembre, un mini dibujo navideño de 3 minutos. Toca el botón y descubre el de hoy.' : 'Toca el botón y descubre qué te toca dibujar hoy. No suma puntos ni racha: es para practicar y divertirte.'}</p>
+        <h2 id="chispa-h">${hecha ? '¡Hecho!' : adv ? 'Día ' + adv.dia + ' de ' + adv.total : fiestaDe() ? esc(fiestaDe().aviso) : 'Un mini reto de 3 minutos'}</h2>
+        <p>${hecha ? 'Vuelve mañana por otra. Si quieres, puedes repetir la de&nbsp;hoy.' : adv ? 'Cada día hasta el ' + adv.total + ' de diciembre, un mini dibujo navideño de 3 minutos. Toca el botón y descubre el de hoy.' : 'Toca el botón y descubre qué te toca dibujar hoy. No suma puntos ni racha: es para practicar y divertirte.'}</p>
         ${adv ? calendarioAdviento(adv) : circulosChispa()}
-        <button type="button" class="btn ${hecha ? 'blanco' : 'turquesa'}" data-ir="chispa">${hecha ? 'REPETIR LA CHISPA' : '¡HACER LA CHISPA DE HOY!'}</button>
+        <button type="button" class="btn ${hecha ? 'blanco' : 'turquesa'}" data-ir="chispa">${hecha ? 'REPETIR' : '¡HACER LA CHISPA DE HOY!'}</button>
       </section>
       <section class="reto espera" aria-labelledby="reto-h">
         <span class="pill">Reto de la semana${p ? ' · ' + esc(p.temporada) : ''}</span>
@@ -789,7 +878,7 @@ function dibujarHoy(h, error) {
   }
   const chispaAbajo = !h || !!(h.actual || votando);
   conNav('hoy', cabecera('Hoy') + `<main class="cont con-nav">${cuerpo}
-      ${chispaAbajo ? `<section class="prox" aria-label="Chispa del día"><span class="ico">${ICO.chispa}</span><div style="flex:1;min-width:0"><h3>${adviento() ? '🎄 Adviento de Chispas · día ' + adviento().dia : fiestaDe() ? esc(fiestaDe().aviso) : 'Chispa del día'}</h3><span>${chispaHechaHoy() ? '✓ ¡Lista por hoy! Mañana sale otra.' : '¿Qué te tocará hoy?'}</span>${adviento() ? '' : circulosChispa()}</div><button type="button" class="btn ${chispaHechaHoy() ? 'blanco' : 'turquesa'} chico mini" data-ir="chispa">${chispaHechaHoy() ? '✓ Hecha<br><small>repetir</small>' : '¡Hacerla!<br><small>3 min</small>'}</button></section>` : ''}
+      ${chispaAbajo ? tarjetaChispa() : ''}
     </main>`, root => {
     on('#re', 'click', vistaHoy);
     on('#subir', 'click', () => ir('subir'));
@@ -944,32 +1033,60 @@ async function copiarEnlace(url) {
   }
 }
 async function compartirEnlace(url) {
+  if (!navigator.share) return copiarEnlace(url);
   try { await navigator.share({ text: mensajeCompartir(url) }); } catch (e) { if (e && e.name !== 'AbortError') copiarEnlace(url); }
 }
-const botonesCompartir = url => `
-  <button type="button" class="btn amarillo" data-copiar="${esc(url)}">📋 COPIAR MI ENLACE</button>
-  ${navigator.share ? `<button type="button" class="btn turquesa chico" data-compartir="${esc(url)}">📲 Compartir por WhatsApp o redes</button>` : ''}
-  <a class="enlace" style="text-align:center" href="${esc(url)}" target="_blank" rel="noopener">Ver mi dibujo en el Padlet ↗</a>`;
+/* 7 nov 2026: tres botones con ícono, estilo RCF. El grande es «Compartir en redes»; debajo, «Copiar enlace» y «Ver en el Padlet».
+   Si el teléfono no tiene el menú de compartir, el botón grande copia el enlace. */
+const botonesCompartir = url => `<div class="compartir">
+  <button type="button" class="btn amarillo cp-grande" data-compartir="${esc(url)}">${ICO.compartir}<span>COMPARTIR EN REDES</span></button>
+  <button type="button" class="btn blanco chico cp-chico" data-copiar="${esc(url)}">${ICO.copiar}<span>Copiar enlace</span></button>
+  <a class="btn blanco chico cp-chico" href="${esc(url)}" target="_blank" rel="noopener">${ICO.externo}<span>Ver en el Padlet</span></a>
+</div>`;
 function activarCompartir(root) {
   root.querySelectorAll('[data-copiar]').forEach(b => b.addEventListener('click', () => copiarEnlace(b.dataset.copiar)));
   root.querySelectorAll('[data-compartir]').forEach(b => b.addEventListener('click', () => compartirEnlace(b.dataset.compartir)));
 }
 
 /* ---------- subir el dibujo ---------- */
-async function comprimir(archivo) {
-  if (!archivo || !/^image\//.test(archivo.type || 'image/')) throw new Error('imagen');
-  if (archivo.size > 40 * 1024 * 1024) throw new Error('imagen');
+/* 7 nov 2026: en algunas tablets (Samsung) img.decode() fallaba con fotos JPG o PNG normales y salía «No pudimos leer esa foto».
+   Ahora prueba tres maneras de abrir la foto, una tras otra; si ninguna sirve y es un JPG liviano, lo manda tal cual. */
+const cargarImg = src => new Promise((ok, mal) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => mal(new Error('img')); i.src = src; });
+const leerDataUrl = f => new Promise((ok, mal) => { const fr = new FileReader(); fr.onload = () => ok(String(fr.result)); fr.onerror = () => mal(new Error('lector')); fr.readAsDataURL(f); });
+async function abrirFoto(archivo) {
+  if (window.createImageBitmap) {
+    try { const b = await createImageBitmap(archivo, { imageOrientation: 'from-image' }); return { fuente: b, ancho: b.width, alto: b.height }; } catch (e) {}
+    try { const b = await createImageBitmap(archivo); return { fuente: b, ancho: b.width, alto: b.height }; } catch (e) {}
+  }
   const url = URL.createObjectURL(archivo);
-  try {
-    const img = new Image();
-    img.src = url;
-    await img.decode();
-    const max = 1600, esc_ = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  try { const i = await cargarImg(url); return { fuente: i, ancho: i.naturalWidth, alto: i.naturalHeight }; }
+  catch (e) { const i = await cargarImg(await leerDataUrl(archivo)); return { fuente: i, ancho: i.naturalWidth, alto: i.naturalHeight }; }
+  finally { setTimeout(() => URL.revokeObjectURL(url), 1000); }
+}
+async function comprimir(archivo) {
+  if (!archivo) throw new Error('imagen');
+  const nombre = String(archivo.name || '').toLowerCase();
+  if (archivo.type && !/^image\//.test(archivo.type) && !/\.(jpe?g|png|webp)$/.test(nombre)) throw new Error('imagen');
+  if (archivo.size > 40 * 1024 * 1024) throw new Error('imagen');
+  let foto;
+  try { foto = await abrirFoto(archivo); }
+  catch (e) {
+    const jpg = /jpe?g/.test(archivo.type) || /\.jpe?g$/.test(nombre);
+    if (jpg && archivo.size <= 3.5 * 1024 * 1024) {   // último recurso: el JPG sin tocar
+      const d = await leerDataUrl(archivo);
+      return { base64: d.split(',')[1], vista: URL.createObjectURL(archivo), ancho: 0, alto: 0 };
+    }
+    throw e;
+  }
+  {
+    const max = 1600, esc_ = Math.min(1, max / Math.max(foto.ancho, foto.alto));
+    if (!foto.ancho || !foto.alto) throw new Error('imagen');
     const c = document.createElement('canvas');
-    c.width = Math.round(img.naturalWidth * esc_); c.height = Math.round(img.naturalHeight * esc_);
+    c.width = Math.round(foto.ancho * esc_); c.height = Math.round(foto.alto * esc_);
     const x = c.getContext('2d');
     x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, c.width, c.height);   // fondo blanco para PNG transparentes
-    x.drawImage(img, 0, 0, c.width, c.height);
+    x.drawImage(foto.fuente, 0, 0, c.width, c.height);
+    if (foto.fuente.close) foto.fuente.close();
     let calidad = 0.84, blob;
     do {
       blob = await new Promise(ok => c.toBlob(ok, 'image/jpeg', calidad));
@@ -978,8 +1095,6 @@ async function comprimir(archivo) {
     if (!blob) throw new Error('imagen');
     const datos = await new Promise((ok, mal) => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.onerror = mal; fr.readAsDataURL(blob); });
     return { base64: String(datos).split(',')[1], vista: URL.createObjectURL(blob), ancho: c.width, alto: c.height };
-  } finally {
-    URL.revokeObjectURL(url);
   }
 }
 
@@ -1000,7 +1115,7 @@ function vistaSubir(error) {
       ${h.prueba ? '<div class="prueba">MODO PRUEBA · se publica de verdad en el Padlet</div>' : ''}
       <label class="foto ${S.vista ? 'lista' : ''}" for="archivo">
         ${S.vista ? `<img src="${S.vista}" alt="Vista previa de tu dibujo">` : `<span class="foto-ico" aria-hidden="true">📷</span><b>Toca para elegir la foto de tu dibujo</b><small>Desde tu galería o con la cámara</small>`}
-        <input id="archivo" type="file" accept="image/*">
+        <input id="archivo" type="file" accept="image/*,.jpg,.jpeg,.png">
       </label>
       ${S.vista ? '<button type="button" class="enlace" id="cambiar" style="margin-top:-6px">Cambiar la foto</button>' : ''}
       <fieldset><legend>Tipo de técnica</legend>
@@ -1029,7 +1144,7 @@ function vistaSubir(error) {
       if (!f) return;
       const caja = root.querySelector('.foto'); caja.innerHTML = '<span class="spin" aria-hidden="true"></span><b>Preparando la foto…</b>';
       try { const c = await comprimir(f); S.base64 = c.base64; S.vista = c.vista; vistaSubir(); }
-      catch (e) { S.base64 = S.vista = null; vistaSubir(ERRORES.imagen); }
+      catch (e) { S.base64 = S.vista = null; vistaSubir(ERRORES.imagen + (h.prueba ? ' (detalle para Claude: ' + (f.type || 'sin tipo') + ', ' + Math.round(f.size / 1024) + ' KB, ' + ((e && e.message) || e) + ')' : '')); }
     });
     on('#f', 'submit', async ev => {
       ev.preventDefault();
@@ -1063,17 +1178,20 @@ function vistaSubir(error) {
   });
 }
 
-function vistaCelebracion(r) {
+function vistaCelebracion(r, repintado) {
   pintar(`
-    <div class="cont" style="justify-content:center;text-align:center;align-items:center">
-      <img src="${imgGuia(E.guia)}" alt="" width="170" height="164" style="animation:bob 2.6s ease-in-out infinite">
-      <h1 style="margin:0;font-family:var(--display);font-size:28px">¡Dibujo publicado! 🎉</h1>
-      <p style="margin:0;font-size:16px;line-height:1.45">Ya está en el Padlet, en la sección <b>Semana ${r.semana}</b>, con el título <b>${esc(r.titulo)}</b>.</p>
-      <div class="caja agua" style="text-align:left">Manda el enlace a tus amigos para que te den me gusta. Los 5 dibujos con más me gusta pasan a la final, y los participantes votan aquí en la app del lunes 9:00 p. m. al martes 9:00 p. m.</div>
+    <div class="cont celebra">
+      <img class="celebra-img" src="${imgGuia(E.guia)}" alt="" width="170" height="164">
+      <h1>¡Dibujo publicado! 🎉</h1>
+      <p>Ya está en el Padlet, en la sección <b>Semana&nbsp;${r.semana}</b>, con este&nbsp;título:<br><b class="titulo-padlet">${esc(r.titulo)}</b></p>
+      <div class="caja agua">Manda el enlace a tus amigos para que te den «Me gusta». Los 5 dibujos con más «Me gusta» pasan a la final, y los participantes votan aquí en la app del lunes 9:00 p. m. al martes 9:00&nbsp;p.&nbsp;m.</div>
       ${botonesCompartir(r.padlet || CONFIG.padlet)}
       ${avisosHtml(true)}
-      <button type="button" class="btn blanco chico" id="hoy">Volver a Hoy</button>
-    </div>`, root => { activarCompartir(root); activarAvisosEn(root, () => vistaCelebracion(r)); on('#hoy', 'click', () => ir('hoy')); });
+      <button type="button" class="enlace" id="hoy">Volver a Hoy</button>
+    </div>`, root => { activarCompartir(root); activarAvisosEn(root, () => vistaCelebracion(r, true)); on('#hoy', 'click', () => ir('hoy')); });
+  /* 7 nov 2026: después de subir también sale la ventana del Club Estrella (mismas reglas que en la Chispa:
+     solo mayores, nunca miembros, nunca en la app de Google Play y máximo una vez al día). */
+  if (!repintado) setTimeout(() => { if (document.querySelector('.celebra') && !document.querySelector('.velo')) mostrarPromoClub({ promoClub, irClub: () => ir('club'), titulo: '¡Qué dibujo! ¿Quieres llegar más&nbsp;lejos?' }); }, 1800);
 }
 
 async function vistaRanking() {
@@ -1122,8 +1240,10 @@ function dibujarAmigos(d, mensaje, error) {
   let cuerpo = bloqueado() ? cajaAutorizacion() : `
     <form class="agregar" id="fa" novalidate>
       <label class="campo" for="nu">Agrega a un amigo por su usuario
-        <span class="fila-ag"><input id="nu" type="text" autocapitalize="none" spellcheck="false" placeholder="@usuario" maxlength="31"><button type="submit" class="btn amarillo chico" style="width:auto;padding:8px 16px">AGREGAR</button></span>
+        <span class="fila-ag"><input id="nu" type="text" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="@usuario" maxlength="31" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="sug"><button type="submit" class="btn amarillo chico" style="width:auto;padding:8px 16px">AGREGAR</button></span>
       </label>
+      <div class="sugeridas" id="sug" role="listbox" aria-label="Personas en la app" hidden></div>
+      <span class="ayuda-sug">Escribe las primeras letras y elige a tu amigo de la lista: así no se escribe&nbsp;mal.</span>
     </form>`;
   cuerpo += `
     ${mensaje ? `<div class="caja agua" role="status">${esc(mensaje)}</div>` : ''}
@@ -1148,6 +1268,7 @@ function dibujarAmigos(d, mensaje, error) {
     cuerpo += `<p class="nota">Los toques son stickers dentro de la app: sin chat. Uno por amigo al día.</p>`;
   }
   conNav('amigos', cabecera('Amigos') + `<main class="cont con-nav">${cuerpo}</main>`, root => {
+    sugerencias(root, d);
     on('#fa', 'submit', async ev => {
       ev.preventDefault();
       const inp = root.querySelector('#nu'), u = inp.value.trim().replace(/^@+/, '').toLowerCase();
@@ -1167,6 +1288,40 @@ function dibujarAmigos(d, mensaje, error) {
       if (!r.ok) { b.disabled = false; return aviso(textoError(r.error)); }
       vistaAmigos('Desbloqueaste a @' + b.dataset.desbloquear + '. Si quieren ser amigos otra vez, uno tiene que mandar la solicitud.');
     }));
+  });
+}
+
+/* Sugerencias al agregar un amigo (7 nov 2026): mientras escribe, la app muestra hasta 6 personas registradas
+   cuyo usuario empieza (o contiene) lo escrito. Lo responde «Reto de la semana · web» (acción buscar_usuarios):
+   no muestra menores sin autorización, ni a quien te bloqueó o bloqueaste, ni a ti. */
+function sugerencias(root, d) {
+  const inp = root.querySelector('#nu'), caja = root.querySelector('#sug');
+  if (!inp || !caja) return;
+  const ya = {}; if (d) ['amigos', 'enviadas', 'solicitudes'].forEach(k => (d[k] || []).forEach(x => { ya[pjUsuario(x.usuario)] = k; }));
+  let t = null, pedido = 0;
+  const cerrar = () => { caja.hidden = true; caja.innerHTML = ''; inp.setAttribute('aria-expanded', 'false'); };
+  inp.addEventListener('input', () => {
+    clearTimeout(t);
+    const q = pjUsuario(inp.value);
+    if (q.length < 2) return cerrar();
+    t = setTimeout(async () => {
+      const n = ++pedido;
+      const r = await extra('buscar_usuarios', { q });
+      if (n !== pedido || pjUsuario(inp.value) !== q) return;   // ya escribió otra cosa
+      if (!r.ok || !Array.isArray(r.u)) return cerrar();
+      (r.u || []).forEach(x => { const pj = pjDeTexto(x.p); if (pj) E.pjs[pjUsuario(x.usuario)] = pj; });
+      caja.innerHTML = r.u.length ? r.u.map(x => {
+        const est = ya[pjUsuario(x.usuario)];
+        return `<button type="button" class="sug" role="option" data-sug="${esc(x.usuario)}" ${est ? 'disabled' : ''}>${pjAvatar(x.usuario, x.nombre)}<span><b>${esc(x.nombre || '@' + x.usuario)}</b><small>@${esc(x.usuario)}</small></span>${est ? `<em>${est === 'amigos' ? 'Ya son amigos' : est === 'enviadas' ? 'Solicitud enviada' : 'Te quiere agregar'}</em>` : '<em class="sug-mas">＋</em>'}</button>`;
+      }).join('') : '<p class="nota izq" style="margin:4px 2px">Nadie con ese usuario todavía. Revisa cómo se escribe o pídele que se&nbsp;registre.</p>';
+      caja.hidden = false; inp.setAttribute('aria-expanded', 'true');
+    }, 320);
+  });
+  caja.addEventListener('click', e => {
+    const b = e.target.closest('[data-sug]');
+    if (!b || b.disabled) return;
+    inp.value = '@' + b.dataset.sug; cerrar();
+    root.querySelector('#fa').requestSubmit ? root.querySelector('#fa').requestSubmit() : root.querySelector('#fa button').click();
   });
 }
 
@@ -1447,7 +1602,7 @@ function vistaYo() {
     root.querySelectorAll('[data-guia]').forEach(b => b.addEventListener('click', () => { E.guia = b.dataset.guia; guardar('guia', E.guia); vistaYo(); }));
     on('#editar', 'click', () => { E.borrador = { nombre: p.nombre, usuario: p.usuario }; vistaPerfil(); });
     on('#salir', 'click', () => cerrarSesion());
-    on('#pj-editar', 'click', ventanaPersonaje);
+    on('#pj-editar', 'click', () => ventanaPersonaje());
     on('#borrar', 'click', () => {
       // Automático desde el 6 nov 2026: lo hace el Apps Script «Reto de la semana · web» (archivo «Borrar cuenta»).
       ventana(`<h2 id="v-h" tabindex="-1">Borrar mi cuenta</h2>
@@ -1557,6 +1712,7 @@ function tutorial(clave, intento) {
 /* ---------- navegación ---------- */
 let estaEn = '';
 function ir(donde) {
+  if (E.recargar && (donde === 'hoy' || donde === 'yo')) { E.recargar = false; location.reload(); return; }
   if (!E.sesion) return vistaBienvenida();
   if (!E.perfil || !E.perfil.completo) { E.borrador = { nombre: (E.perfil || {}).nombre || '', usuario: (E.perfil || {}).usuario || '' }; return vistaPerfil(); }
   if (E.perfil.mayor === 'No' && E.perfil.bloqueado === false && !E.perfil.nombre && !E.completando) {   // menor con permiso nuevo: completa sus datos
@@ -1586,7 +1742,21 @@ function mostrar(donde) {
 const IR_AVISO = ['hoy', 'amigos', 'ranking', 'yo', 'club', 'votar'];
 async function iniciar() {
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); E.instalar = e; });
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if ('serviceWorker' in navigator) {
+    /* 7 nov 2026: los teléfonos que dejaban la app abierta seguían con la versión vieja (por eso unos veían otra chispa).
+       Ahora busca la versión nueva al volver a la app y, si llega, recarga sola cuando no estás dibujando ni subiendo. */
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+    }).catch(() => {});
+    const habia = !!navigator.serviceWorker.controller;
+    let recargando = false;
+    const recargar = () => { if (recargando) return; recargando = true; location.reload(); };
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!habia) return;
+      if (['subir', 'chispa', 'club'].indexOf(estaEn) < 0 && !document.querySelector('.velo, .ban-ov, .club-modal')) recargar();
+      else E.recargar = true;   // recarga en cuanto vuelva a Hoy
+    });
+  }
   if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => { if (e.data && IR_AVISO.indexOf(e.data.ir) >= 0 && E.sesion) ir(e.data.ir); });
   const pedido = new URLSearchParams(location.search).get('ir');   // al tocar un aviso
   if (pedido) history.replaceState(null, '', location.pathname);

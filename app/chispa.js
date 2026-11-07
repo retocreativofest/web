@@ -59,7 +59,12 @@ const LIMITE = 180, ANCHO = 648, ALTO = 700;
 
 const leerLS = k => { try { return JSON.parse(localStorage.getItem('rcf.' + k)); } catch (e) { return null; } };
 const guardarLS = (k, v) => { try { localStorage.setItem('rcf.' + k, JSON.stringify(v)); } catch (e) {} };
-export function diaCaracas(d) { return new Date((d || new Date()).getTime() - 4 * 36e5).toISOString().slice(0, 10); }
+/* 7 nov 2026: el día de la chispa sale de la hora del SERVIDOR (app.js la ajusta con ajustarHora), no del reloj del teléfono:
+   así todos los teléfonos ven la misma chispa aunque alguno tenga la hora mal. */
+let DESFASE = 0;
+export function ajustarHora(ms) { DESFASE = Number(ms) || 0; }
+const ahoraMs = () => Date.now() + DESFASE;
+export function diaCaracas(d) { return new Date((d ? d.getTime() : ahoraMs()) - 4 * 36e5).toISOString().slice(0, 10); }
 export function adviento(dia) {
   dia = dia || diaCaracas();
   const r = advRango(dia);
@@ -87,19 +92,28 @@ export function chispaDeHoy() {
   return { chispa: POOL[((n % POOL.length) + POOL.length) % POOL.length], cambiada: false };
 }
 export function chispasDeLaSemana() {   // cuántas hiciste desde el lunes
-  const hechas = leerLS('chispas') || [], hoy = new Date(Date.now() - 4 * 36e5);
+  const hechas = leerLS('chispas') || [], hoy = new Date(ahoraMs() - 4 * 36e5);
   const lunes = new Date(hoy); lunes.setUTCDate(hoy.getUTCDate() - ((hoy.getUTCDay() + 6) % 7));
   const desde = lunes.toISOString().slice(0, 10);
   return hechas.filter(d => d >= desde).length;
 }
 /* Los 7 días de esta semana (lunes a domingo, hora de Caracas) para el contador de círculos de «Hoy». */
 export function diasChispaSemana() {
-  const hechas = leerLS('chispas') || [], hoy = new Date(Date.now() - 4 * 36e5), hoyIso = hoy.toISOString().slice(0, 10);
+  const hechas = leerLS('chispas') || [], hoy = new Date(ahoraMs() - 4 * 36e5), hoyIso = hoy.toISOString().slice(0, 10);
   const lunes = new Date(hoy); lunes.setUTCDate(hoy.getUTCDate() - ((hoy.getUTCDay() + 6) % 7));
   return ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((letra, i) => {
     const d = new Date(lunes); d.setUTCDate(lunes.getUTCDate() + i); const iso = d.toISOString().slice(0, 10);
     return { letra, iso, hecha: hechas.indexOf(iso) >= 0, hoy: iso === hoyIso };
   });
+}
+/* Racha de chispas (7 nov 2026): días seguidos haciendo la Chispa del día. Si hoy todavía no la hiciste, cuenta hasta ayer.
+   Es distinta de la racha 🔥 del reto (semanas seguidas subiendo el dibujo). */
+export function rachaChispas() {
+  const hechas = {}; (leerLS('chispas') || []).forEach(d => { hechas[d] = true; });
+  let d = Date.parse(diaCaracas()), n = 0;
+  if (!hechas[new Date(d).toISOString().slice(0, 10)]) d -= 864e5;
+  while (hechas[new Date(d).toISOString().slice(0, 10)]) { n++; d -= 864e5; }
+  return n;
 }
 export function chispaHechaHoy() { return (leerLS('chispas') || []).indexOf(diaCaracas()) >= 0; }
 function marcarHecha() {
@@ -116,13 +130,14 @@ export function abrirChispa(ctx) {
   const { root, esc } = ctx, club = !!ctx.club;
   const hoy = chispaDeHoy();
   const S = { fase: 'lista', quedan: LIMITE, herramienta: 'pincel', color: '#000000', tam: 1, ops: 0, video: false, chispa: hoy.chispa, cambiada: hoy.cambiada };
-  let hist = [], cuadros = [], foto = null, reloj = null, dibujando = false, ultimo = null, bloqueoT = null;
+  let hist = [], cuadros = [], foto = null, reloj = null, dibujando = false, ultimo = null, medio = null, bloqueoT = null;
   const candado = club ? '' : ' 🔒';
 
   root.innerHTML = `
-    <header class="barra" style="padding-bottom:10px">
+    <header class="barra ch-barra" style="padding-bottom:10px;gap:8px">
       <button type="button" class="volver" id="ch-v" aria-label="Volver">${ctx.icoVolver || '‹'}</button>
       <div style="flex:1;min-width:0"><h1 style="font-size:19px">Chispa del día</h1><span class="sub">3 minutos · no suma puntos ni racha</span></div>
+      <button type="button" class="son-ch" id="ch-son" aria-pressed="${sonidoOn()}" aria-label="Sonido del reloj" title="Sonido del reloj">${sonidoOn() ? '🔊' : '🔇'}</button>
       <span class="reloj-ch" id="ch-reloj" role="timer" aria-live="off">3:00</span>
     </header>
     <main class="cont ch">
@@ -194,7 +209,13 @@ export function abrirChispa(ctx) {
   function guardarFoto() { try { foto = c.toDataURL('image/png'); } catch (e) {} }
   function empezar() {
     S.fase = 'dibujando'; S.quedan = LIMITE; $('#ch-emp').hidden = true;
-    reloj = setInterval(() => { S.quedan--; if (S.quedan <= 0) { S.quedan = 0; terminar(); } pintarReloj(); }, 1000);
+    audio();   // el navegador solo deja sonar si el audio se prepara con un toque (este)
+    reloj = setInterval(() => {
+      S.quedan--;
+      if (S.quedan <= 0) { S.quedan = 0; campana(); terminar(); }
+      else if (S.quedan <= 30) tic(S.quedan % 2 === 0, S.quedan <= 10);   // los últimos 30 s: tic-tac de suspenso
+      pintarReloj();
+    }, 1000);
     pintarAbajo();
   }
   function terminar() {
@@ -234,19 +255,36 @@ export function abrirChispa(ctx) {
       if (cubeta(p.x, p.y, S.color)) { S.ops++; cuadro(); pintarAbajo(); } else hist.pop();
       return;
     }
-    guardarHist(); dibujando = true; ultimo = p;
+    guardarHist(); dibujando = true; ultimo = p; medio = p;
     if (c.setPointerCapture && e.pointerId != null) { try { c.setPointerCapture(e.pointerId); } catch (err) {} }
     const w = S.herramienta === 'borrador' ? tam().borrador : tam().pincel;
     x.beginPath(); x.fillStyle = S.herramienta === 'borrador' ? '#FFFFFF' : S.color; x.arc(p.x, p.y, w / 2, 0, Math.PI * 2); x.fill();
   }
+  /* Trazo fluido (7 nov 2026): se leen TODOS los puntos que registra la pantalla o el lápiz (getCoalescedEvents)
+     y se unen con curvas que pasan por el punto medio entre cada par. Antes eran rectas sueltas y salían «picos». */
+  function estilo() {
+    x.strokeStyle = S.herramienta === 'borrador' ? '#FFFFFF' : S.color;
+    x.lineWidth = S.herramienta === 'borrador' ? tam().borrador : tam().pincel; x.lineCap = 'round'; x.lineJoin = 'round';
+  }
+  function seguir(p) {
+    if (Math.hypot(p.x - ultimo.x, p.y - ultimo.y) < 1.2) return;
+    const m = { x: (ultimo.x + p.x) / 2, y: (ultimo.y + p.y) / 2 };
+    x.beginPath(); x.moveTo(medio.x, medio.y); x.quadraticCurveTo(ultimo.x, ultimo.y, m.x, m.y); x.stroke();
+    medio = m; ultimo = p;
+  }
   function mover(e) {
     if (!dibujando || S.fase !== 'dibujando') return;
     if (e.cancelable) e.preventDefault();
-    const p = pos(e), w = S.herramienta === 'borrador' ? tam().borrador : tam().pincel;
-    x.strokeStyle = S.herramienta === 'borrador' ? '#FFFFFF' : S.color; x.lineWidth = w; x.lineCap = 'round'; x.lineJoin = 'round';
-    x.beginPath(); x.moveTo(ultimo.x, ultimo.y); x.lineTo(p.x, p.y); x.stroke(); ultimo = p;
+    estilo();
+    const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : null;
+    (evs && evs.length ? evs : [e]).forEach(ev => seguir(pos(ev)));
   }
-  function arriba() { if (!dibujando) return; dibujando = false; S.ops++; cuadro(); pintarAbajo(); }
+  function arriba() {
+    if (!dibujando) return;
+    dibujando = false;
+    estilo(); x.beginPath(); x.moveTo(medio.x, medio.y); x.lineTo(ultimo.x, ultimo.y); x.stroke();   // cierra el último tramo
+    S.ops++; cuadro(); pintarAbajo();
+  }
   c.addEventListener('pointerdown', abajo); c.addEventListener('pointermove', mover);
   ['touchstart', 'touchmove', 'touchend'].forEach(t => c.addEventListener(t, e => { if (e.cancelable) e.preventDefault(); }, { passive: false }));   // sin zoom ni lupa al dibujar
   c.addEventListener('dblclick', e => e.preventDefault());
@@ -270,6 +308,11 @@ export function abrirChispa(ctx) {
     x.putImageData(hist.pop(), 0, 0); S.ops = Math.max(0, S.ops - 1); cuadro(); pintarAbajo();
   });
   $('#ch-v').addEventListener('click', () => { parar(); ctx.volver(); });
+  $('#ch-son').addEventListener('click', ev => {
+    const b = ev.currentTarget, on = !sonidoOn();
+    guardarLS('chispaSonido', on); b.setAttribute('aria-pressed', String(on)); b.textContent = on ? '🔊' : '🔇';
+    if (on) { audio(); tic(true, false); }
+  });
 
   /* Marco con la marca de agua del reto. Se dibuja sobre «o» (canvas de ANCHO+80 × ALTO+200). */
   function pintarMarco(o, src) {
@@ -303,18 +346,7 @@ export function abrirChispa(ctx) {
   }
   /* 6 nov 2026: la ventana del Club sale DESPUÉS de guardar o compartir la chispa (no tapa el dibujo antes).
      Quién la ve lo decide app.js: solo mayores, nunca miembros, nunca en Google Play, 1 vez al día. */
-  function ventanaClub() {
-    if (!(ctx.promoClub && ctx.promoClub()) || document.querySelector('.club-modal')) return;
-    const ov = document.createElement('div');
-    ov.className = 'club-modal'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-labelledby', 'club-ban-t');
-    ov.innerHTML = `<div class="club-modal-caja"><button type="button" class="club-modal-x" aria-label="Cerrar">✕</button>${bannerClub()}</div>`;
-    document.body.appendChild(ov);
-    const cerrar = () => ov.remove();
-    ov.querySelector('.club-modal-x').addEventListener('click', cerrar);
-    ov.addEventListener('click', e => { if (e.target === ov) cerrar(); });
-    ov.querySelector('#ch-club-b').addEventListener('click', () => { cerrar(); parar(); ctx.irClub(); });
-    ov.querySelector('.club-modal-x').focus();
-  }
+  function ventanaClub() { mostrarPromoClub({ promoClub: ctx.promoClub, irClub: () => { parar(); ctx.irClub(); } }); }
   function video() {
     if (!club) return bloqueado('El video acelerado');
     if (!cuadros.length || S.video) return;
@@ -337,18 +369,6 @@ export function abrirChispa(ctx) {
       const img = new Image(); img.onload = () => { x.drawImage(img, 0, 0); pintarMarco(o); i++; setTimeout(sig, pausa); }; img.src = lista[i];
     };
     setTimeout(sig, 300);
-  }
-  /* Banner del Club Estrella (6 nov 2026). Las estrellas son las de Stefany. */
-  function bannerClub() {
-    const destello = '<svg class="dst" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l2.6 8.4L23 12l-8.4 2.6L12 23l-2.6-8.4L1 12l8.4-2.6z"/></svg>';
-    return `<section class="club-ban" aria-labelledby="club-ban-t">${destello}${destello}
-      <div class="club-ban-est"><img src="img/estrella-1.webp" alt="" width="46" height="40"><img src="img/estrella-3.webp" alt="" width="42" height="42"><img src="img/estrella-6.webp" alt="" width="44" height="42"></div>
-      <span class="club-ban-pill">CLUB ESTRELLA</span>
-      <h3 id="club-ban-t">¿Te quedaste con ganas de más?</h3>
-      <p>Ve el reto <b>24 horas antes</b>, cuida tu racha con <b>2 protectores al mes</b> y desbloquea la Chispa Pro: cubeta, 3 tamaños y video acelerado.</p>
-      <button type="button" class="btn amarillo chico" id="ch-club-b">★ CONOCER EL CLUB ESTRELLA</button>
-      <small>5,50 $ al mes · participar en el reto es gratis siempre</small>
-    </section>`;
   }
   function pintarAbajo() {
     const ab = $('#ch-abajo');
@@ -385,4 +405,60 @@ export function abrirChispa(ctx) {
   }
   pintarReloj(); sortear(S.chispa);
   return () => parar();
+}
+
+/* ---------- sonidos del reloj (7 nov 2026) ----------
+   Se generan en el teléfono (sin archivos de audio): tic-tac los últimos 30 segundos y una campana al acabarse el tiempo.
+   Se pueden apagar con el botón 🔊 junto al reloj (queda guardado en el teléfono). */
+let AC = null;
+const sonidoOn = () => leerLS('chispaSonido') !== false;
+function audio() {
+  if (!sonidoOn()) return null;
+  try { if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { AC = null; }
+  return AC;
+}
+function nota(frec, inicio, dura, vol, tipo) {
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = tipo || 'sine'; o.frequency.value = frec;
+  g.gain.setValueAtTime(0.0001, inicio); g.gain.exponentialRampToValueAtTime(vol, inicio + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, inicio + dura);
+  o.connect(g); g.connect(AC.destination); o.start(inicio); o.stop(inicio + dura + 0.02);
+}
+function tic(esTic, urgente) {
+  if (!sonidoOn() || !audio()) return;
+  const t = AC.currentTime;
+  nota(esTic ? (urgente ? 1900 : 1500) : (urgente ? 1400 : 1050), t, 0.05, urgente ? 0.3 : 0.18, 'square');
+}
+function campana() {
+  if (navigator.vibrate) try { navigator.vibrate([120, 80, 220]); } catch (e) {}
+  if (!sonidoOn() || !audio()) return;
+  const t = AC.currentTime;
+  [[1, 0.35], [2.0, 0.18], [2.76, 0.12], [5.4, 0.06]].forEach(([k, v]) => { nota(784 * k, t, 2.6, v); nota(784 * k, t + 0.45, 2.2, v * 0.7); });
+}
+
+/* ---------- ventana del Club Estrella (después de guardar la chispa o de subir el dibujo) ----------
+   Quién la ve lo decide app.js (promoClub): solo mayores, nunca miembros, nunca en Google Play, 1 vez al día. */
+export function mostrarPromoClub(ctx) {
+  if (!(ctx.promoClub && ctx.promoClub()) || document.querySelector('.club-modal')) return false;
+  const ov = document.createElement('div');
+  ov.className = 'club-modal'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-labelledby', 'club-ban-t');
+  ov.innerHTML = `<div class="club-modal-caja"><button type="button" class="club-modal-x" aria-label="Cerrar">✕</button>${bannerClub(ctx.titulo)}</div>`;
+  document.body.appendChild(ov);
+  const cerrar = () => ov.remove();
+  ov.querySelector('.club-modal-x').addEventListener('click', cerrar);
+  ov.addEventListener('click', e => { if (e.target === ov) cerrar(); });
+  ov.querySelector('#ch-club-b').addEventListener('click', () => { cerrar(); ctx.irClub(); });
+  ov.querySelector('.club-modal-x').focus();
+  return true;
+}
+/* Banner del Club Estrella (6 nov 2026). Las estrellas son las de Stefany. */
+function bannerClub(titulo) {
+  const destello = '<svg class="dst" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l2.6 8.4L23 12l-8.4 2.6L12 23l-2.6-8.4L1 12l8.4-2.6z"/></svg>';
+  return `<section class="club-ban" aria-labelledby="club-ban-t">${destello}${destello}
+    <div class="club-ban-est"><img src="img/estrella-1.webp" alt="" width="46" height="40"><img src="img/estrella-3.webp" alt="" width="42" height="42"><img src="img/estrella-6.webp" alt="" width="44" height="42"></div>
+    <span class="club-ban-pill">CLUB ESTRELLA</span>
+    <h3 id="club-ban-t">${titulo || '¿Te quedaste con ganas de&nbsp;más?'}</h3>
+    <p>Ve el reto <b>24 horas antes</b>, cuida tu racha con <b>2 protectores al mes</b> y desbloquea la Chispa Pro: cubeta, 3 tamaños y video&nbsp;acelerado.</p>
+    <button type="button" class="btn amarillo chico" id="ch-club-b">★ CONOCER EL CLUB ESTRELLA</button>
+    <small>5,50 $ al mes · participar en el reto es gratis&nbsp;siempre</small>
+  </section>`;
 }
