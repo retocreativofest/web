@@ -517,3 +517,8 @@ p,li,.caja,.nota,.club-ban p,.sub,small,.sem-ch{text-wrap:pretty}
   .ventana{border-radius:24px;margin-bottom:20px;border-bottom:3px solid var(--ink)}
   .velo{align-items:center}
 }
+
+/* Invitación de un amigo (7 nov 2026) */
+.invita{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.invita .btn{width:100%}
+#invitar{margin-top:-2px}

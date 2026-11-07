@@ -318,6 +318,7 @@ function vistaBienvenida(error) {
       </div>
     </div>
     <div class="cont">
+      ${leer('invitacion') ? `<div class="caja crema">👋 <b>@${esc(leer('invitacion'))}</b> te invitó al reto. Crea tu cuenta y te ayudamos a agregarlo.</div>` : ''}
       <div class="caja">Mira el reto de la semana, sube tu dibujo al <b>Padlet</b> y cuida tu racha con tus amigos.</div>
       <div class="fila-t"><strong>Elige tu guía</strong><span>Puedes cambiarla cuando quieras</span></div>
       <div class="par">
@@ -1244,7 +1245,8 @@ function dibujarAmigos(d, mensaje, error) {
       </label>
       <div class="sugeridas" id="sug" role="listbox" aria-label="Personas en la app" hidden></div>
       <span class="ayuda-sug">Escribe las primeras letras y elige a tu amigo de la lista: así no se escribe&nbsp;mal.</span>
-    </form>`;
+    </form>
+    ${E.perfil && E.perfil.mayor === 'Sí' ? '<button type="button" class="btn turquesa chico" id="invitar">🔗 INVITAR AMIGOS CON MI ENLACE</button>' : ''}`;
   cuerpo += `
     ${mensaje ? `<div class="caja agua" role="status">${esc(mensaje)}</div>` : ''}
     ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}`;
@@ -1269,6 +1271,7 @@ function dibujarAmigos(d, mensaje, error) {
   }
   conNav('amigos', cabecera('Amigos') + `<main class="cont con-nav">${cuerpo}</main>`, root => {
     sugerencias(root, d);
+    on('#invitar', 'click', compartirInvitacion);
     on('#fa', 'submit', async ev => {
       ev.preventDefault();
       const inp = root.querySelector('#nu'), u = inp.value.trim().replace(/^@+/, '').toLowerCase();
@@ -1288,6 +1291,41 @@ function dibujarAmigos(d, mensaje, error) {
       if (!r.ok) { b.disabled = false; return aviso(textoError(r.error)); }
       vistaAmigos('Desbloqueaste a @' + b.dataset.desbloquear + '. Si quieren ser amigos otra vez, uno tiene que mandar la solicitud.');
     }));
+  });
+}
+
+/* ---------- enlace para invitar amigos (7 nov 2026) ----------
+   Solo mayores de edad (decisión de Stefany: los menores agregan por usuario). El enlace NO los hace amigos:
+   quien lo abre ve una ventana y decide si manda la solicitud; la otra persona igual tiene que aceptarla. */
+const enlaceInvitacion = () => CONFIG.web + '/app/?amigo=' + encodeURIComponent(pjUsuario(E.perfil.usuario));
+async function compartirInvitacion() {
+  const url = enlaceInvitacion(), texto = '¡Dibujemos juntos en el #RetoMenteMilenial! 🎨 Agrégame en la app y cuidemos nuestra racha: ' + url;
+  if (navigator.share) { try { await navigator.share({ text: texto }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+  try { await navigator.clipboard.writeText(texto); aviso('¡Enlace copiado! Pégalo en WhatsApp o en tus redes'); }
+  catch (e) { ventana(`<h2 id="v-h" tabindex="-1">Tu enlace</h2><p>Mantén presionado el texto y elige «Copiar».</p><textarea readonly rows="3" style="width:100%;font:inherit;font-size:15px;border:3px solid var(--ink);border-radius:12px;padding:10px">${esc(texto)}</textarea>`); }
+}
+/* Alguien abrió un enlace de invitación: se guarda hasta que tenga la cuenta lista y luego se le pregunta. */
+function ventanaInvitacion() {
+  const u = pjUsuario(leer('invitacion'));
+  if (!u || !E.perfil || !E.perfil.completo || estaEn !== 'hoy') return;
+  if (document.querySelector('.velo')) return setTimeout(ventanaInvitacion, 2500);
+  guardar('invitacion', null);
+  if (u === pjUsuario(E.perfil.usuario)) return;
+  if (bloqueado()) return aviso('@' + u + ' te invitó a ser su amigo. Cuando tu representante confirme la autorización, podrás agregarlo.');
+  const avatar = () => E.pjs[u] ? `<span class="avatar pj grande">${PJ.svg(E.pjs[u])}</span>` : `<span class="avatar grande" style="width:76px;height:76px;font-size:30px">${esc(u.charAt(0).toUpperCase())}</span>`;
+  ventana(`<div class="invita"><span id="inv-av">${avatar()}</span>
+      <h2 id="v-h" tabindex="-1">@${esc(u)} te invitó a ser su&nbsp;amigo</h2>
+      <p>Si los dos suben su dibujo la misma semana, crece su racha juntos 🔥. Solo agrégalo si lo&nbsp;conoces.</p>
+      <button type="button" class="btn amarillo" id="inv-si">MANDAR SOLICITUD</button></div>`, (velo, cerrar) => {
+    pjPedir([u], () => { const a = velo.querySelector('#inv-av'); if (a) a.innerHTML = avatar(); });
+    velo.querySelector('[data-cerrar]').textContent = 'No, gracias';
+    velo.querySelector('#inv-si').addEventListener('click', async ev => {
+      ev.currentTarget.disabled = true; ev.currentTarget.textContent = 'Enviando…';
+      const r = await api('amigo_agregar', { sesion: E.sesion, usuario: u });
+      cerrar();
+      if (!r.ok) return aviso(textoError(r.error));
+      aviso(r.aceptado ? '¡Ahora son amigos! 🎉' : 'Solicitud enviada a @' + u + '. Cuando la acepte, aparecerá en Amigos.');
+    });
   });
 }
 
@@ -1724,7 +1762,8 @@ function ir(donde) {
   if (donde === 'subir' && bloqueado()) { aviso(ERRORES.autorizacion); estaEn = 'hoy'; donde = 'hoy'; }
   if (donde === 'subir' && !(E.hoy && E.hoy.actual && !yaSubio())) { if (yaSubio()) aviso(ERRORES.ya_subiste); estaEn = 'hoy'; donde = 'hoy'; }
   mostrar(donde);
-  setTimeout(() => tutorial(donde), 700);   // la primera vez en cada sección, el guía la explica
+  setTimeout(() => tutorial(donde), 700);
+  if (donde === 'hoy' && leer('invitacion')) setTimeout(ventanaInvitacion, 1400);   // la primera vez en cada sección, el guía la explica
 }
 function mostrar(donde) {
   if (donde === 'subir') return vistaSubir();
@@ -1758,8 +1797,10 @@ async function iniciar() {
     });
   }
   if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => { if (e.data && IR_AVISO.indexOf(e.data.ir) >= 0 && E.sesion) ir(e.data.ir); });
-  const pedido = new URLSearchParams(location.search).get('ir');   // al tocar un aviso
-  if (pedido) history.replaceState(null, '', location.pathname);
+  const params = new URLSearchParams(location.search), pedido = params.get('ir');   // al tocar un aviso
+  const invita = pjUsuario(params.get('amigo') || '');   // enlace de invitación de un amigo
+  if (/^[a-z0-9._]{3,30}$/.test(invita)) guardar('invitacion', invita);
+  if (pedido || params.has('amigo')) history.replaceState(null, '', location.pathname);
   if (!E.sesion) return vistaBienvenida();
   ir(IR_AVISO.indexOf(pedido) >= 0 ? pedido : 'hoy');
   refrescarAvisos();
