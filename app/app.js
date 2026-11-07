@@ -36,6 +36,8 @@ const ICO = {
   amigos: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.3-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.8"/><path d="M16.5 14.6c2.6.1 4.5 1.8 5 4.9"/></svg>',
   yo: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.2 4-6.5 8-6.5s7.2 2.3 8 6.5"/></svg>',
   chispa: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0B0B0F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg>',
+  /* Fuego de la racha (7 nov 2026): dibujado con el mismo trazo negro que la estrella de la chispa, en vez del emoji. */
+  fuego: '<svg class="ico-fuego" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c.6 3.2 3.1 4.9 4.6 7.3 1.4 2.2 1.9 4.4 1.2 6.6C16.9 19.5 14.6 21.5 12 21.5s-5-2-5.8-5.1c-.6-2.4.1-4.6 1.6-6.4.2 1.5.9 2.6 2.1 3.2-.4-3.6.5-7.1 2.1-10.7z" fill="#FF8A1F" stroke="#0B0B0F" stroke-width="2.1" stroke-linejoin="round"/><path d="M12 12.2c1.3 1.4 2.4 2.6 2.3 4.4-.1 1.6-1.1 2.7-2.3 2.7s-2.3-1.1-2.3-2.6c0-1.6.9-2.9 2.3-4.5z" fill="#FFD60A" stroke="#0B0B0F" stroke-width="1.6" stroke-linejoin="round"/></svg>',
   chispaMini: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z" fill="#FFD60A" stroke="#0B0B0F" stroke-width="2.2" stroke-linejoin="round"/></svg>',
   compartir: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>',
   copiar: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>',
@@ -163,9 +165,17 @@ const imgGuia = g => 'img/' + (g === 'tradi' ? 'tradi' : 'digi') + '.webp';
 const caraGuia = g => 'img/' + (g === 'tradi' ? 'tradi' : 'digi') + '-cara.webp';
 const nombreCorto = () => (E.perfil && E.perfil.nombre ? E.perfil.nombre.split(' ')[0] : '');
 
-function pintar(html, alPintar) {
+/* 7 nov 2026: Hoy se vuelve a pintar varias veces mientras llegan los datos (reto, patrocinio, tu semana, votación).
+   Antes cada vez subía al inicio y no dejaba bajar a la Chispa. Ahora, si es la MISMA pantalla, se queda donde estabas,
+   y si no cambió nada, ni siquiera se vuelve a pintar. */
+let ultimaVista = '', ultimoHtml = '';
+function pintar(html, alPintar, vista) {
+  const misma = !!vista && vista === ultimaVista;
+  if (misma && html === ultimoHtml) return;
+  const y = window.scrollY;
+  ultimaVista = vista || ''; ultimoHtml = html;
   $app.innerHTML = html;
-  window.scrollTo(0, 0);
+  window.scrollTo(0, misma ? y : 0);
   const h = $app.querySelector('h1, h2');
   if (h) h.setAttribute('tabindex', '-1');
   if (alPintar) alPintar($app);
@@ -628,7 +638,7 @@ function conNav(activa, cuerpo, alPintar) {
   pintar(cuerpo + nav(activa), root => {
     root.querySelectorAll('[data-ir]').forEach(x => x.addEventListener('click', () => ir(x.dataset.ir)));
     if (alPintar) alPintar(root);
-  });
+  }, activa);
 }
 /* ---------- personaje (avatar armable, 6 nov 2026) ----------
    Se guarda en el teléfono («rcf.personaje») y en «Reto de la semana · web» (pestaña «personajes»).
@@ -720,7 +730,7 @@ function cabecera(titulo) {
   /* 7 nov 2026: dos contadores distintos para que no se confundan:
      ✦ chispas = días seguidos haciendo la Chispa del día · 🔥 racha = semanas seguidas subiendo el dibujo del reto. */
   const chispas = `<button type="button" class="contador chispas" data-explica="chispas" aria-label="Chispas: ${ch} ${ch === 1 ? 'día seguido' : 'días seguidos'} haciendo la Chispa del día">${ICO.chispaMini}<b>${ch}</b></button>`;
-  const fuego = `<button type="button" class="contador racha ${pr && pr.enRiesgo ? 'riesgo' : ''}" data-explica="racha" aria-label="Racha del reto: ${racha} ${racha === 1 ? 'semana seguida' : 'semanas seguidas'} subiendo tu dibujo">🔥<b>${racha}</b></button>`;
+  const fuego = `<button type="button" class="contador racha ${pr && pr.enRiesgo ? 'riesgo' : ''}" data-explica="racha" aria-label="Racha del reto: ${racha} ${racha === 1 ? 'semana seguida' : 'semanas seguidas'} subiendo tu dibujo">${ICO.fuego}<b>${racha}</b></button>`;
   return `<header class="top"><button type="button" class="avatar${E.pj ? ' pj' : ''}" data-ir="yo" aria-label="Mi perfil">${E.pj ? PJ.svg(E.pj) : ini}</button><h1>${esc(titulo)}</h1><span class="top-der">${chispas}${fuego}<a class="redondo" href="${CONFIG.web}/preguntas-frecuentes.html" target="_blank" rel="noopener" aria-label="Preguntas frecuentes">?</a></span></header>`;
 }
 
@@ -1279,7 +1289,7 @@ function dibujarAmigos(d, mensaje, error) {
     cuerpo += d.amigos.length ? d.amigos.map(x => `
       <div class="amigo">${pjAvatar(x.usuario, x.nombre)}
         <div class="info"><b>${esc(x.nombre)}</b><small>@${esc(x.usuario)}</small>
-          <span class="chips"><span class="chip fuego">🔥 ${x.rachaJuntos} ${x.rachaJuntos === 1 ? 'semana' : 'semanas'} juntos</span>${d.semanaAbierta ? `<span class="chip ${x.subio ? 'ok' : ''}">${x.subio ? '✓ Ya subió' : '⏳ Aún no sube'}</span>` : ''}</span></div>
+          <span class="chips"><span class="chip fuego">${ICO.fuego} ${x.rachaJuntos} ${x.rachaJuntos === 1 ? 'semana' : 'semanas'} juntos</span>${d.semanaAbierta ? `<span class="chip ${x.subio ? 'ok' : ''}">${x.subio ? '✓ Ya subió' : '⏳ Aún no sube'}</span>` : ''}</span></div>
         <button type="button" class="btn ${x.toqueHoy ? 'blanco' : 'amarillo'} chico mini" data-toque="${esc(x.usuario)}" data-nombre="${esc(x.nombre)}" ${x.toqueHoy ? 'disabled' : ''}>${x.toqueHoy ? 'Toque ✓' : '👆 Toque'}</button>${botonMas(x, true)}</div>`).join('')
       : `<div class="caja">Todavía no tienes amigos en la app. Agrégalos con el usuario que usan en el reto (el de Instagram o TikTok). Cuando los dos suben su dibujo la misma semana, crece su racha juntos 🔥</div>`;
     if (d.enviadas.length) cuerpo += `<p class="nota izq">Esperando respuesta: ${d.enviadas.map(x => '@' + esc(x.usuario)).join(', ')}</p>`;
@@ -1621,7 +1631,7 @@ function progresoHtml() {
   if (!pr) return '';
   const punto = w => `<span class="dia ${w.estado}" title="${esc(w.temporada)} · semana ${w.semana}"><i></i>${w.semana}</span>`;
   return `<section class="progreso-yo" aria-label="Tu progreso">
-    <div class="stats"><div><b>🔥 ${pr.racha}</b><span>racha actual</span></div><div><b>${pr.mejor}</b><span>mejor racha</span></div><div><b>${pr.semanas}</b><span>semanas con dibujo</span></div></div>
+    <div class="stats"><div><b>${ICO.fuego} ${pr.racha}</b><span>racha actual</span></div><div><b>${pr.mejor}</b><span>mejor racha</span></div><div><b>${pr.semanas}</b><span>semanas con dibujo</span></div></div>
     ${pr.historial.length ? `<div class="hist" aria-label="Últimas semanas">${pr.historial.map(punto).join('')}</div>` : '<p class="nota" style="margin:0">Tu racha empieza con tu primer dibujo de la temporada.</p>'}
   </section>`;
 }

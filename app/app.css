@@ -523,3 +523,8 @@ p,li,.caja,.nota,.club-ban p,.sub,small,.sem-ch{text-wrap:pretty}
 .invita .btn{width:100%}
 #invitar{margin-top:-2px}
 .opcion[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none}
+
+/* Fuego dibujado de la racha (7 nov 2026) */
+.ico-fuego{display:inline-block;vertical-align:-2px;flex:none}
+.contador .ico-fuego{width:17px;height:17px}
+.stats .ico-fuego{width:20px;height:20px;vertical-align:-3px}

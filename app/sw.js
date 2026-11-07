@@ -1,6 +1,6 @@
 /* #RetoMenteMilenial · funciona sin conexión para la parte visual. Los datos siempre se piden en línea. */
-const VERSION = 'rmm-app-v69';
-const BASE = ['./', 'index.html', 'app.css?v=38', 'app.js?v=66', 'personaje.js?v=1', 'manifest.webmanifest',
+const VERSION = 'rmm-app-v70';
+const BASE = ['./', 'index.html', 'app.css?v=39', 'app.js?v=67', 'personaje.js?v=1', 'manifest.webmanifest',
   'img/digi.webp', 'img/tradi.webp', 'img/digi-cara.webp', 'img/tradi-cara.webp', 'img/icon-192.png',
   'img/sticker-1.webp', 'img/sticker-2.webp', 'img/sticker-3.webp', 'chispa.js?v=17', 'img/badge-96.png',
   'img/estrella-1.webp', 'img/estrella-3.webp', 'img/estrella-6.webp',
