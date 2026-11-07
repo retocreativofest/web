@@ -1629,10 +1629,13 @@ function activarAvisosEn(root, despues) {
 function progresoHtml() {
   const pr = E.progreso;
   if (!pr) return '';
-  const punto = w => `<span class="dia ${w.estado}" title="${esc(w.temporada)} · semana ${w.semana}"><i></i>${w.semana}</span>`;
+  const nombreEst = { si: 'subiste tu dibujo', protegida: 'protegida', abierta: 'en curso' };
+  const punto = w => `<span class="dia ${w.estado}" title="${esc(w.temporada)} · semana ${w.semana}" aria-label="Semana ${w.semana}: ${nombreEst[w.estado] || 'no subiste'}"><i></i>${w.semana}</span>`;
   return `<section class="progreso-yo" aria-label="Tu progreso">
     <div class="stats"><div><b>${ICO.fuego} ${pr.racha}</b><span>racha actual</span></div><div><b>${pr.mejor}</b><span>mejor racha</span></div><div><b>${pr.semanas}</b><span>semanas con dibujo</span></div></div>
-    ${pr.historial.length ? `<div class="hist" aria-label="Últimas semanas">${pr.historial.map(punto).join('')}</div>` : '<p class="nota" style="margin:0">Tu racha empieza con tu primer dibujo de la temporada.</p>'}
+    ${pr.historial.length ? `<div class="hist-cab"><strong>Tus semanas del reto</strong><span>Cada círculo es una semana; el número dice&nbsp;cuál</span></div>
+    <div class="hist" aria-label="Tus semanas del reto">${pr.historial.map(punto).join('')}</div>
+    <div class="leyenda" aria-hidden="true"><span><i class="si"></i>Subiste tu dibujo</span><span><i></i>No subiste</span><span><i class="protegida"></i>Protegida</span><span><i class="abierta"></i>En curso</span></div>` : '<p class="nota" style="margin:0">Tu racha empieza con tu primer dibujo de la temporada.</p>'}
   </section>`;
 }
 function vistaYo() {

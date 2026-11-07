@@ -528,3 +528,13 @@ p,li,.caja,.nota,.club-ban p,.sub,small,.sem-ch{text-wrap:pretty}
 .ico-fuego{display:inline-block;vertical-align:-2px;flex:none}
 .contador .ico-fuego{width:17px;height:17px}
 .stats .ico-fuego{width:20px;height:20px;vertical-align:-3px}
+
+/* Semanas del reto en Yo: título y leyenda de colores (7 nov 2026) */
+.hist-cab{display:flex;flex-direction:column;gap:0;margin-top:4px}
+.hist-cab strong{font-family:var(--display);font-size:15px}
+.hist-cab span{font-size:12px;font-weight:700;color:var(--muted)}
+.leyenda{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;font-weight:700;color:var(--muted)}
+.leyenda span{display:inline-flex;align-items:center;gap:5px}
+.leyenda i{width:14px;height:14px;border-radius:50%;border:2px solid var(--ink);background:var(--lila-2);display:inline-block}
+.leyenda i.si{background:var(--naranja)} .leyenda i.protegida{background:var(--agua);border-style:double;border-width:3px} .leyenda i.abierta{background:var(--white);border:2px dashed var(--violeta)}
+.hist{justify-content:flex-start;flex-wrap:wrap}
