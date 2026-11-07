@@ -143,6 +143,9 @@ const ERRORES = {
   voto_participa: 'Para votar, sube al menos un dibujo esta temporada.',
   voto_ya: 'Ya votaste esta semana. El voto no se puede cambiar.',
   ya_protegida: 'Esta semana ya está protegida.',
+  anio: 'Elige el año en que naciste.',
+  anio_menor: 'Con ese año todavía no tienes 18. Si ya los cumpliste, agrega tu cumpleaños; si no, elige «Tengo menos de 18».',
+  edad_cambio: 'Si te registraste como menor, la edad cambia sola el día que cumples 18. Si te equivocaste al registrarte, escríbenos a retocreativofest@gmail.com.',
   pronto: '¡Ya casi! La app abre el 1 de diciembre. Te esperamos ese día para registrarte y preparar tu racha. 🎨',
   avisos_bloqueados: 'Los avisos están bloqueados en este teléfono. Actívalos en los ajustes: Notificaciones → Reto MM (en Chrome, en el candadito junto a la dirección).',
   avisos_cancelados: 'No se activaron los avisos. Puedes activarlos cuando quieras desde Yo.',
@@ -471,6 +474,10 @@ function vistaEdad(error) {
   if (b.cumple == null) b.cumple = p.cumple || '';
   if (b.estado == null) b.estado = p.estado || '';
   if (b.pais == null) b.pais = p.pais || '';
+  if (b.anio == null) b.anio = p.anio || '';
+  const menorFijo = p.mayor === 'No' && !!p.completo;   // 7 nov 2026: un menor ya registrado no puede pasarse a mayor (cambia solo a los 18)
+  if (menorFijo) b.mayor = 'No';
+  const anioHoy = new Date(ahora() - 4 * 36e5).getUTCFullYear();
   const [cm, cd] = String(b.cumple || '').split('-');
   const mayor = b.mayor === 'Sí', menor = b.mayor === 'No', vzla = b.venezuela === 'Sí', fuera = b.venezuela === 'No';
   /* 3 nov 2026 (COPPA y Google Play Familias): antes del permiso del representante, de un menor solo se guarda el usuario
@@ -487,11 +494,16 @@ function vistaEdad(error) {
     </header>
     <div class="cont">
       <fieldset><legend>¿Cuántos años tienes?</legend>
-        <div class="par"><button type="button" class="opcion" data-k="mayor" data-v="Sí" aria-pressed="${mayor}">Tengo 18 o más</button><button type="button" class="opcion" data-k="mayor" data-v="No" aria-pressed="${menor}">Tengo menos de 18</button></div>
+        <div class="par"><button type="button" class="opcion" data-k="mayor" data-v="Sí" aria-pressed="${mayor}" ${menorFijo ? 'disabled' : ''}>Tengo 18 o más</button><button type="button" class="opcion" data-k="mayor" data-v="No" aria-pressed="${menor}">Tengo menos de 18</button></div>
+        ${menorFijo ? '<span class="ayuda">El día que cumplas 18, la app te cambia sola, con el año que dio tu representante. Si te equivocaste al registrarte, escríbenos a retocreativofest@gmail.com.</span>' : ''}
       </fieldset>
+      ${mayor ? `<label class="campo" for="anio">¿En qué año naciste?
+        <select id="anio" required><option value="">Elige el año</option>${Array.from({ length: 83 }, (_, i) => anioHoy - 18 - i).map(y => `<option ${String(b.anio) === String(y) ? 'selected' : ''}>${y}</option>`).join('')}</select>
+        <span class="ayuda">Nunca lo mostramos. Solo lo usamos en totales, por ejemplo cuántas personas tienen entre 18 y 24&nbsp;años.</span>
+      </label>` : ''}
       ${conDatos ? `<fieldset><legend>Tu cumpleaños <span class="ayuda">(opcional)</span></legend>
         <div class="par"><select id="cd" aria-label="Día"><option value="">Día</option>${Array.from({ length: 31 }, (_, i) => `<option value="${String(i + 1).padStart(2, '0')}" ${cd === String(i + 1).padStart(2, '0') ? 'selected' : ''}>${i + 1}</option>`).join('')}</select><select id="cm" aria-label="Mes"><option value="">Mes</option>${MESES.map((m, i) => `<option value="${String(i + 1).padStart(2, '0')}" ${cm === String(i + 1).padStart(2, '0') ? 'selected' : ''}>${m}</option>`).join('')}</select></div>
-        <span class="ayuda">Solo el día y el mes, sin el año. Ese día te llega una sorpresa del Reto 🎂</span></fieldset>` : ''}
+        <span class="ayuda">Ese día te llega una sorpresa del Reto 🎂</span></fieldset>` : ''}
       <fieldset><legend>¿Dónde vives?</legend>
         <div class="par"><button type="button" class="opcion" data-k="venezuela" data-v="Sí" aria-pressed="${vzla}">Vivo en Venezuela</button><button type="button" class="opcion" data-k="venezuela" data-v="No" aria-pressed="${fuera}">Vivo en otro país</button></div>
       </fieldset>
@@ -507,7 +519,7 @@ function vistaEdad(error) {
         <select id="est" required><option value="">Elige tu estado</option>${ESTADOS.map(e => `<option ${b.estado === e ? 'selected' : ''}>${e}</option>`).join('')}</select>
       </label>` : ''}
       ${vzla ? `<div class="caja agua">Vives en Venezuela: compites en el ranking global y por los premios.</div>` : ''}
-      ${menor ? `<div class="caja crema"><strong class="t">Tu representante tiene que autorizarte</strong>
+      ${menor && !(p.completo && p.bloqueado === false) ? `<div class="caja crema"><strong class="t">Tu representante tiene que autorizarte</strong>
           <span style="display:block;font-weight:600;margin-bottom:8px">Mándale este formulario. Hasta que lo llene y confirme el correo que le llega, puedes ver el reto y hacer la Chispa del día, pero todavía no subir dibujos ni agregar amigos.</span>
           <span style="display:block;font-weight:600;margin-bottom:8px">📬 El correo llega de retocreativofest@gmail.com. Si no lo ve, que revise spam y Promociones.</span>
           ${previo ? '<span style="display:block;font-weight:600;margin-bottom:8px">🔒 Por ahora solo guardamos tu usuario. Cuando tu representante confirme, te pedimos tu nombre, tu estado o país y tu cumpleaños.</span>' : ''}
@@ -532,6 +544,8 @@ function vistaEdad(error) {
       if (e) b.estado = e.value;
       const pa = root.querySelector('#pais');
       if (pa) b.pais = pa.value;
+      const an = root.querySelector('#anio');
+      if (an) b.anio = an.value;
     };
     root.querySelectorAll('[data-k]').forEach(btn => btn.addEventListener('click', () => { leerCampos(); b[btn.dataset.k] = btn.dataset.v; vistaEdad(); }));
     on('#v', 'click', () => { leerCampos(); vistaPerfil(); });
@@ -542,10 +556,16 @@ function vistaEdad(error) {
       if (conDatos && b.venezuela === 'Sí' && !b.estado) return vistaEdad(ERRORES.estado);
       if (conDatos && b.venezuela === 'No' && (b.pais || '').length < 2) return vistaEdad(ERRORES.pais);
       if (d && m && (!!d.value !== !!m.value || (b.cumple && !fechaValida(b.cumple)))) return vistaEdad(ERRORES.cumple);
+      if (b.mayor === 'Sí') {
+        if (!b.anio) return vistaEdad(ERRORES.anio);
+        const hoy = new Date(ahora() - 4 * 36e5).toISOString().slice(5, 10), md = b.cumple || '12-31';
+        if (anioHoy - Number(b.anio) - (hoy < md ? 1 : 0) < 18) return vistaEdad(ERRORES.anio_menor);
+      }
       ev.currentTarget.disabled = true; ev.currentTarget.textContent = 'Guardando…';
       const r = await api('perfil_guardar', {
         sesion: E.sesion, correo: E.correo, nombre: b.nombre, usuario: b.usuario,
         mayor: b.mayor, venezuela: b.venezuela, whatsapp: b.mayor === 'Sí' ? b.whatsapp : '', ofertas: b.mayor === 'Sí' ? b.ofertas : 'No',
+        ...(b.mayor === 'Sí' ? { anio: b.anio } : {}),
         ...(conDatos ? { cumple: b.cumple || '', estado: b.venezuela === 'Sí' ? b.estado || '' : '', pais: b.venezuela === 'No' ? b.pais || '' : '' } : {})
       });
       if (!r.ok) {
@@ -1615,6 +1635,7 @@ function vistaYo() {
         ${p.correo ? `<div><span>Correo</span><span>${esc(p.correo)}</span></div>` : ''}
         <div><span>Edad</span><span>${p.mayor === 'Sí' ? '18 años o más' : 'Menor de edad'}</span></div>
         <div><span>Vives en Venezuela</span><span>${p.venezuela === 'Sí' ? (p.estado ? 'Sí · ' + esc(p.estado) : 'Sí') : (p.pais ? 'No · ' + esc(p.pais) : 'No')}</span></div>
+        ${p.mayor === 'Sí' && p.anio ? `<div><span>Año de nacimiento</span><span>${esc(p.anio)}</span></div>` : ''}
         ${p.cumple ? `<div><span>Cumpleaños</span><span>${Number(p.cumple.split('-')[1])} de ${MESES[Number(p.cumple.split('-')[0]) - 1] || ''}</span></div>` : ''}
         ${p.mayor === 'Sí' ? `<div><span>Ofertas</span><span>${p.ofertas === 'Sí' ? 'Sí' : 'No'}</span></div>` : ''}
       </div>
@@ -1805,7 +1826,11 @@ async function iniciar() {
   ir(IR_AVISO.indexOf(pedido) >= 0 ? pedido : 'hoy');
   refrescarAvisos();
   const r = await api('perfil', { sesion: E.sesion });   // refresca los datos guardados en el teléfono
-  if (r.ok) { E.perfil = r.perfil; guardar('perfil', E.perfil); if (!r.perfil.completo) ir('hoy'); }
+  if (r.ok) {
+    E.perfil = r.perfil; guardar('perfil', E.perfil);
+    if (!r.perfil.completo) ir('hoy');
+    else if (r.recienMayor) ventana(`<h2 id="v-h" tabindex="-1">🎉 ¡Feliz cumpleaños número&nbsp;18!</h2><p>Desde hoy la app te trata como mayor de edad: puedes invitar amigos con tu enlace y, si quieres, agregar tu WhatsApp en Yo → Editar mis&nbsp;datos.</p>`);
+  }
   else if (r.error === 'sesion') cerrarSesion(true);
 }
 iniciar();
