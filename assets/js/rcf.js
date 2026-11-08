@@ -216,6 +216,7 @@ function wireForms(){
     const bad = $$('[required]', f).find(i => i.type === 'checkbox' ? !i.checked : !i.value.trim() || (i.type === 'email' && !/^\S+@\S+\.\S+$/.test(i.value)));
     if (bad){ err.textContent = bad.type === 'checkbox' ? 'Marca la casilla de aceptación para enviar.' : bad.type === 'email' ? 'Revisa tu correo: parece incompleto.' : 'Completa los campos obligatorios.'; err.hidden = false; bad.focus(); return; }
     if (f.dataset.form === 'marcas' && !$$('input[name=interes]:checked', f).length){ err.textContent = 'Marca al menos una opción en «Me interesa».'; err.hidden = false; return; }
+    if (f.dataset.form === 'asistencia' && !$$('input[name=vienes]:checked', f).length){ err.textContent = 'Marca al menos una opción en «¿A qué vienes?».'; err.hidden = false; return; }
     const data = new URLSearchParams({formulario: f.dataset.form, pagina: location.pathname});
     new FormData(f).forEach((v, k) => { if (k !== 'website') data.set(k, data.has(k) ? data.get(k) + ', ' + v : v); });
     if (!CONFIG.formularios){
@@ -229,7 +230,7 @@ function wireForms(){
       f.reset(); $$('.fl, fieldset, .check, button[type=submit]', f).forEach(el => el.hidden = true); ok.hidden = false;
     } catch(x){
       err.textContent = 'No se pudo enviar. Revisa tu conexión e inténtalo de nuevo.'; err.hidden = false;
-      btn.disabled = false; btn.textContent = f.dataset.form === 'avisame' ? 'Quiero que me avisen' : 'Enviar mis datos';
+      btn.disabled = false; btn.textContent = f.dataset.form === 'avisame' ? 'Quiero que me avisen' : f.dataset.form === 'asistencia' ? 'Voy a ir' : 'Enviar mis datos';
     }
   }));
 }
