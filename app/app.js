@@ -46,7 +46,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '78 · 7 nov';
+const VERSION_APP = '79 · 7 nov';
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -1401,26 +1401,42 @@ function sugerencias(root, d) {
   if (!inp || !caja) return;
   const ya = {}; if (d) ['amigos', 'enviadas', 'solicitudes'].forEach(k => (d[k] || []).forEach(x => { ya[pjUsuario(x.usuario)] = k; }));
   let t = null, pedido = 0;
+  const memo = E.sugMemo || (E.sugMemo = {});   // 7 nov 2026: lo ya buscado se reutiliza (y con 2 letras, la app filtra sola)
   const cerrar = () => { caja.hidden = true; caja.innerHTML = ''; inp.setAttribute('aria-expanded', 'false'); };
+  const pintarLista = (u, buscando) => {
+    caja.innerHTML = u.length ? u.map(x => {
+      const est = ya[pjUsuario(x.usuario)];
+      return `<button type="button" class="sug" role="option" data-sug="${esc(x.usuario)}" ${est ? 'disabled' : ''}>${pjAvatar(x.usuario, x.nombre)}<span><b>${esc(x.nombre || '@' + x.usuario)}</b><small>@${esc(x.usuario)}</small></span>${est ? `<em>${est === 'amigos' ? 'Ya son amigos' : est === 'enviadas' ? 'Solicitud enviada' : 'Te quiere agregar'}</em>` : '<em class="sug-mas">＋</em>'}</button>`;
+    }).join('') : buscando ? '<p class="nota izq sug-buscando" style="margin:4px 2px"><span class="spin" aria-hidden="true"></span> Buscando…</p>'
+      : '<p class="nota izq" style="margin:4px 2px">Nadie con ese usuario todavía. Revisa cómo se escribe o pídele que se&nbsp;registre.</p>';
+    caja.hidden = false; inp.setAttribute('aria-expanded', 'true');
+  };
+  const local = q => {
+    if (memo[q]) return memo[q].u;
+    const base = memo[q.slice(0, 2)];
+    return base && base.completa ? base.u.filter(x => pjUsuario(x.usuario).indexOf(q) === 0).slice(0, 6) : null;
+  };
   inp.addEventListener('input', () => {
     clearTimeout(t);
-    const q = pjUsuario(inp.value);
+    const q = pjUsuario(inp.value).replace(/[^a-z0-9._]/g, '');
     if (q.length < 2) return cerrar();
+    const l = local(q);
+    pintarLista(l ? l.slice(0, 6) : [], !l);   // al instante: lo que ya sabemos o «Buscando…»
+    if (memo[q] || (l && q.length > 2 && l.length >= 6)) return;
     t = setTimeout(async () => {
       const n = ++pedido;
       const r = await extra('buscar_usuarios', { q });
-      if (n !== pedido || pjUsuario(inp.value) !== q) return;   // ya escribió otra cosa
-      if (!r.ok || !Array.isArray(r.u)) {   // 7 nov 2026: antes se callaba; ahora dice qué pasó (el código ayuda a encontrar la falla)
+      if (r.ok && Array.isArray(r.u)) {
+        memo[q] = r;
+        (r.u || []).forEach(x => { const pj = pjDeTexto(x.p); if (pj) E.pjs[pjUsuario(x.usuario)] = pj; });
+      }
+      if (n !== pedido || pjUsuario(inp.value).replace(/[^a-z0-9._]/g, '') !== q) return;   // ya escribió otra cosa
+      if (!r.ok || !Array.isArray(r.u)) {
         caja.innerHTML = `<p class="nota izq" style="margin:4px 2px">No pudimos buscar en este momento. Escribe el usuario completo y toca Agregar. <small>(código: ${esc(r.error || 'respuesta')})</small></p>`;
         caja.hidden = false; return;
       }
-      (r.u || []).forEach(x => { const pj = pjDeTexto(x.p); if (pj) E.pjs[pjUsuario(x.usuario)] = pj; });
-      caja.innerHTML = r.u.length ? r.u.map(x => {
-        const est = ya[pjUsuario(x.usuario)];
-        return `<button type="button" class="sug" role="option" data-sug="${esc(x.usuario)}" ${est ? 'disabled' : ''}>${pjAvatar(x.usuario, x.nombre)}<span><b>${esc(x.nombre || '@' + x.usuario)}</b><small>@${esc(x.usuario)}</small></span>${est ? `<em>${est === 'amigos' ? 'Ya son amigos' : est === 'enviadas' ? 'Solicitud enviada' : 'Te quiere agregar'}</em>` : '<em class="sug-mas">＋</em>'}</button>`;
-      }).join('') : '<p class="nota izq" style="margin:4px 2px">Nadie con ese usuario todavía. Revisa cómo se escribe o pídele que se&nbsp;registre.</p>';
-      caja.hidden = false; inp.setAttribute('aria-expanded', 'true');
-    }, 320);
+      pintarLista(r.u.slice(0, 6), false);
+    }, 150);
   });
   caja.addEventListener('click', e => {
     const b = e.target.closest('[data-sug]');

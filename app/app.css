@@ -558,3 +558,4 @@ p,li,.caja,.nota,.club-ban p,.sub,small,.sem-ch{text-wrap:pretty}
 .toque-pj svg{width:100%;height:100%;display:block}
 .listo-pj.pendiente{background:var(--crema);box-shadow:4px 4px 0 var(--ink)}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
+.sug-buscando{display:flex;align-items:center;gap:8px}.sug-buscando .spin{width:16px;height:16px}
