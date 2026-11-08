@@ -1278,7 +1278,8 @@ async function vistaRanking() {
   else if (!E.ranking && estaEn === 'ranking') dibujarRanking(null, textoError(r.error));
 }
 
-const rkUsuario = it => ((String(it.red || '').match(/@([\w.]+)/) || [])[1] || '');
+/* 8 nov 2026: si la red viene sin «@» (ej. «Milkarts»), se usa tal cual como usuario. */
+const rkUsuario = it => { const t = String(it.red || '').trim(), m = t.match(/@([\w.]+)/); return m ? m[1] : (/^[\w.]{3,30}$/.test(t) ? t : ''); };
 const rkAvatar = it => it.yo && E.pj ? `<span class="avatar pj mini">${PJ.svg(E.pj)}</span>` : (E.pjs[pjUsuario(rkUsuario(it))] ? `<span class="avatar pj mini">${PJ.svg(E.pjs[pjUsuario(rkUsuario(it))])}</span>` : '');
 function dibujarRanking(r, error) {
   let cuerpo;
@@ -1857,6 +1858,8 @@ function ir(donde) {
   estaEn = donde;
   if (donde === 'subir' && bloqueado()) { aviso(ERRORES.autorizacion); estaEn = 'hoy'; donde = 'hoy'; }
   if (donde === 'subir' && !(E.hoy && E.hoy.actual && !yaSubio())) { if (yaSubio()) aviso(ERRORES.ya_subiste); estaEn = 'hoy'; donde = 'hoy'; }
+  /* 8 nov 2026: la sección queda en la dirección (#ranking, #amigos…) para que al recargar no vuelva a Hoy. */
+  if (RUTAS.indexOf(donde) >= 0) { try { history.replaceState(null, '', location.pathname + location.search + (donde === 'hoy' ? '' : '#' + donde)); } catch (x) {} }
   mostrar(donde);
   setTimeout(() => tutorial(donde), 700);
   if (donde === 'hoy' && leer('invitacion')) setTimeout(ventanaInvitacion, 1400);   // la primera vez en cada sección, el guía la explica
@@ -1875,6 +1878,7 @@ function mostrar(donde) {
 }
 
 const IR_AVISO = ['hoy', 'amigos', 'ranking', 'yo', 'club', 'votar'];
+const RUTAS = IR_AVISO.concat('chispa');   // secciones que se recuerdan al recargar
 async function iniciar() {
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); E.instalar = e; });
   if ('serviceWorker' in navigator) {
@@ -1898,7 +1902,8 @@ async function iniciar() {
   if (/^[a-z0-9._]{3,30}$/.test(invita)) guardar('invitacion', invita);
   if (pedido || params.has('amigo')) history.replaceState(null, '', location.pathname);
   if (!E.sesion) return vistaBienvenida();
-  ir(IR_AVISO.indexOf(pedido) >= 0 ? pedido : 'hoy');
+  const enHash = location.hash.slice(1);
+  ir(IR_AVISO.indexOf(pedido) >= 0 ? pedido : RUTAS.indexOf(enHash) >= 0 ? enHash : 'hoy');
   refrescarAvisos();
   const r = await api('perfil', { sesion: E.sesion });   // refresca los datos guardados en el teléfono
   if (r.ok) {
