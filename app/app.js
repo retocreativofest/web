@@ -1338,7 +1338,7 @@ function dibujarRanking(r, error) {
       : `<div class="caja agua">Todavía no apareces entre los primeros. Cada semana que subes tu dibujo suma para la constancia, y los me gusta suman para las demás categorías.</div>`;
     cuerpo = `${r.lead ? `<p class="nota izq" style="margin:0">${esc(r.lead)}</p>` : ''}${mios}
       ${r.cats.map(c => `<section class="cat-app"><h2>${esc(c.nombre)}</h2>${c.def ? `<p>${esc(c.def)}</p>` : ''}<ol>${c.items.map(it =>
-        `<li class="rk-fila${it.yo ? ' yo' : ''}${it.estado === 'Va ganando' ? ' gana' : ''}">${rkAvatar(it)}<span class="rk-txt"><b>${esc(it.nombre)}${it.estrella ? ` <img class="estrella-mini" src="img/estrella-${it.estrella}.webp" alt="Club Estrella">` : ''}${it.yo ? ' (tú)' : ''}</b>${rkRed(it) ? `<small>${esc(rkRed(it))}</small>` : ''}</span><em class="rk-pts">${esc(it.valor)}</em></li>`).join('')}</ol></section>`).join('')}
+        `<li class="rk-fila${it.yo ? ' yo' : ''}${it.estado === 'Va ganando' ? ' gana' : ''}">${rkAvatar(it)}<span class="rk-txt"><b class="rk-nom"><span>${esc(it.nombre)}</span>${it.estrella ? `<img class="estrella-mini" src="img/estrella-${it.estrella}.webp" alt="Club Estrella">` : ''}${it.yo ? '<i>(tú)</i>' : ''}</b>${rkRed(it) ? `<small>${esc(rkRed(it))}</small>` : ''}</span><em class="rk-pts">${esc(it.valor)}</em></li>`).join('')}</ol></section>`).join('')}
       ${r.legal ? `<p class="nota izq">${esc(r.legal)}</p>` : ''}
       <a class="btn blanco chico" href="${CONFIG.web}/reto-semanal.html" target="_blank" rel="noopener">Ver la tabla completa en la web</a>`;
   }

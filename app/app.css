@@ -594,3 +594,7 @@ p,li,.caja,.nota,.club-ban p,.sub,small,.sem-ch{text-wrap:pretty}
 .cat-app li .rk-txt small{font-size:12px;line-height:1.2;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal}
 .cat-app li em.rk-pts{max-width:none;white-space:nowrap;font-size:13px;font-weight:800;text-align:right}
 .cat-app li.yo .rk-av{background:var(--white)}
+/* Solo se acorta el nombre: la estrella del Club y el «(tú)» siempre se ven */
+.rk-txt b.rk-nom{display:flex;align-items:center;gap:4px;min-width:0;overflow:visible}
+.rk-nom span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rk-nom img,.rk-nom i{flex:none} .rk-nom i{font-style:normal}
