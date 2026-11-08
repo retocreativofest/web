@@ -346,16 +346,28 @@ export function abrirChispa(ctx) {
   function lienzoMarco() { const o = document.createElement('canvas'); o.width = ANCHO + 80; o.height = ALTO + 200; return o; }
   function conMarco() { return pintarMarco(lienzoMarco()); }
   function descargar(href, nombre) { const a = document.createElement('a'); a.href = href; a.download = nombre; document.body.appendChild(a); a.click(); a.remove(); }
-  async function compartirOdescargar() {
-    const o = conMarco();
-    const blob = await new Promise(ok => o.toBlob(ok, 'image/png'));
-    const archivo = blob && new File([blob], 'chispa-del-dia.png', { type: 'image/png' });
+  /* 8 nov 2026: en Android, «Compartir» abría la lista de apps y no había forma de guardar en el teléfono.
+     Ahora son dos botones: GUARDAR (descarga directa a «Descargas», también en la app de Google Play) y COMPARTIR. */
+  const nombreImg = () => 'chispa-' + diaCaracas() + '.png';
+  async function imagenChispa() { const o = conMarco(); return await new Promise(ok => o.toBlob(ok, 'image/png')); }
+  async function guardarImagen() {
+    const blob = await imagenChispa();
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    descargar(url, nombreImg());
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    const n = $('#ch-nota'); if (n) n.textContent = '✓ Guardada en tu teléfono, en la carpeta «Descargas» (también la ves en la Galería).';
+    setTimeout(ventanaClub, 1200);   // deja ver el aviso de la descarga
+  }
+  async function compartir() {
+    const blob = await imagenChispa();
+    const archivo = blob && new File([blob], nombreImg(), { type: 'image/png' });
     if (archivo && navigator.canShare && navigator.canShare({ files: [archivo] })) {
       try { await navigator.share({ files: [archivo], text: 'Mi chispa del día: ' + S.chispa + ' #RetoMenteMilenial' }); return ventanaClub(); } catch (e) { if (e && e.name === 'AbortError') return; }
     }
-    descargar(o.toDataURL('image/png'), 'chispa-del-dia.png');
-    setTimeout(ventanaClub, 700);   // deja ver el aviso de la descarga
+    guardarImagen();
   }
+  const puedeCompartir = !!(navigator.canShare && navigator.share);
   /* 6 nov 2026: la ventana del Club sale DESPUÉS de guardar o compartir la chispa (no tapa el dibujo antes).
      Quién la ve lo decide app.js: solo mayores, nunca miembros, nunca en Google Play, 1 vez al día. */
   function ventanaClub() { mostrarPromoClub({ promoClub: ctx.promoClub, irClub: () => { parar(); ctx.irClub(); } }); }
@@ -409,9 +421,12 @@ export function abrirChispa(ctx) {
       ${S.video ? '<div class="caja agua" style="text-align:center">🎬 Grabando el video acelerado…</div>' : ''}
       ${adv && navidadGanada() ? '<div class="caja crema ch-insignia">🎄 <b>Insignia del Adviento ganada.</b> Tu marco ahora es verde navideño.</div>' : ''}
       <button type="button" class="btn turquesa chico" id="ch-video" ${S.video ? 'disabled' : ''}>🎬 Video acelerado${candado}</button>
-      <button type="button" class="btn amarillo" id="ch-desc">⬇ GUARDAR O COMPARTIR</button>
+      <button type="button" class="btn amarillo" id="ch-desc">⬇ GUARDAR EN MI TELÉFONO</button>
+      ${puedeCompartir ? '<button type="button" class="btn blanco" id="ch-comp">COMPARTIR</button>' : ''}
+      <p class="nota" id="ch-nota" role="status" style="margin:0;text-align:center"></p>
       <button type="button" class="enlace" id="ch-salir">Volver a Hoy · mañana hay otra chispa</button>`;
-    $('#ch-desc').addEventListener('click', compartirOdescargar);
+    $('#ch-desc').addEventListener('click', guardarImagen);
+    if ($('#ch-comp')) $('#ch-comp').addEventListener('click', compartir);
     $('#ch-video').addEventListener('click', video);
     $('#ch-salir').addEventListener('click', () => ctx.volver());
   }

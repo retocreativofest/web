@@ -570,3 +570,7 @@ p,li,.caja,.nota,.club-ban p,.sub,small,.sem-ch{text-wrap:pretty}
 }
 /* Toque «¡Hola, soy yo!» de alguien sin personaje: su inicial */
 .toque-ini{display:grid;place-items:center;font-family:var(--display);color:var(--ink);background:var(--amarillo)}
+
+/* 8 nov 2026: recordatorio de solicitudes de amistad en Hoy */
+.sol-rec{display:flex;align-items:center;gap:10px;justify-content:space-between;text-align:left}
+.sol-rec .btn{flex:none;width:auto}

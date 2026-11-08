@@ -1,6 +1,6 @@
 /* #RetoMenteMilenial · app: entrar, registro, Hoy, subir al Padlet, rachas, ranking, amigos, Chispa del día y Club Estrella */
 import * as PJ from './personaje.js?v=1';
-import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe, rachaChispas, ajustarHora, mostrarPromoClub } from './chispa.js?v=18';
+import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe, rachaChispas, ajustarHora, mostrarPromoClub } from './chispa.js?v=19';
 const CONFIG = {
   api: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
@@ -963,7 +963,10 @@ function dibujarHoy(h, error) {
       </section>`;
   }
   const chispaAbajo = !h || !!(h.actual || votando);
-  conNav('hoy', cabecera('Hoy') + `<main class="cont con-nav">${cuerpo}
+  /* 8 nov 2026: recordatorio en Hoy de las solicitudes de amistad sin responder (además del aviso al teléfono). */
+  const nSol = E.novedades && E.novedades.solicitudes;
+  const solHtml = nSol ? `<div class="caja crema sol-rec"><span>👋 Tienes <b>${nSol} ${nSol === 1 ? 'solicitud' : 'solicitudes'} de amistad</b> sin responder.</span><button type="button" class="btn blanco chico mini" data-ir="amigos">VER</button></div>` : '';
+  conNav('hoy', cabecera('Hoy') + `<main class="cont con-nav">${solHtml}${cuerpo}
       ${chispaAbajo ? tarjetaChispa() : ''}
     </main>`, root => {
     on('#re', 'click', vistaHoy);
