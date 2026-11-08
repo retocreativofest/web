@@ -1560,7 +1560,7 @@ function vistaClub(error, escribiendo) {
         <span><img src="img/estrella-6.webp" alt="" width="58" height="56">6 meses o más</span>
       </div>
       ${c.activo ? `<div class="club-yo"><img src="img/estrella-${c.estrella}.webp" alt="" width="54" height="54"><div><b>✓ Club activo hasta el ${fechaCorta(c.hasta)}</b><span>Llevas ${c.meses} ${c.meses === 1 ? 'mes' : 'meses'} · ${c.protectores} protectores este mes</span></div></div>` : ''}
-      <ul class="perks">${PERKS.filter(p => !(PLAY && p[0] === 'Chispa del día Pro')).map((p, i) => `<li class="perk p${i} ${p[2] || ''}">${p[2] === 'pronto' ? '<span class="pronto-tag">PRÓXIMAMENTE</span>' : ''}<strong>${esc(p[0])}</strong><span>${esc(p[1])}</span></li>`).join('')}</ul>
+      <ul class="perks">${PERKS.map((p, i) => `<li class="perk p${i} ${p[2] || ''}">${p[2] === 'pronto' ? '<span class="pronto-tag">PRÓXIMAMENTE</span>' : ''}<strong>${esc(p[0])}</strong><span>${esc(p[1])}</span></li>`).join('')}</ul>
       ${c.activo ? (c.patreon ? '<span class="nota">✓ Vinculado con Patreon. Se revisa solo cada día.</span>' : '') : PLAY ? `
         <span class="nota">¿Ya eres miembro del Club Estrella? Vincula tu cuenta para activar tus ventajas en la app.</span>
         <button type="button" class="btn turquesa chico" id="vincular">${c.patreon ? 'Vincular otra cuenta de Patreon' : 'Ya soy miembro: vincular mi Patreon'}</button>
@@ -1613,7 +1613,7 @@ function promoClub() {
 }
 function vistaChispa() {
   pintar('<div id="chispa"></div>', root => {
-    cerrarChispa = abrirChispa({ root: root.querySelector('#chispa'), esc, club: PLAY || !!(E.club && E.club.activo),   /* en Google Play, sin candados (política de pagos) */ icoVolver: ICO.volver,
+    cerrarChispa = abrirChispa({ root: root.querySelector('#chispa'), esc, club: !!(E.club && E.club.activo),   /* 8 nov 2026: candados también en Google Play; el botón solo lleva a «Conocer el Club» (sin precios ni pagos) */ icoVolver: ICO.volver,
       volver: () => ir('hoy'), irClub: () => ir('club'), promoClub });
   });
 }
