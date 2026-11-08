@@ -206,6 +206,12 @@ function wireCanal(){
    Envían los datos a CONFIG.formularios (Apps Script → Google Sheets).
    Mientras no exista esa URL, el envío abre WhatsApp con los datos escritos. */
 function wireForms(){
+  /* «Todas las anteriores» (7 nov 2026): marca o desmarca todas las opciones del grupo; si quitas una, se desmarca sola. */
+  $$('[data-todas]').forEach(t => {
+    const grupo = () => $$('input[name="' + t.dataset.todas + '"]', t.form);
+    t.addEventListener('change', () => grupo().forEach(i => { i.checked = t.checked; }));
+    grupo().forEach(i => i.addEventListener('change', () => { t.checked = grupo().every(x => x.checked); }));
+  });
   /* Formularios con fecha de cierre (data-cierre): después de esa fecha se ocultan y se muestra el aviso de cierre. */
   $$('form[data-cierre]').forEach(f => { if (Date.now() >= Date.parse(f.dataset.cierre)){ f.hidden = true; const c = f.parentElement.querySelector('.press-closed'); if (c) c.hidden = false; } });
   $$('form[data-form]').forEach(f => f.addEventListener('submit', async e => {
