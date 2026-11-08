@@ -23,7 +23,11 @@ const leer = k => { try { const v = localStorage.getItem('rcf.' + k); return v =
    por fuera de su sistema de pagos dentro de una app de la tienda: ahí el Club solo se vincula, no se compra. */
 const PLAY = (() => {
   const desdePlay = String(document.referrer || '').indexOf('android-app://com.retocreativofest.retomentemilenial') === 0;
-  try { if (desdePlay) localStorage.setItem('rcf.play', '1'); return desdePlay || localStorage.getItem('rcf.play') === '1'; } catch (e) { return desdePlay; }
+  /* 8 nov 2026: se recordaba para siempre en el teléfono, y como la app de Play comparte datos con Chrome,
+     en el navegador normal también salía sin candados. Ahora lo recordado solo vale en modo app (pantalla completa,
+     como abre la de Play, también al tocar un aviso); en una pestaña del navegador manda solo el origen real. */
+  const modoApp = window.matchMedia && matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches;
+  try { if (desdePlay) localStorage.setItem('rcf.play', '1'); return desdePlay || (modoApp && localStorage.getItem('rcf.play') === '1'); } catch (e) { return desdePlay; }
 })();
 const fecha = iso => { const d = new Date(iso); return DIAS[d.getDay()] + ' ' + d.getDate() + ' de ' + MESES[d.getMonth()]; };
 const hora = iso => { const d = new Date(iso); let h = d.getHours(); const m = String(d.getMinutes()).padStart(2, '0'); const pm = h >= 12; h = h % 12 || 12; return h + ':' + m + (pm ? ' p. m.' : ' a. m.'); };
@@ -700,6 +704,12 @@ function pjRevisar() {
       if (E.enListo || E.pjTemporal) vistaListo(); else if (estaEn) mostrar(estaEn);
     });
     return;
+  }
+  /* 8 nov 2026: quien armó su personaje cuando el servidor todavía no lo guardaba lo tenía SOLO en su teléfono
+     (Mentecita): nadie más lo veía. Una vez por sesión se revisa y, si falta en el servidor, se sube. */
+  if (E.pj && !E.pjTemporal && !E.pjSync) {
+    E.pjSync = true;
+    extra('personajes', { usuarios: [yo] }).then(r => { if (r.ok && r.p && !r.p[yo] && E.pj) pjGuardar(E.pj); });
   }
   if (E.pj && E.club && !E.club.activo) {
     const libre = PJ.limpiar(E.pj, false);
@@ -1760,7 +1770,7 @@ function vistaYo() {
             cerrarV();
             const A = leer('avisos'); if (A && A.token) desactivarAvisos(true);
             E.sesion = E.correo = E.perfil = E.hoy = E.semana = E.progreso = E.ranking = E.amigos = E.novedades = E.club = null; E.borrador = {}; E.subida = {};
-            ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso', 'club', 'autorizacion', 'personaje'].forEach(k => guardar(k, null)); E.pj = null; E.pjs = {}; E.pjBuscado = false;
+            ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso', 'club', 'autorizacion', 'personaje'].forEach(k => guardar(k, null)); E.pj = null; E.pjs = {}; E.pjBuscado = false; E.pjSync = false;
             vistaBienvenida('Tu cuenta se borró. ¡Gracias por dibujar con nosotros! 💛');
           } catch (e) {
             ok.disabled = false;
@@ -1783,7 +1793,7 @@ function vistaYo() {
 async function cerrarSesion(vencida) {
   const s = E.sesion;
   E.sesion = E.correo = E.perfil = E.hoy = E.semana = E.progreso = E.ranking = E.amigos = E.novedades = E.club = null; E.borrador = {}; E.subida = {};
-  ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso', 'club', 'personaje'].forEach(k => guardar(k, null)); E.pj = null; E.pjs = {}; E.pjBuscado = false;
+  ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso', 'club', 'personaje'].forEach(k => guardar(k, null)); E.pj = null; E.pjs = {}; E.pjBuscado = false; E.pjSync = false;
   const A = leer('avisos');
   if (A && A.token) { if (s && vencida !== true) api('avisos', { sesion: s, token: A.token, quitar: true }); desactivarAvisos(true); }
   if (s && vencida !== true) api('salir', { sesion: s });
