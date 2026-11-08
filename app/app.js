@@ -1324,7 +1324,11 @@ async function vistaRanking() {
 
 /* 8 nov 2026: si la red viene sin «@» (ej. «Milkarts»), se usa tal cual como usuario. */
 const rkUsuario = it => { const t = String(it.red || '').trim(), m = t.match(/@([\w.]+)/); return m ? m[1] : (/^[\w.]{3,30}$/.test(t) ? t : ''); };
-const rkAvatar = it => it.yo && E.pj ? `<span class="avatar pj mini">${PJ.svg(E.pj)}</span>` : (E.pjs[pjUsuario(rkUsuario(it))] ? `<span class="avatar pj mini">${PJ.svg(E.pjs[pjUsuario(rkUsuario(it))])}</span>` : '');
+/* 8 nov 2026: el círculo del ranking tiene su propia clase (antes usaba «mini», que es la de los botones y lo estiraba en óvalo).
+   Todas las filas llevan círculo: el personaje si lo armó; si no, su inicial. Así nombre, usuario y puntaje quedan alineados. */
+const rkPj = it => it.yo && E.pj ? E.pj : E.pjs[pjUsuario(rkUsuario(it))];
+const rkAvatar = it => { const pj = rkPj(it); return pj ? `<span class="rk-av pj" aria-hidden="true">${PJ.svg(pj)}</span>` : `<span class="rk-av" aria-hidden="true">${esc(String(it.nombre || '?').trim().charAt(0).toUpperCase() || '?')}</span>`; };
+const rkRed = it => { const u = rkUsuario(it); return u ? '@' + u : String(it.red || '').trim(); };
 function dibujarRanking(r, error) {
   let cuerpo;
   if (!r) cuerpo = error ? `<div class="error" role="alert">${esc(error)}</div>` : '<div class="cargando" role="status"><span class="spin" aria-hidden="true"></span>Buscando los puntajes…</div>';
@@ -1334,7 +1338,7 @@ function dibujarRanking(r, error) {
       : `<div class="caja agua">Todavía no apareces entre los primeros. Cada semana que subes tu dibujo suma para la constancia, y los me gusta suman para las demás categorías.</div>`;
     cuerpo = `${r.lead ? `<p class="nota izq" style="margin:0">${esc(r.lead)}</p>` : ''}${mios}
       ${r.cats.map(c => `<section class="cat-app"><h2>${esc(c.nombre)}</h2>${c.def ? `<p>${esc(c.def)}</p>` : ''}<ol>${c.items.map(it =>
-        `<li class="${it.yo ? 'yo' : ''} ${it.estado === 'Va ganando' ? 'gana' : ''}"><span class="rk-q">${rkAvatar(it)}<span><b>${esc(it.nombre)}${it.estrella ? ` <img class="estrella-mini" src="img/estrella-${it.estrella}.webp" alt="Club Estrella">` : ''}${it.yo ? ' (tú)' : ''}</b>${it.red ? `<small>${esc(it.red)}</small>` : ''}</span></span><em>${esc(it.valor)}</em></li>`).join('')}</ol></section>`).join('')}
+        `<li class="rk-fila${it.yo ? ' yo' : ''}${it.estado === 'Va ganando' ? ' gana' : ''}">${rkAvatar(it)}<span class="rk-txt"><b>${esc(it.nombre)}${it.estrella ? ` <img class="estrella-mini" src="img/estrella-${it.estrella}.webp" alt="Club Estrella">` : ''}${it.yo ? ' (tú)' : ''}</b>${rkRed(it) ? `<small>${esc(rkRed(it))}</small>` : ''}</span><em class="rk-pts">${esc(it.valor)}</em></li>`).join('')}</ol></section>`).join('')}
       ${r.legal ? `<p class="nota izq">${esc(r.legal)}</p>` : ''}
       <a class="btn blanco chico" href="${CONFIG.web}/reto-semanal.html" target="_blank" rel="noopener">Ver la tabla completa en la web</a>`;
   }
