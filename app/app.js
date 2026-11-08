@@ -1,6 +1,6 @@
 /* #RetoMenteMilenial · app: entrar, registro, Hoy, subir al Padlet, rachas, ranking, amigos, Chispa del día y Club Estrella */
 import * as PJ from './personaje.js?v=1';
-import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe, rachaChispas, ajustarHora, mostrarPromoClub } from './chispa.js?v=19';
+import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe, rachaChispas, ajustarHora, mostrarPromoClub, bannerClub } from './chispa.js?v=20';
 const CONFIG = {
   api: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
@@ -249,6 +249,36 @@ function mostrarBanner(b) {
     ov.querySelector('.ban-txt').textContent = '¡Listo! Tu dibujo ya está en el Padlet';
     ov.querySelector('.ban-barra').classList.add('llena');
     setTimeout(cerrar, Math.max(MIN - (Date.now() - t0), 0) + 4000);
+  });
+}
+/* 8 nov 2026: pantalla «Subiendo tu dibujo…» cuando la semana NO tiene banner de marca.
+   Con tu guía (Tradi o Digi) y, si corresponde, la promo del Club Estrella (mismas reglas: solo mayores,
+   nunca miembros, nunca en Google Play, 1 vez al día). Mientras sube, la promo no tiene botón (para no salir a mitad). */
+function mostrarCarga() {
+  const promo = promoClub(), t0 = Date.now(), MIN = 2500;
+  const ov = document.createElement('div');
+  ov.className = 'carga-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Subiendo tu dibujo');
+  ov.innerHTML = `<div class="carga-caja">
+      <img class="carga-guia" src="${imgGuia(E.guia)}" alt="" width="130" height="125">
+      <span class="ban-txt" role="status">Subiendo tu dibujo al Padlet…</span>
+      <div class="ban-barra"><i></i></div>
+      <small class="carga-nota">No cierres la app, tarda unos segundos.</small>
+      ${promo ? `<div class="carga-promo">${bannerClub('Mientras sube… ¿conoces el Club&nbsp;Estrella?')}</div>` : ''}
+      <div class="carga-btns" hidden>${promo ? '<button type="button" class="btn amarillo" id="cg-club">★ CONOCER EL CLUB ESTRELLA</button>' : ''}<button type="button" class="btn blanco" id="cg-seguir">CONTINUAR</button></div>
+    </div>`;
+  const cb = ov.querySelector('#ch-club-b'); if (cb) cb.remove();
+  document.body.appendChild(ov);
+  return ok => new Promise(listo => {
+    const cerrar = club => { ov.remove(); listo(club); };
+    if (!ok) return cerrar(false);
+    ov.querySelector('.ban-txt').textContent = '¡Listo! Tu dibujo ya está en el Padlet 🎉';
+    ov.querySelector('.ban-barra').classList.add('llena');
+    ov.querySelector('.carga-nota').hidden = true;
+    if (!promo) return setTimeout(() => cerrar(false), Math.max(MIN - (Date.now() - t0), 900));
+    const bt = ov.querySelector('.carga-btns'); bt.hidden = false;
+    ov.querySelector('#cg-club').addEventListener('click', () => cerrar(true));
+    ov.querySelector('#cg-seguir').addEventListener('click', () => cerrar(false));
+    ov.querySelector('#cg-seguir').focus();
   });
 }
 function franjaAliados() {
@@ -1252,9 +1282,10 @@ function vistaSubir(error) {
         }, true));
       if (!confirmado) return;
       const ok = root.querySelector('#ok'); ok.disabled = true; ok.textContent = 'Publicando… no cierres la app';
-      const ban = bannerListo(a), finBanner = ban ? mostrarBanner(ban) : null;
+      const ban = bannerListo(a), finBanner = ban ? mostrarBanner(ban) : mostrarCarga();
       const r = await api('subir', { sesion: E.sesion, imagen: S.base64, tecnica: S.tecnica, descripcion: S.descripcion.trim(), propio: true });
-      if (finBanner) await finBanner(r.ok);
+      const alClub = await finBanner(r.ok);
+      if (alClub === true && r.ok) { E.semana = { id: semanaId(a), subido: true, padlet: r.padlet || '' }; guardar('semana', E.semana); if (S.vista) URL.revokeObjectURL(S.vista); Object.keys(S).forEach(k => delete S[k]); return ir('club'); }
       if (r.ok || r.error === 'ya_subiste') {
         E.semana = { id: semanaId(a), subido: true, padlet: r.padlet || '' }; guardar('semana', E.semana);
         if (S.vista) URL.revokeObjectURL(S.vista);
@@ -1616,7 +1647,7 @@ function promoClub() {
 }
 function vistaChispa() {
   pintar('<div id="chispa"></div>', root => {
-    cerrarChispa = abrirChispa({ root: root.querySelector('#chispa'), esc, club: !!(E.club && E.club.activo),   /* 8 nov 2026: candados también en Google Play; el botón solo lleva a «Conocer el Club» (sin precios ni pagos) */ icoVolver: ICO.volver,
+    cerrarChispa = abrirChispa({ root: root.querySelector('#chispa'), esc, autor: { nombre: nombreCorto(), usuario: (E.perfil && E.perfil.usuario) || '' }, club: !!(E.club && E.club.activo),   /* 8 nov 2026: candados también en Google Play; el botón solo lleva a «Conocer el Club» (sin precios ni pagos) */ icoVolver: ICO.volver,
       volver: () => ir('hoy'), irClub: () => ir('club'), promoClub });
   });
 }

@@ -574,3 +574,12 @@ p,li,.caja,.nota,.club-ban p,.sub,small,.sem-ch{text-wrap:pretty}
 /* 8 nov 2026: recordatorio de solicitudes de amistad en Hoy */
 .sol-rec{display:flex;align-items:center;gap:10px;justify-content:space-between;text-align:left}
 .sol-rec .btn{flex:none;width:auto}
+/* 8 nov 2026: pantalla «Subiendo tu dibujo…» sin banner de marca (con la promo del Club si corresponde) */
+.carga-ov{position:fixed;inset:0;z-index:95;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:calc(20px + var(--safe-t)) 20px calc(20px + var(--safe-b));overflow-y:auto;animation:ch-entra .2s ease-out}
+.carga-caja{width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.carga-guia{width:130px;height:auto}
+.carga-caja .ban-barra{border-color:var(--ink)}
+.carga-nota{color:var(--muted);font-size:13px}
+.carga-promo{width:100%}
+.carga-btns{width:100%;display:flex;flex-direction:column;gap:10px}
+.carga-btns[hidden]{display:none}

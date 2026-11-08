@@ -340,10 +340,19 @@ export function abrirChispa(ctx) {
     let fs = 30; y.font = '700 ' + fs + 'px Quicksand, sans-serif';
     while (y.measureText(linea).width > o.width - 48 && fs > 16) { fs -= 2; y.font = '700 ' + fs + 'px Quicksand, sans-serif'; }
     y.fillStyle = m[1]; y.fillText(linea, o.width / 2, ALTO + 138);
-    y.font = '700 22px Quicksand, sans-serif'; y.fillText('Reto Creativo Fest · retocreativofest.com', o.width / 2, ALTO + 172);
+    /* 8 nov 2026: la autoría va en la imagen (y en el video): nombre de pila y @usuario de la app. */
+    const au = ctx.autor || {}, us = String(au.usuario || '').replace(/^@+/, '');
+    const firma = au.nombre && us ? 'Dibujo de ' + au.nombre + ' · @' + us : us ? 'Dibujo de @' + us : au.nombre ? 'Dibujo de ' + au.nombre : '';
+    let fy = ALTO + 172;
+    if (firma) {
+      let ff = 28; y.font = '800 ' + ff + 'px Poppins, sans-serif';
+      while (y.measureText(firma).width > o.width - 48 && ff > 16) { ff -= 2; y.font = '800 ' + ff + 'px Poppins, sans-serif'; }
+      y.fillStyle = m[2]; y.fillText(firma, o.width / 2, ALTO + 178); y.fillStyle = m[1]; fy = ALTO + 214;
+    }
+    y.font = '700 22px Quicksand, sans-serif'; y.fillText('Reto Creativo Fest · retocreativofest.com', o.width / 2, fy);
     return o;
   }
-  function lienzoMarco() { const o = document.createElement('canvas'); o.width = ANCHO + 80; o.height = ALTO + 200; return o; }
+  function lienzoMarco() { const o = document.createElement('canvas'); o.width = ANCHO + 80; o.height = ALTO + (ctx.autor && (ctx.autor.usuario || ctx.autor.nombre) ? 240 : 200); return o; }
   function conMarco() { return pintarMarco(lienzoMarco()); }
   function descargar(href, nombre) { const a = document.createElement('a'); a.href = href; a.download = nombre; document.body.appendChild(a); a.click(); a.remove(); }
   /* 8 nov 2026: en Android, «Compartir» abría la lista de apps y no había forma de guardar en el teléfono.
@@ -478,7 +487,7 @@ export function mostrarPromoClub(ctx) {
   return true;
 }
 /* Banner del Club Estrella (6 nov 2026). Las estrellas son las de Stefany. */
-function bannerClub(titulo) {
+export function bannerClub(titulo) {
   const destello = '<svg class="dst" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l2.6 8.4L23 12l-8.4 2.6L12 23l-2.6-8.4L1 12l8.4-2.6z"/></svg>';
   return `<section class="club-ban" aria-labelledby="club-ban-t">${destello}${destello}
     <div class="club-ban-est"><img src="img/estrella-1.webp" alt="" width="46" height="40"><img src="img/estrella-3.webp" alt="" width="42" height="42"><img src="img/estrella-6.webp" alt="" width="44" height="42"></div>
