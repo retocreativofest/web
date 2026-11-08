@@ -223,6 +223,18 @@ export function abrirChispa(ctx) {
     parar(); dibujando = false; S.fase = 'hecha'; guardarFoto();
     if (S.ops > 0) marcarHecha();
     pintarAbajo();
+    avisoLienzo(S.ops <= 0 ? '' : S.quedan === 0 ? '⏰ ¡Se acabó el tiempo!' : '🎉 ¡Chispa terminada!');
+  }
+  /* 7 nov 2026: el aviso del final sale en el centro del dibujo y se va solo a los 2,5 segundos. */
+  function avisoLienzo(texto) {
+    if (!texto) return;
+    const l = document.querySelector('.lienzo');
+    if (!l) return;
+    const a = document.createElement('div');
+    a.className = 'ch-aviso'; a.setAttribute('role', 'status'); a.textContent = texto;
+    l.appendChild(a);
+    setTimeout(() => a.classList.add('fuera'), 2500);
+    setTimeout(() => a.remove(), 3100);
   }
   function pos(e) { const r = c.getBoundingClientRect(), t = e.touches ? e.touches[0] : e; return { x: (t.clientX - r.left) * ANCHO / r.width, y: (t.clientY - r.top) * ALTO / r.height }; }
   function tam() { const z = SIZES[club ? S.tam : 1]; return { pincel: z[1], borrador: z[2] }; }
@@ -394,7 +406,7 @@ export function abrirChispa(ctx) {
     }
     const adv = adviento();
     ab.innerHTML = `
-      <div class="caja agua" style="text-align:center">${S.video ? '🎬 Grabando el video acelerado…' : S.quedan === 0 ? '⏰ ¡Se acabó el tiempo! Tu chispa quedó así.' : '🎉 ¡Chispa terminada!'}</div>
+      ${S.video ? '<div class="caja agua" style="text-align:center">🎬 Grabando el video acelerado…</div>' : ''}
       ${adv && navidadGanada() ? '<div class="caja crema ch-insignia">🎄 <b>Insignia del Adviento ganada.</b> Tu marco ahora es verde navideño.</div>' : ''}
       <button type="button" class="btn turquesa chico" id="ch-video" ${S.video ? 'disabled' : ''}>🎬 Video acelerado${candado}</button>
       <button type="button" class="btn amarillo" id="ch-desc">⬇ GUARDAR O COMPARTIR</button>

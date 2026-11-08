@@ -538,3 +538,21 @@ p,li,.caja,.nota,.club-ban p,.sub,small,.sem-ch{text-wrap:pretty}
 .leyenda i{width:14px;height:14px;border-radius:50%;border:2px solid var(--ink);background:var(--lila-2);display:inline-block}
 .leyenda i.si{background:var(--naranja)} .leyenda i.protegida{background:var(--agua);border-style:double;border-width:3px} .leyenda i.abierta{background:var(--white);border:2px dashed var(--violeta)}
 .hist{justify-content:flex-start;flex-wrap:wrap}
+
+/* 7 nov 2026 (noche) */
+/* Personaje arriba a la derecha de las pantallas con barra */
+.barra .cara.pj{display:block;overflow:hidden;background:#FFF7E8;padding:0}
+.barra .cara.pj svg{width:100%;height:100%;display:block}
+/* Aviso del final de la chispa, en el centro del dibujo */
+.lienzo{position:relative}
+.ch-aviso{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--white);border:3px solid var(--ink);border-radius:18px;box-shadow:4px 4px 0 var(--ink);padding:12px 18px;font-family:var(--display);font-weight:800;font-size:20px;text-align:center;white-space:nowrap;pointer-events:none;animation:chAviso .35s ease-out;transition:opacity .5s,transform .5s}
+.ch-aviso.fuera{opacity:0;transform:translate(-50%,-60%)}
+@keyframes chAviso{from{opacity:0;transform:translate(-50%,-40%) scale(.9)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+/* Botones de compartir: nunca se salen de la tarjeta */
+.compartir .btn{min-width:0;max-width:100%;box-sizing:border-box}
+.compartir .cp-chico{font-size:13px;padding:9px 6px;gap:5px}
+.compartir .cp-chico span{white-space:normal;line-height:1.15}
+.compartir .cp-chico svg{width:16px;height:16px}
+.reto-card .compartir,.hoy-reto .compartir{padding-right:4px}
+.toque-pj{display:block;border-radius:50%;overflow:hidden;border:3px solid var(--ink);background:#FFF7E8;flex:none;margin:0 auto}
+.toque-pj svg{width:100%;height:100%;display:block}

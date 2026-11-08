@@ -1,6 +1,6 @@
 /* #RetoMenteMilenial · app: entrar, registro, Hoy, subir al Padlet, rachas, ranking, amigos, Chispa del día y Club Estrella */
 import * as PJ from './personaje.js?v=1';
-import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe, rachaChispas, ajustarHora, mostrarPromoClub } from './chispa.js?v=17';
+import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe, rachaChispas, ajustarHora, mostrarPromoClub } from './chispa.js?v=18';
 const CONFIG = {
   api: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
@@ -43,8 +43,10 @@ const ICO = {
   copiar: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>',
   externo: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>'
 };
+/* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
+const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '74 · 7 nov';
+const VERSION_APP = '76 · 7 nov';
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -383,7 +385,7 @@ function vistaCorreo(estado) {
     <header class="barra">
       <button type="button" class="volver" id="v" aria-label="Volver">${ICO.volver}</button>
       <div style="flex:1"><h1>Entrar con tu correo</h1><span class="sub">${paso2 ? 'Revisa tu bandeja de entrada' : 'Te mandamos un código de 6 números'}</span></div>
-      <img class="cara" src="${caraGuia(E.guia)}" alt="">
+      ${caraBarra()}
     </header>
     <form class="cont" id="f" novalidate>
       ${paso2 ? `
@@ -428,7 +430,7 @@ function vistaPerfil(error) {
     <header class="barra">
       ${editando ? `<button type="button" class="volver" id="v" aria-label="Volver">${ICO.volver}</button>` : ''}
       <div style="flex:1"><h1>Tu cuenta</h1><span class="sub">${completando ? '🎉 ¡Tu representante confirmó! Completa tus datos' : 'Así te verán en el Padlet'}</span></div>
-      <img class="cara" src="${caraGuia(E.guia)}" alt="">
+      ${caraBarra()}
     </header>
     <form class="cont" id="f" novalidate>
       ${E.correo ? `<div class="caja agua" style="display:flex;align-items:center;gap:8px"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">✓ ${esc(E.correo)}</span><button type="button" class="enlace" id="salir" style="min-height:0;padding:0 4px;font-size:12px">Cambiar</button></div>` : ''}
@@ -502,7 +504,7 @@ function vistaEdad(error) {
     <header class="barra">
       <button type="button" class="volver" id="v" aria-label="Volver">${ICO.volver}</button>
       <div style="flex:1"><h1>Edad y país</h1><span class="sub">Para aplicar las bases del reto</span></div>
-      <img class="cara" src="${caraGuia(E.guia)}" alt="">
+      ${caraBarra()}
     </header>
     <div class="cont">
       <fieldset><legend>¿Cuántos años tienes?</legend>
@@ -603,7 +605,7 @@ function vistaListo() {
   pintar(`
     <header class="barra">
       <div style="flex:1"><h1>¡Ya casi!</h1><span class="sub">Tu personaje y tus avisos · opcional</span></div>
-      <img class="cara" src="${caraGuia(E.guia)}" alt="">
+      ${caraBarra()}
     </header>
     <div class="cont listo">
       <section class="listo-pj">
@@ -797,7 +799,24 @@ function ventanaMolesto() {
     velo.querySelector('[data-cerrar]').textContent = 'Ahorita no';
   });
 }
-const STICKERS = [['img/sticker-1.webp', '¡Tú puedes!'], ['img/sticker-2.webp', '¡Qué dibujo!'], ['img/sticker-3.webp', '¡No la pierdas!']];
+const STICKERS = [['img/sticker-1.webp', '¡Tú puedes!'], ['img/sticker-2.webp', '¡Qué dibujo!'], ['img/sticker-3.webp', '¡Hola, soy yo!']];
+/* 7 nov 2026: el 3.er toque es el PERSONAJE de quien lo manda (reemplaza a «¡No la pierdas!»).
+   Si esa persona todavía no armó su personaje, sale la imagen de siempre. */
+const TOQUE_PJ = 2;
+function usuarioDelToque(tq) {
+  if (tq.usuario) return pjUsuario(tq.usuario);
+  const a = E.amigos && (E.amigos.amigos || []).find(x => x.nombre === tq.nombre);
+  return a ? pjUsuario(a.usuario) : '';
+}
+function imgToque(tq, tam) {
+  const st = STICKERS[tq.sticker] || STICKERS[0];
+  if (tq.sticker === TOQUE_PJ) {
+    const u = usuarioDelToque(tq), pj = u && E.pjs[u];
+    if (pj) return `<span class="toque-pj" style="width:${tam}px;height:${tam}px" role="img" aria-label="Personaje de ${esc(tq.nombre)}">${PJ.svg(pj)}</span>`;
+    if (u) pjPedir([u], () => { if (estaEn === 'hoy') dibujarHoy(E.hoy); });
+  }
+  return `<img src="${st[0]}" alt="Sticker de ${esc(tq.nombre)}" width="${tam}" height="${tam}">`;
+}
 const toqueNuevo = () => E.novedades && E.novedades.toques && E.novedades.toques.length ? E.novedades.toques[E.novedades.toques.length - 1] : null;
 function burbujaHoy(nom, a) {
   const pr = E.progreso, hola = '¡Hola' + (nom ? ', ' + nom : '') + '! ', tq = toqueNuevo();
@@ -868,7 +887,7 @@ function dibujarHoy(h, error) {
     cuerpo = `
       ${h.prueba ? '<div class="prueba">MODO PRUEBA · las fechas son de ejemplo</div>' : ''}
       <div class="progreso"><div class="t"><span>${esc(a.temporada)} · semana ${a.semana} de ${total - 1}</span><span>Premiación: ${premio}</span></div><div class="b"><i style="width:${pct}%"></i></div></div>
-      <div class="saludo">${toqueNuevo() ? `<img src="${(STICKERS[toqueNuevo().sticker] || STICKERS[0])[0]}" alt="Sticker de ${esc(toqueNuevo().nombre)}" width="112" height="112">` : `<img src="${imgGuia(E.guia)}" alt="${E.guia === 'tradi' ? 'Tradi' : 'Digi'} dibujando" width="112" height="108">`}<div class="burbuja">${burbujaHoy(nom, a)}</div></div>
+      <div class="saludo">${toqueNuevo() ? imgToque(toqueNuevo(), 112) : `<img src="${imgGuia(E.guia)}" alt="${E.guia === 'tradi' ? 'Tradi' : 'Digi'} dibujando" width="112" height="108">`}<div class="burbuja">${burbujaHoy(nom, a)}</div></div>
       ${tarjetaVoto(h.votacion)}
       <section class="reto${marcaReto(a) && marcaReto(a).logo ? ' con-logo' : ''}" aria-labelledby="reto-h">
         <span class="pill">Reto de la semana ${a.semana}</span>${h.clubAnticipado ? '<span class="pill-club">★ Club: lo ves 24 h antes que todos</span>' : ''}
@@ -1142,7 +1161,7 @@ function vistaSubir(error) {
     <header class="barra">
       <button type="button" class="volver" id="v" aria-label="Volver">${ICO.volver}</button>
       <div style="flex:1;min-width:0"><h1>Subir mi dibujo</h1><span class="sub">Semana ${a.semana} · ${esc(a.tema)}</span></div>
-      <img class="cara" src="${caraGuia(E.guia)}" alt="">
+      ${caraBarra()}
     </header>
     <form class="cont" id="f" novalidate>
       ${h.prueba ? '<div class="prueba">MODO PRUEBA · se publica de verdad en el Padlet</div>' : ''}
@@ -1378,7 +1397,10 @@ function sugerencias(root, d) {
       const n = ++pedido;
       const r = await extra('buscar_usuarios', { q });
       if (n !== pedido || pjUsuario(inp.value) !== q) return;   // ya escribió otra cosa
-      if (!r.ok || !Array.isArray(r.u)) return cerrar();
+      if (!r.ok || !Array.isArray(r.u)) {   // 7 nov 2026: antes se callaba; ahora dice qué pasó (el código ayuda a encontrar la falla)
+        caja.innerHTML = `<p class="nota izq" style="margin:4px 2px">No pudimos buscar en este momento. Escribe el usuario completo y toca Agregar. <small>(código: ${esc(r.error || 'respuesta')})</small></p>`;
+        caja.hidden = false; return;
+      }
       (r.u || []).forEach(x => { const pj = pjDeTexto(x.p); if (pj) E.pjs[pjUsuario(x.usuario)] = pj; });
       caja.innerHTML = r.u.length ? r.u.map(x => {
         const est = ya[pjUsuario(x.usuario)];
@@ -1447,7 +1469,7 @@ function ventanaToque(usuario, nombre) {
   ventana(`
     <h2 id="v-h" tabindex="-1">Dale un toque a ${esc(nombre)}</h2>
     <p style="font-size:14px">Le aparecerá en su app con el sticker que elijas.</p>
-    <div class="stickers">${STICKERS.map((st, i) => `<button type="button" class="sticker" data-st="${i}" aria-pressed="${i === elegido}"><img src="${st[0]}" alt="" width="80" height="80"><span>${esc(st[1])}</span></button>`).join('')}</div>
+    <div class="stickers">${STICKERS.map((st, i) => `<button type="button" class="sticker" data-st="${i}" aria-pressed="${i === elegido}">${i === TOQUE_PJ && E.pj ? `<span class="toque-pj" style="width:80px;height:80px">${PJ.svg(E.pj)}</span>` : `<img src="${st[0]}" alt="" width="80" height="80">`}<span>${esc(st[1])}</span></button>`).join('')}</div>
     <button type="button" class="btn amarillo" id="dar">DAR TOQUE</button>
     <button type="button" class="enlace" id="quitar" style="font-size:12px;color:var(--muted)">Quitar, bloquear o reportar a @${esc(usuario)}</button>`, (v, cerrar) => {
     v.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => { elegido = +b.dataset.st; v.querySelectorAll('[data-st]').forEach(x => x.setAttribute('aria-pressed', String(+x.dataset.st === elegido))); }));
