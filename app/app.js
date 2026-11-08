@@ -46,7 +46,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '76 · 7 nov';
+const VERSION_APP = '77 · 7 nov';
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -599,28 +599,39 @@ function vistaEdad(error) {
 
 /* ---------- registro: paso 3, tu personaje y tus avisos (7 nov 2026) ----------
    Las dos cosas son opcionales: se pueden cambiar después en «Yo». */
+/* 7 nov 2026 (noche): el personaje es OBLIGATORIO. Sin personaje armado por la persona no se entra a la app.
+   «Listo» = lo guardó con el editor, o ya tenía uno en el servidor. Uno al azar sin guardar (E.pjTemporal) no cuenta.
+   Los avisos siguen siendo opcionales. */
+const pjListo = () => !!E.pj && !E.pjTemporal;
 function vistaListo() {
   E.enListo = true;
-  if (!E.pj) pjRevisar();   // busca el suyo o le toca uno al azar; al llegar, vuelve a pintar esta pantalla
+  if (!E.pj) {   // busca el suyo en el servidor; mientras tanto (o si no tiene) usa uno de muestra que NO se guarda
+    pjRevisar();
+    if (!E.pj) { E.pj = PJ.nuevo(); E.pjTemporal = true; }
+  }
+  const listo = pjListo();
   pintar(`
     <header class="barra">
-      <div style="flex:1"><h1>¡Ya casi!</h1><span class="sub">Tu personaje y tus avisos · opcional</span></div>
+      <div style="flex:1"><h1>¡Ya casi!</h1><span class="sub">Arma tu personaje para&nbsp;entrar</span></div>
       ${caraBarra()}
     </header>
     <div class="cont listo">
-      <section class="listo-pj">
+      <section class="listo-pj${listo ? '' : ' pendiente'}">
         <span class="avatar pj grande">${E.pj ? PJ.svg(E.pj) : '<span class="spin" aria-hidden="true"></span>'}</span>
-        <div><strong>Tu personaje</strong><span>Así te ven tus amigos y el Ranking. Nunca usamos&nbsp;fotos.</span></div>
-        <button type="button" class="btn blanco chico" id="pj-editar" ${E.pj ? '' : 'disabled'}>✏️ Personalizar mi personaje</button>
+        <div><strong>${listo ? '✓ Tu personaje está listo' : 'Arma tu personaje'}</strong><span>${listo ? 'Puedes cambiarlo cuando quieras en&nbsp;Yo.' : 'Es tu cara en la app: así te ven tus amigos y el Ranking. Nunca usamos&nbsp;fotos.'}</span></div>
+        <button type="button" class="btn ${listo ? 'blanco' : 'amarillo'} chico" id="pj-editar" ${E.pj ? '' : 'disabled'}>${listo ? '✏️ Cambiar mi personaje' : '✏️ ARMAR MI PERSONAJE'}</button>
       </section>
       ${avisosListo()}
       <span class="pasos" aria-label="Paso 3 de 3"><i></i><i></i><i class="on"></i></span>
-      <button type="button" class="btn" id="ok">EMPEZAR</button>
+      <button type="button" class="btn" id="ok" ${listo ? '' : 'disabled'}>EMPEZAR</button>
+      ${listo ? '' : '<p class="nota" style="margin:0">Para empezar, primero arma y guarda tu&nbsp;personaje.</p>'}
     </div>`, root => {
     on('#pj-editar', 'click', () => ventanaPersonaje(vistaListo));
     activarAvisosEn(root, vistaListo);
-    on('#ok', 'click', () => { E.enListo = false; aviso('¡Listo! Bienvenid@ al #RetoMenteMilenial'); ir('hoy'); });
-  });
+    on('#ok', 'click', () => { if (!pjListo()) return; E.enListo = false; aviso('¡Listo! Bienvenid@ al #RetoMenteMilenial'); ir('hoy'); });
+  }, 'listo');
+  // la primera vez, el editor se abre solo
+  if (!listo && E.pj && !E.pjEditorAbierto && !document.querySelector('.velo')) { E.pjEditorAbierto = true; setTimeout(() => ventanaPersonaje(vistaListo), 500); }
 }
 function avisosListo() {
   const est = estadoAvisos();
@@ -684,8 +695,9 @@ function pjRevisar() {
     extra('personajes', { usuarios: [yo] }).then(r => {
       pjRevisando = false;
       const x = r.ok && r.p && pjDeTexto(r.p[yo]);
-      if (x) { E.pj = x; guardar('personaje', x); E.pjs[yo] = x; } else pjGuardar(PJ.nuevo());
-      if (E.enListo) vistaListo(); else if (estaEn) mostrar(estaEn);
+      if (x) { E.pj = x; E.pjTemporal = false; guardar('personaje', x); E.pjs[yo] = x; }
+      else { E.pj = PJ.nuevo(); E.pjTemporal = true; }   // muestra para el editor: NO se guarda hasta que la persona lo arme
+      if (E.enListo || E.pjTemporal) vistaListo(); else if (estaEn) mostrar(estaEn);
     });
     return;
   }
@@ -721,6 +733,7 @@ function ventanaPersonaje(alGuardar) {
       if (e.target.closest('#pj-azar')) { sel = PJ.nuevo(); pintarEd(); }
       if (e.target.closest('#pj-ok')) {
         pjGuardar(sel).then(r => { if (!r.ok) aviso('Se guardó en tu teléfono; tus amigos lo verán cuando haya conexión.'); });
+        E.pjTemporal = false;
         cerrarV(); aviso('Guardado ✓'); if (alGuardar) alGuardar(); else mostrar(estaEn || 'yo');
       }
     });
@@ -1811,6 +1824,7 @@ function ir(donde) {
     E.completando = true; E.borrador = { nombre: leer('nombreLocal') || '', usuario: E.perfil.usuario || '', mayor: 'No', venezuela: E.perfil.venezuela };
     return vistaPerfil();
   }
+  if (E.pjTemporal) return vistaListo();   // personaje obligatorio (7 nov 2026)
   if ((donde === 'club' || donde === 'chispa') && estaEn !== donde) E.volverA = estaEn || 'hoy';
   estaEn = donde;
   if (donde === 'subir' && bloqueado()) { aviso(ERRORES.autorizacion); estaEn = 'hoy'; donde = 'hoy'; }
