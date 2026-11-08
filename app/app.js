@@ -46,7 +46,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '77 · 7 nov';
+const VERSION_APP = '78 · 7 nov';
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -1499,12 +1499,13 @@ function ventanaToque(usuario, nombre) {
 /* ---------- Club Estrella ---------- */
 const ADV_META = 15;
 const fechaCorta = iso => { if (!iso) return ''; const [y, m, d] = iso.split('-').map(Number); return d + ' de ' + MESES[m - 1]; };
+/* 7 nov 2026: beneficios del Club (aprobados por Stefany). Se quitaron preventas, masterclass y el podcast «próximamente»
+   porque hoy no se entregan de forma constante. La Chispa Pro no se muestra en la app de Google Play. */
 const PERKS = [
-  ['Reto 24 h antes', 'Un día extra para pensar tu idea'], ['Discord privado', 'Comunidad y feedback de artistas'],
-  ['2 protectores al mes', 'Tu llama no se apaga'], ['Insignia en el ranking', 'Tu estrella junto a tu nombre: crece con los meses que sumas en el Club'],
-  ['Prioridad en preventas', 'Del concurso de dibujo en vivo y la Ruta creativa'], ['Masterclass pregrabadas', 'Para marcas creativas'],
-  ['Chispa del día Pro', 'Pincel en 3 tamaños, cubeta, cambiar la chispa 1 vez al día y video acelerado', 'ancho'],
-  ['Mención en nuestro podcast', 'Sales en los créditos y en cada capítulo sorteamos 3 dibujos de miembros', 'pronto']
+  ['Reto 24 h antes', 'Más tiempo para dibujar y publicas primero: ventaja en el Relámpago'], ['2 protectores al mes', 'Tu fuego no se apaga'],
+  ['Chispa del día Pro', 'Cubeta, pincel en 3 tamaños, cambiar la chispa 1 vez al día y video acelerado', 'ancho'],
+  ['Personaje exclusivo', 'Formas, ojos, cabellos y accesorios que solo tiene el Club'], ['Tu estrella en el ranking', 'Junto a tu nombre: crece con los meses que sumas'],
+  ['Discord privado', 'Comunidad y opiniones de otros artistas', 'ancho']
 ];
 function vistaClub(error, escribiendo) {
   const c = E.club || {};
