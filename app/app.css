@@ -559,3 +559,14 @@ p,li,.caja,.nota,.club-ban p,.sub,small,.sem-ch{text-wrap:pretty}
 .listo-pj.pendiente{background:var(--crema);box-shadow:4px 4px 0 var(--ink)}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 .sug-buscando{display:flex;align-items:center;gap:8px}.sug-buscando .spin{width:16px;height:16px}
+
+/* 8 nov 2026 · Tablets: la tarjeta queda FIJA en la pantalla y lo que se desplaza es su contenido.
+   Antes se desplazaba la página entera y, debajo de la barra de abajo (fija), se veía pasar el contenido y el borde de la tarjeta. */
+@media (min-width:700px){
+  html,body{height:100%;overflow:hidden}
+  body{box-sizing:border-box}
+  .app{height:calc(100dvh - 40px);min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+  .app::-webkit-scrollbar{display:none}
+}
+/* Toque «¡Hola, soy yo!» de alguien sin personaje: su inicial */
+.toque-ini{display:grid;place-items:center;font-family:var(--display);color:var(--ink);background:var(--amarillo)}

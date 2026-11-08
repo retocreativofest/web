@@ -176,10 +176,10 @@ let ultimaVista = '', ultimoHtml = '';
 function pintar(html, alPintar, vista) {
   const misma = !!vista && vista === ultimaVista;
   if (misma && html === ultimoHtml) return;
-  const y = window.scrollY;
+  const y = window.scrollY, ya = $app.scrollTop;   // en tablets se desplaza la tarjeta (.app), no la página
   ultimaVista = vista || ''; ultimoHtml = html;
   $app.innerHTML = html;
-  window.scrollTo(0, misma ? y : 0);
+  window.scrollTo(0, misma ? y : 0); $app.scrollTop = misma ? ya : 0;
   const h = $app.querySelector('h1, h2');
   if (h) h.setAttribute('tabindex', '-1');
   if (alPintar) alPintar($app);
@@ -771,7 +771,10 @@ async function vistaHoy() {
   if (!r.ok) { if (!E.hoy) dibujarHoy(null, textoError(r.error)); return; }
   E.hoy = r; guardar('hoy', r);   // la próxima vez se muestra al instante
   cargarPatrocinio();
-  desfase = new Date(r.ahora) - Date.now(); ajustarHora(desfase);
+  /* 8 nov 2026: en MODO PRUEBA el servidor fingía la hora (siempre «miércoles 4 nov 9 p. m.») y la cuenta regresiva
+     marcaba 4 días aunque faltara 1. La cuenta y la Chispa usan la hora REAL: «real» si el servidor la manda; si no,
+     en modo prueba la del teléfono. */
+  desfase = r.real ? new Date(r.real) - Date.now() : r.prueba ? 0 : new Date(r.ahora) - Date.now(); ajustarHora(desfase);
   if (estaEn === 'hoy') dibujarHoy(r);
   const m = await api('mi_semana', { sesion: E.sesion });
   if (m.ok) {
@@ -827,6 +830,14 @@ function imgToque(tq, tam) {
     const u = usuarioDelToque(tq), pj = u && E.pjs[u];
     if (pj) return `<span class="toque-pj" style="width:${tam}px;height:${tam}px" role="img" aria-label="Personaje de ${esc(tq.nombre)}">${PJ.svg(pj)}</span>`;
     if (u) pjPedir([u], () => { if (estaEn === 'hoy') dibujarHoy(E.hoy); });
+    /* 8 nov 2026: en Hoy la lista de amigos todavía no estaba cargada, así que no se sabía quién mandó el toque
+       y salía la imagen vieja «¡No la pierdas!». Ahora se pide la lista y se vuelve a pintar. */
+    else if (!E.amigos && !E.amigosPidiendo && E.sesion) {
+      E.amigosPidiendo = true;
+      api('amigos', { sesion: E.sesion }).then(r => { E.amigosPidiendo = false; if (r.ok) { E.amigos = r; if (estaEn === 'hoy') dibujarHoy(E.hoy); } });
+    }
+    // Mientras llega (o si esa persona no armó su personaje): su inicial en el círculo, nunca la imagen vieja.
+    return `<span class="toque-pj toque-ini" style="width:${tam}px;height:${tam}px;font-size:${Math.round(tam * .45)}px" role="img" aria-label="Toque de ${esc(tq.nombre)}">${esc(String(tq.nombre || '?').charAt(0).toUpperCase())}</span>`;
   }
   return `<img src="${st[0]}" alt="Sticker de ${esc(tq.nombre)}" width="${tam}" height="${tam}">`;
 }
