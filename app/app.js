@@ -1944,14 +1944,14 @@ async function iniciar() {
       else E.recargar = true;   // recarga en cuanto vuelva a Hoy
     });
   }
-  if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => { if (e.data && IR_AVISO.indexOf(e.data.ir) >= 0 && E.sesion) ir(e.data.ir); });
+  if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => { if (e.data && RUTAS.indexOf(e.data.ir) >= 0 && E.sesion) ir(e.data.ir); });   // 9 nov: también el aviso de la Chispa
   const params = new URLSearchParams(location.search), pedido = params.get('ir');   // al tocar un aviso
   const invita = pjUsuario(params.get('amigo') || '');   // enlace de invitación de un amigo
   if (/^[a-z0-9._]{3,30}$/.test(invita)) guardar('invitacion', invita);
   if (pedido || params.has('amigo')) history.replaceState(null, '', location.pathname);
   if (!E.sesion) return vistaBienvenida();
   const enHash = location.hash.slice(1);
-  ir(IR_AVISO.indexOf(pedido) >= 0 ? pedido : RUTAS.indexOf(enHash) >= 0 ? enHash : 'hoy');
+  ir(RUTAS.indexOf(pedido) >= 0 ? pedido : RUTAS.indexOf(enHash) >= 0 ? enHash : 'hoy');
   refrescarAvisos();
   const r = await api('perfil', { sesion: E.sesion });   // refresca los datos guardados en el teléfono
   if (r.ok) {
