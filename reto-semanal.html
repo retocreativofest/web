@@ -17,7 +17,7 @@
 <link rel="icon" type="image/png" href="assets/img/logo-rcf-64.png">
 <link rel="preload" href="assets/fonts/quicksand.woff" as="font" type="font/woff" crossorigin>
 <link rel="preload" href="assets/fonts/poppins-700.woff" as="font" type="font/woff" crossorigin>
-<link rel="stylesheet" href="assets/css/rcf.css?v=20261106b">
+<link rel="stylesheet" href="assets/css/rcf.css?v=20261109a">
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -30,12 +30,18 @@
 <main id="main">
 <section class="hero-photo page-hero"><img class="hero-bg" src="assets/img/galeria-boceto-lapiz-800.webp" srcset="assets/img/galeria-boceto-lapiz-800.webp 800w, assets/img/galeria-boceto-lapiz.webp 1600w" sizes="100vw" alt="" fetchpriority="high" decoding="async">
   <svg class="spark" style="--s:90px;top:70px;right:11%" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 2 C54 34 66 46 98 50 C66 54 54 66 50 98 C46 66 34 54 2 50 C34 46 46 34 50 2Z" fill="#FFD60A"/></svg>
-  <div class="wrap">
+  <div class="wrap" data-hasta="2026-12-06T00:00:00-04:00">
     <span class="pill p-cyan">#RetoMenteMilenial</span>
     <h1 style="max-width:26ch">Así van los puntajes para el 5 de diciembre en la UCV</h1>
     <p>Datos del Padlet desde la semana 0 a 43. Las posiciones son provisionales: cambian cada semana y el equipo organizador las verifica antes de entregar los premios.</p>
     <div class="counter"><div class="bar" id="weekBar" role="progressbar" aria-label="Semanas del reto transcurridas" aria-valuemin="0" aria-valuenow="0" aria-valuemax="43"><i id="weekFill"></i></div><b id="weekTxt">Semana 0 de 43</b></div>
     <span class="pill p-lav">Se actualiza cada semana</span>
+  </div>
+  <div class="wrap" data-desde="2026-12-06T00:00:00-04:00" hidden>
+    <span class="pill p-cyan">#RetoMenteMilenial · 3.ª temporada</span>
+    <h1 style="max-width:24ch">Un reto de dibujo cada semana, desde la Semana 0</h1>
+    <p>Mira el reto de esta semana, dibuja y súbelo desde la app. Cada semana suma puntos para los premios del Reto Creativo Fest de diciembre de 2027.</p>
+    <div class="ctas"><a class="btn b-yellow" href="la-app.html">Descargar la app</a><a class="btn b-ghost" href="#como-participar">Cómo participar</a></div>
   </div>
 </section>
 <section class="sec reto-sec" aria-label="Reto de la semana" data-reto-desde="2026-11-17T00:00:00-04:00" hidden><div class="wrap"><div class="reto-ya" data-reto-web hidden></div></div></section>
@@ -69,11 +75,13 @@
 </div></section>
 <section class="sec"><div class="wrap">
   <h2 class="h-sec">Tabla dinámica y categorías</h2>
+  <p class="lead" id="catsLead" data-desde="2026-12-06T00:00:00-04:00" hidden style="margin-top:12px;max-width:64ch">Estas son las categorías de premios de la temporada 2027. La tabla se llena con los resultados de cada semana: cuando haya artistas en carrera, aquí verás quién va ganando.</p>
   <div class="cats" id="cats"></div>
   <template id="rulesTpl"><article class="cat rules"><header><h3>Reglas en 30 segundos</h3></header><div class="body">
   <p>Quien ganó una categoría en julio no puede repetirla en diciembre, para dar espacio a nuevos talentos, pero puede seguir participando y ganar en cualquier otra categoría.</p>
   <p>En caso de empates gana quien tenga más primeros lugares; si persiste, más segundos y terceros; y luego, más me gusta.</p>
-  <p>Solo cuentan las ilustraciones de los retos 0 al 43, publicadas en el Padlet antes del cierre semanal (lunes, 8:00 p. m.). Solo participan personas venezolanas residentes en Venezuela.</p>
+  <p data-hasta="2026-12-06T00:00:00-04:00">Solo cuentan las ilustraciones de los retos 0 al 43, publicadas en el Padlet antes del cierre semanal (lunes, 8:00 p. m.). Solo participan personas venezolanas residentes en Venezuela.</p>
+  <p data-desde="2026-12-06T00:00:00-04:00" hidden>Para los premios de diciembre de 2027 cuentan los retos 0 al 44 (Fase I y Fase II), subidos desde la app antes del cierre semanal (lunes, 8:00 p. m.). Solo participan personas venezolanas residentes en Venezuela.</p>
 </div></article></template>
   <p class="legal" id="legal"></p>
 </div></section>
@@ -120,12 +128,13 @@
     <ul class="gsteps"><li><b>1 hora</b><span>de revisión a la semana por guardián</span></li><li><b>Cada dibujo</b><span>del Padlet pasa por revisión</span></li><li><b>Sin IA ni plagio</b><span>lo que no cumple las bases queda fuera</span></li></ul></div>
 </div></section>
 <section class="sec" id="ediciones" style="padding-top:24px"><div class="wrap">
-  <div class="ed-head"><span class="pill p-yellow">Ediciones anteriores</span><h2>Tres ediciones, una comunidad que no deja de crecer</h2><p class="lead">Así ha crecido el Reto Creativo Fest desde su primera edición, en julio de 2025.</p></div>
+  <div class="ed-head"><span class="pill p-yellow">Ediciones anteriores</span><h2><span data-hasta="2026-12-06T00:00:00-04:00">Tres ediciones, una comunidad que no deja de crecer</span><span data-desde="2026-12-06T00:00:00-04:00" hidden>Cuatro ediciones, una comunidad que no deja de crecer</span></h2><p class="lead">Así ha crecido el Reto Creativo Fest desde su primera edición, en julio de 2025.</p></div>
   <div class="bigphoto"><img src="assets/img/concurso-participantes-800.webp" srcset="assets/img/concurso-participantes-800.webp 800w, assets/img/concurso-participantes.webp 1600w" sizes="(max-width: 900px) 100vw, 50vw" decoding="async" alt="Participantes del concurso de dibujo con sus premios en el escenario de FACES-UCV" width="1600" height="1066" loading="lazy"></div>
   <div class="story">
     <p>El Reto Creativo Fest nació bajo el cobijo de Mente Milenial para celebrar, proyectar y unir a la comunidad del #RetoMenteMilenial, el reto semanal de ilustración digital y tradicional.</p>
-    <p>Sus dos primeras ediciones se celebraron en el Museo del Libro Venezolano, en Las Mercedes, en julio y diciembre de 2025. En agosto de 2026 el festival se mudó a la Universidad Central de Venezuela, con la misión de ser la vitrina comercial y artística del diseño local independiente.</p>
-    <p class="hl">Tres ediciones, 58 artistas premiados y 2.176 asistentes.</p>
+    <p>Sus dos primeras ediciones se celebraron en el Museo del Libro Venezolano, en Las Mercedes, en julio y diciembre de 2025. En agosto de 2026 el festival se mudó a la Universidad Central de Venezuela, con la misión de ser la vitrina comercial y artística del diseño local independiente.<span data-desde="2026-12-06T00:00:00-04:00" hidden> La 4.ª edición volvió a FACES-UCV el 5 de diciembre de 2026.</span></p>
+    <p class="hl" data-hasta="2026-12-06T00:00:00-04:00">Tres ediciones, 58 artistas premiados y 2.176 asistentes.</p>
+    <p class="hl" data-desde="2026-12-06T00:00:00-04:00" hidden>Cuatro ediciones y un reto semanal que no se detiene.</p>
   </div>
 </div></section>
 <section class="sec timeline"><div class="wrap">
@@ -135,7 +144,7 @@
     <div style="background:var(--cyansoft)"><b>Jul 2025</b><p>1.ª edición del Reto Creativo Fest · 341 asistentes.</p></div>
     <div style="background:var(--cream)"><b>Dic 2025</b><p>2.ª edición · 783 asistentes.</p></div>
     <div style="background:var(--pinksoft)"><b>Ago 2026</b><p>3.ª edición, ya en la UCV · 1.052 asistentes.</p></div>
-    <div style="background:var(--yellow)"><b>5 Dic 2026</b><p style="color:var(--ink)">4.ª edición: te esperamos.</p></div>
+    <div style="background:var(--yellow)"><b>5 Dic 2026</b><p style="color:var(--ink)"><span data-hasta="2026-12-06T00:00:00-04:00">4.ª edición: te esperamos.</span><span data-desde="2026-12-06T00:00:00-04:00" hidden>4.ª edición, de nuevo en la UCV.</span></p></div>
   </div>
 </div></section>
 <section class="sec"><div class="wrap">
@@ -157,8 +166,8 @@
   </div>
   <p class="fbase">Un proyecto de Mente Milenial</p>
 </div></footer>
-<script src="assets/js/rcf.js?v=20261102f" defer></script>
+<script src="assets/js/rcf.js?v=20261109a" defer></script>
 <script src="assets/js/premios-datos.js?v=20261019e" defer></script>
-<script src="assets/js/premios.js?v=20261019e" defer></script>
+<script src="assets/js/premios.js?v=20261109a" defer></script>
 </body>
 </html>

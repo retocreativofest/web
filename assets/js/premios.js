@@ -43,16 +43,32 @@
   }
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
 
+  /* El contenido del <template> no pasa por wireFechas: se aplican aquí data-hasta / data-desde. */
+  function fechas(el){
+    el.querySelectorAll('[data-hasta]').forEach(n => { if (Date.now() >= Date.parse(n.dataset.hasta)) n.remove(); });
+    el.querySelectorAll('[data-desde]').forEach(n => { if (Date.now() >= Date.parse(n.dataset.desde)) n.hidden = false; else n.remove(); });
+  }
   function render(rows){
     const d = parse(rows);
     const w = d.lead.match(/semana (\d+) de (\d+)/i);
-    if (w){
+    /* Desde el 6 dic 2026 (Stefany, 9 nov): mientras no haya un ganador potencial de la temporada 2027, la tabla solo
+       explica cada categoría. Los datos de 2026 (temporada de 43 semanas) no se muestran después del festival. */
+    const post = typeof POST_EVENTO !== 'undefined' && POST_EVENTO;
+    const soloExplica = post && (!w || +w[2] === 43 || !d.cats.some(c => c.items.some(it => it.status === 'Va ganando' || it.status === 'En carrera' || it.status === 'Nominado')));
+    if (w && !soloExplica && $('#weekBar')){
       const a = +w[1], b = +w[2], bar = $('#weekBar');
       $('#weekTxt').textContent = `Semana ${a} de ${b}`;
       bar.setAttribute('aria-valuenow', a); bar.setAttribute('aria-valuemax', b);
       requestAnimationFrame(() => requestAnimationFrame(() => { $('#weekFill').style.width = Math.round(a / b * 100) + '%'; }));
     }
     const cats = ORDEN.map(o => ({o, c:d.cats.find(c => c.name.toLowerCase().startsWith(o.k))})).filter(x => x.c);
+    if (soloExplica){
+      $('#cats').innerHTML = cats.map(({o, c}) => `<article class="cat"><header class="${o.h}"><h3>${esc(cap(c.name))}</h3><span class="pill">${esc(o.pill)}</span></header>
+        <p class="def">${esc(c.def)}</p><p class="def-only">Aún sin artistas en carrera: se llena con los resultados de cada semana.</p></article>`).join('') + $('#rulesTpl').innerHTML;
+      fechas($('#cats'));
+      $('#legal').textContent = 'Sujeto a las Bases y Condiciones Generales del Reto Creativo Fest. Solo participan personas venezolanas residentes en Venezuela.';
+      return;
+    }
     const html = cats.map(({o, c}) => `<article class="cat"><header class="${o.h}"><h3>${esc(cap(c.name))}</h3><span class="pill">${esc(o.pill)}</span></header>
       <p class="def">${esc(c.def)}</p><ol>${c.items.map(it => {
         if (it.status === 'Por definir') return '<li><span class="who">Puesto abierto</span><div class="det">Aún hay espacio para entrar a la nominación.</div></li>';
@@ -60,6 +76,7 @@
         return `<li class="${it.status === 'Va ganando' ? 'win' : ''}"><span class="who">${esc(nm.n)}${nm.h ? ' ' + esc(nm.h) : ''}</span><div class="det"><b>${esc(dt.v)}</b> ${esc(dt.rest)}</div></li>`;
       }).join('')}</ol></article>`).join('');
     $('#cats').innerHTML = html + $('#rulesTpl').innerHTML;
+    fechas($('#cats'));
     if (d.legal) $('#legal').textContent = d.legal;
   }
 

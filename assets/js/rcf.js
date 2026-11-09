@@ -195,10 +195,10 @@ function wireFloat(){
 /* ---------- seguidores del canal de WhatsApp ----------
    data/canal.json lo actualiza solo la tarea programada de GitHub (.github/workflows/canal.yml). */
 function wireCanal(){
-  const el = $('#canalCount'); if (!el) return;
+  const els = $$('#canalCount, [data-canal-count]'); if (!els.length) return;
   fetch('data/canal.json', {cache:'no-store'}).then(r => r.ok ? r.json() : Promise.reject()).then(d => {
     const n = Math.floor((+d.seguidores || 0) / 100) * 100;
-    if (n >= 1000) el.textContent = '+' + n.toLocaleString('es-VE');
+    if (n >= 1000) els.forEach(el => el.textContent = '+' + n.toLocaleString('es-VE'));
   }).catch(() => {});
 }
 
@@ -315,14 +315,19 @@ function wirePostEvento(){
   $$('.nav a[href="concurso.html"], .foot a[href="concurso.html"], .foot a[href="index.html#programa"], .foot a[href="index.html#prensa"]').forEach(a => (a.closest('li') || a).remove());
   $$('.nav a[href="bazar-creativo.html"]').forEach(a => a.textContent = 'Patrocinio');
   $$('.foot a[href="bazar-creativo.html"]').forEach(a => a.textContent = 'Planes de patrocinio');
+  /* 9 nov 2026 (Stefany): la Tienda sale del menú y en su lugar va la página de la app y el Club Estrella.
+     La tienda sigue abierta (pie de página) para vender el guante. */
+  $$('.nav a[href="tienda.html"]').forEach(a => a.remove());
+  const enApp = /la-app/.test(location.pathname);
   const ini = $('.nav a[href="index.html"]');
-  if (ini) ini.insertAdjacentHTML('afterend', '<a class="nav-app" href="reto-semanal.html#app">Descarga la app</a>');
+  if (ini) ini.insertAdjacentHTML('afterend', `<a class="nav-app" href="la-app.html"${enApp ? ' aria-current="page"' : ''}>Descarga la app</a>`);
+  $$('.foot a[data-link="canal"]').forEach(a => { const li = a.closest('li'); if (li) li.insertAdjacentHTML('beforebegin', '<li><a href="la-app.html">La app y el Club Estrella</a></li>'); });
   $$('.foot .fgrid > div:first-child p').forEach(p => p.innerHTML = 'Temporada 2027 del #RetoMenteMilenial<br>Descarga gratis la app del reto');
   if (/bazar-creativo/.test(location.pathname)) document.title = 'Planes de patrocinio · Reto Creativo Fest';
   if (/concurso/.test(location.pathname)) document.title = 'Concurso de dibujo · 4.ª edición · Reto Creativo Fest';
   const main = $('#main');
-  if (main && !/reto-semanal/.test(location.pathname)) main.insertAdjacentHTML('afterbegin',
-    '<a class="appband" href="reto-semanal.html#app"><b>Nueva app del #RetoMenteMilenial</b><span>Mira el reto de la semana, sube tu dibujo y cuida tu racha. Gratis →</span></a>');
+  if (main && !/reto-semanal|la-app/.test(location.pathname)) main.insertAdjacentHTML('afterbegin',
+    '<a class="appband" href="la-app.html"><b>Nueva app del #RetoMenteMilenial</b><span>Mira el reto de la semana, sube tu dibujo y cuida tu racha. Gratis →</span></a>');
 }
 
 /* ---------- reto de la semana (desde la 3.ª temporada) ----------
@@ -338,7 +343,7 @@ function cuandoW(iso){
 function wireRetoWeb(){
   const cajas = $$('[data-reto-web]');
   if (!cajas.length || !CONFIG.retoWeb) return;
-  const appBtn = '<a class="btn b-yellow" href="reto-semanal.html#app">Participa desde la app</a>';
+  const appBtn = '<a class="btn b-yellow" href="la-app.html">Participa desde la app</a>';
   fetch(CONFIG.retoWeb, {cache:'no-store'}).then(r => r.ok ? r.json() : Promise.reject()).then(d => {
     if (!d || !d.ok) return;
     const ahora = Date.parse(d.ahora) || Date.now(), r = d.reto;
@@ -358,7 +363,7 @@ function wireRetoWeb(){
     }
     if (!html) return;
     const al = d.aliados || [];
-    const franja = al.length ? `<div class="aliados-web"><div class="aw-t"><b>🏷️ Descuentos para la comunidad</b><span>Los códigos están en la app del reto. Descárgala gratis para usarlos.</span></div><ul>${al.map(x => `<li>${x.logo ? `<img src="${esc(x.logo)}" alt="" height="40">` : ''}<span><b>${esc(x.nombre)}</b>${x.descuento ? ': ' + esc(x.descuento) : ''}</span></li>`).join('')}</ul><a class="btn b-yellow" href="reto-semanal.html#app">Descargar la app</a></div>` : '';
+    const franja = al.length ? `<div class="aliados-web"><div class="aw-t"><b>🏷️ Descuentos para la comunidad</b><span>Los códigos están en la app del reto. Descárgala gratis para usarlos.</span></div><ul>${al.map(x => `<li>${x.logo ? `<img src="${esc(x.logo)}" alt="" height="40">` : ''}<span><b>${esc(x.nombre)}</b>${x.descuento ? ': ' + esc(x.descuento) : ''}</span></li>`).join('')}</ul><a class="btn b-yellow" href="la-app.html">Descargar la app</a></div>` : '';
     cajas.forEach(c => {
       const sec = c.closest('.reto-sec');
       if (sec && sec.hasAttribute('data-solo-post') && !POST_EVENTO) return;   // en el inicio, solo después del festival
