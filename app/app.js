@@ -282,6 +282,7 @@ function mostrarCarga() {
   });
 }
 function franjaAliados() {
+  if (!E.perfil || E.perfil.mayor !== 'Sí') return '';   // 9 nov 2026: los menores nunca reciben ofertas (tampoco códigos de descuento)
   const al = ((E.patro && E.patro.r && E.patro.r.aliados) || []).filter(x => x.codigo);
   if (!al.length) return '';
   return `<div class="codigos-app"><strong>🏷️ Descuentos para la comunidad</strong>${al.map(x => `<div class="codigo-app">${x.logo ? `<img src="${esc(x.logo)}" alt="${esc(x.nombre)}" height="30">` : ''}<span><b>${esc(x.nombre)}</b>${x.descuento ? ': ' + esc(x.descuento) : ''}</span><button type="button" class="codigo-btn" data-codigo="${esc(x.codigo)}" aria-label="Copiar el código ${esc(x.codigo)}">${esc(x.codigo)} <small>Copiar</small></button></div>`).join('')}</div>`;
