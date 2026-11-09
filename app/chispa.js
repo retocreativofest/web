@@ -115,16 +115,19 @@ export function rachaChispas() {
   while (hechas[new Date(d).toISOString().slice(0, 10)]) { n++; d -= 864e5; }
   return n;
 }
+/* Chispas del año en este aparato (9 nov 2026, pedido de Stefany): se reinicia el 1 de enero. No se guarda en el servidor. */
+export function chispasDelAnio() { const a = diaCaracas().slice(0, 4); return { anio: a, n: (leerLS('chispas') || []).filter(d => d.slice(0, 4) === a).length }; }
 export function chispaHechaHoy() { return (leerLS('chispas') || []).indexOf(diaCaracas()) >= 0; }
 function marcarHecha() {
   const dia = diaCaracas(), hechas = (leerLS('chispas') || []).filter(d => d !== dia);
-  hechas.push(dia); guardarLS('chispas', hechas.slice(-60)); navidadGanada();
+  hechas.push(dia); guardarLS('chispas', hechas.slice(-400)); navidadGanada();   // 9 nov 2026: se guarda el año completo (antes 60 días)
 }
 /* Une las dos últimas palabras con un espacio que no se corta: así nunca queda una palabra sola en la última línea
    (para los teléfonos que todavía no entienden text-wrap: balance). */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 const hexRgb = h => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
 
+const IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 /* ctx: { root, esc, club (bool), volver(), irClub() } */
 export function abrirChispa(ctx) {
   const { root, esc } = ctx, club = !!ctx.club;
@@ -362,6 +365,16 @@ export function abrirChispa(ctx) {
   async function guardarImagen() {
     const blob = await imagenChispa();
     if (!blob) return;
+    /* 9 nov 2026: en iPhone y iPad la descarga abre una vista previa que, al cerrarla, dejaba la app descolocada
+       (menú a media pantalla). Ahí «Guardar» usa la hoja de compartir del sistema, que trae «Guardar imagen» (va a Fotos). */
+    if (IOS) {
+      const archivo = new File([blob], nombreImg(), { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
+        const n = $('#ch-nota'); if (n) n.textContent = 'Toca «Guardar imagen» para guardarla en Fotos.';
+        try { await navigator.share({ files: [archivo] }); setTimeout(ventanaClub, 400); } catch (e) {}
+        return;
+      }
+    }
     const url = URL.createObjectURL(blob);
     descargar(url, nombreImg());
     setTimeout(() => URL.revokeObjectURL(url), 60000);
