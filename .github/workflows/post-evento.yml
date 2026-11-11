@@ -1,0 +1,30 @@
+name: Título de la web después del festival
+on:
+  schedule:
+    - cron: '10 4 * * *'   # 12:10 a. m. en Caracas, todos los días (si ya está hecho, no cambia nada)
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency:
+  group: datos-publicos
+  cancel-in-progress: false
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/post_evento.py
+      - name: Guardar si cambió
+        run: |
+          if ! git diff --quiet index.html concurso.html; then
+            git config user.name "rcf-bot"
+            git config user.email "rcf-bot@users.noreply.github.com"
+            git add index.html concurso.html
+            git commit -m "La vista previa de la web deja atrás el festival (6 dic)"
+            git pull --rebase
+            git push
+          fi

@@ -328,8 +328,12 @@ function wirePostEvento(){
   $$('.foot .fgrid > div:first-child p').forEach(p => p.innerHTML = 'Temporada 2027 del #RetoMenteMilenial<br>Descarga gratis la app del reto');
   if (/bazar-creativo/.test(location.pathname)) document.title = 'Planes de patrocinio · Reto Creativo Fest';
   if (/concurso/.test(location.pathname)) document.title = 'Concurso de dibujo · 4.ª edición · Reto Creativo Fest';
+  /* 11 nov 2026: el Inicio ya es todo sobre la app (portada con «Descargar la app»), así que ahí no va la franja amarilla
+     (eran tres invitaciones a descargar en la primera pantalla) y la pestaña deja de decir «2026». */
+  const enInicio = /(^|\/)(index\.html)?$/.test(location.pathname);
+  if (enInicio) document.title = 'Reto Creativo Fest · Dibuja cada semana con el #RetoMenteMilenial';
   const main = $('#main');
-  if (main && !/reto-semanal|la-app/.test(location.pathname)) main.insertAdjacentHTML('afterbegin',
+  if (main && !enInicio && !/reto-semanal|la-app/.test(location.pathname)) main.insertAdjacentHTML('afterbegin',
     '<a class="appband" href="la-app.html"><b>Nueva app del #RetoMenteMilenial</b><span>Mira el reto de la semana, sube tu dibujo y cuida tu racha. Gratis →</span></a>');
 }
 
