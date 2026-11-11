@@ -50,7 +50,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '93 · 11 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '94 · 11 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -1199,7 +1199,7 @@ async function comprimir(archivo) {
     throw e;
   }
   {
-    const max = 1600, esc_ = Math.min(1, max / Math.max(foto.ancho, foto.alto));
+    const max = 1200, esc_ = Math.min(1, max / Math.max(foto.ancho, foto.alto));   // 11 nov: 1200 px (antes 1600) para que el Padlet cargue más rápido
     if (!foto.ancho || !foto.alto) throw new Error('imagen');
     const c = document.createElement('canvas');
     c.width = Math.round(foto.ancho * esc_); c.height = Math.round(foto.alto * esc_);
