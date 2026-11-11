@@ -11,9 +11,12 @@ const CONFIG = {
   patreon: 'https://www.patreon.com/RetoMenteMilenial',
   app: '',                                  // enlace de la app (PWA). Vacío = «Llega en diciembre». Al lanzarla, pega aquí la URL y la web cambia sola a «Instálala».
   postEvento: '2026-12-06T00:00:00-04:00',  // desde esta fecha la web deja el festival atrás: sin concurso, «Bazar creativo» → «Planes de patrocinio» y todo apunta a la app
+  premiosCSV2027: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6fo9pFeab6FLkjaZGivwzHtenKI-FiXMD8rLLoAvU1JlngyIN4aF5BHZ4wzpPy1HMJKQNyuzbA3Fp/pub?gid=1238618466&single=true&output=csv',   // «Así van los premios» del Tablero 2027 (3.ª temporada)
+  premiosCSV2027Desde: '2026-12-29T21:30:00-04:00',   // desde aquí la web lee el Tablero 2027 (ya con el podio de la Semana 0). Antes mostraría los datos de 2026
   retoWeb: 'https://script.google.com/macros/s/AKfycbxk2KkAccQuJHmErsKb8VTIrJtKTaiN3jgsIlue3S3hgVabA_BjcD3j8qQZ36hyBKzh4g/exec'                               // URL del Apps Script «Reto de la semana · web» (termina en /exec). Vacío = la tarjeta del reto no aparece.
 };
 const POST_EVENTO = Date.now() >= Date.parse(CONFIG.postEvento);
+if (CONFIG.premiosCSV2027 && Date.now() >= Date.parse(CONFIG.premiosCSV2027Desde)) CONFIG.premiosCSV = CONFIG.premiosCSV2027;   // 11 nov: cambio automático al Tablero 2027
 
 const PRODUCTOS = [
   {id:'ruta', hasta:CONFIG.postEvento, nombre:'Ruta creativa', desc:'Recorre el evento haciendo retos de dibujo y participa en un increíble sorteo con premios. Actividad apta para todo público.', precio:3, cat:'Actividades', modo:'disponible', color:'#FFFFFF', img:'assets/img/tienda-ruta-creativa-640.webp', imgStyle:'inset:auto;left:-4%;top:13%;width:92%;height:auto;object-fit:contain'},
