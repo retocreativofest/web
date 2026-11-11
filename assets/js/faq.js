@@ -12,7 +12,8 @@ const FAQ_EVENTO = [
   ['Ilustración más interactiva: ¿cómo se gana?', `<p><b>Solo reconocimiento · 1 ganador · rotativa por año.</b> La organización entrega solo una medalla conmemorativa; si una marca aliada la patrocina, puede sumar su propio premio. Se puede sumar a otra categoría. Quien la ganó no puede volver a ganarla en la siguiente edición del mismo año.</p><p><b>Cómo se clasifica:</b> la ilustración con más me gusta del Padlet. Los votos se revisan para confirmar que son reales.</p>`],
   ['Elección de la comunidad: ¿cómo se gana?', `<p>Se vota el día del evento.</p>`],
   ['¿Puedo ganar más de una categoría?', `<p>Cada persona gana solo una categoría principal: Estrella, Destacados, Relámpago, Digital, Tradicional o Premio a la constancia.</p><p>Solo la <b>Ilustración más interactiva</b> se puede ganar además de una categoría principal, porque es un reconocimiento (medalla conmemorativa). El Premio a la constancia y la Ilustración más interactiva son rotativas por año.</p>`],
-  ['¿Qué pasa si hay un empate?', `<p>Gana quien tenga más primeros lugares; si sigue el empate, más segundos y terceros; luego, más me gusta.</p>`]
+  ['¿Qué pasa si hay un empate?', `<p>Gana quien tenga más primeros lugares; si sigue el empate, más segundos y terceros; luego, más me gusta.</p>`],
+  ['¿Y si hay empate en la votación de la semana?', `<p>Si dos dibujos empatan en votos, gana quien tenga más me gusta en el Padlet. Si siguen empatados, gana quien subió su dibujo primero. Los puestos del podio no se comparten. Lo mismo pasa para entrar a las 5 finalistas: con los mismos me gusta, entra quien subió primero.</p>`]
  ]},
  {id:'evento', t:'El evento', c:'#FFD60A', q:[
   ['¿Cuándo y dónde es el Reto Creativo Fest?', `<p>El <b>sábado 5 de diciembre</b>, de 10:00 a. m. a 4:00 p. m., en la Facultad de Ciencias Económicas y Sociales (FACES) de la Universidad Central de Venezuela, Caracas.</p><a class="act" href="index.html#programa">Ver el programa</a>`],

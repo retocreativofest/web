@@ -50,7 +50,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '92 · 11 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '93 · 11 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -1061,7 +1061,7 @@ function dibujarVotar(v, error) {
     const elegido = fins.find(f => f.id === v.miVoto);
     if (v.prueba) cuerpo += '<div class="prueba">VOTACIÓN DE PRUEBA</div>';
     if (abierta) {
-      cuerpo += `<div class="caja agua"><strong class="t">Semana ${v.semana} · cierra el ${fecha(v.cierra)} a las ${hora(v.cierra)}</strong>Toca un dibujo para verlo grande. Tienes <b>un solo voto</b> y no se puede cambiar.${v.total ? ` Van <b>${v.total}</b> ${v.total === 1 ? 'voto' : 'votos'} en total.` : ''} Los votos de cada dibujo no se muestran: al cierre solo se publican los del podio.</div>`;
+      cuerpo += `<div class="caja agua"><strong class="t">Semana ${v.semana} · cierra el ${fecha(v.cierra)} a las ${hora(v.cierra)}</strong>Toca un dibujo para verlo grande. Tienes <b>un solo voto</b> y no se puede cambiar.${v.total ? ` Van <b>${v.total}</b> ${v.total === 1 ? 'voto' : 'votos'} en total.` : ''} Los votos de cada dibujo no se muestran: al cierre solo se publican los del podio. Si hay empate, gana quien tenga más «Me gusta» y, si siguen empatados, quien subió primero.</div>`;
       if (elegido) cuerpo += `<div class="caja crema" style="text-align:center">✓ Votaste por <b>${nombreFin(elegido)}</b>. El podio sale el ${fecha(v.cierra)} a las ${hora(v.cierra)}</div>`;
       else if (!v.puede) cuerpo += '<div class="caja rosa"><strong class="t">Para votar, participa primero</strong>Votan quienes ya subieron al menos un dibujo esta temporada. Sube tu dibujo de esta semana y la próxima votación es tuya.</div>';
     } else {
