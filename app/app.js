@@ -1,6 +1,6 @@
 /* #RetoMenteMilenial · app: entrar, registro, Hoy, subir al Padlet, rachas, ranking, amigos, Chispa del día y Club Estrella */
 import * as PJ from './personaje.js?v=1';
-import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe, rachaChispas, ajustarHora, mostrarPromoClub, bannerClub } from './chispa.js?v=22';
+import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe, rachaChispas, chispasDelAnio, ajustarHora, mostrarPromoClub, bannerClub } from './chispa.js?v=22';
 const CONFIG = {
   api: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
@@ -50,7 +50,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '90 · 10 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '91 · 10 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -1743,9 +1743,13 @@ function activarAvisosEn(root, despues) {
 /* ---------- Yo ---------- */
 function progresoHtml() {
   const pr = E.progreso;
-  if (!pr) return '';
+  /* 10 nov 2026: el total de chispas del año pasó de la tarjeta de «Hoy» a «Yo» (pedido de Stefany). */
+  const ch = rachaChispas(), sem = chispasDeLaSemana(), anio = chispasDelAnio();
   return `<section class="progreso-yo" aria-label="Tu progreso">
-    <div class="stats"><div><b>${ICO.fuego} ${pr.racha}</b><span>racha actual</span></div><div><b>${pr.mejor}</b><span>mejor racha</span></div><div><b>${pr.semanas}</b><span>semanas con dibujo</span></div></div>
+    ${pr ? `<p class="stats-tit">Reto semanal</p>
+    <div class="stats"><div><b>${ICO.fuego} ${pr.racha}</b><span>racha actual</span></div><div><b>${pr.mejor}</b><span>mejor racha</span></div><div><b>${pr.semanas}</b><span>semanas con dibujo</span></div></div>` : ''}
+    <p class="stats-tit">Chispa del día</p>
+    <div class="stats"><div><b>${ICO.chispaMini} ${ch}</b><span>${ch === 1 ? 'día seguido' : 'días seguidos'}</span></div><div><b>${sem}</b><span>esta semana</span></div><div><b>${anio.n}</b><span>chispas en ${anio.anio}</span></div></div>
   </section>`;
 }
 function vistaYo() {
