@@ -16,6 +16,8 @@ const CONFIG = {
   retoWeb: 'https://script.google.com/macros/s/AKfycbxk2KkAccQuJHmErsKb8VTIrJtKTaiN3jgsIlue3S3hgVabA_BjcD3j8qQZ36hyBKzh4g/exec'                               // URL del Apps Script «Reto de la semana · web» (termina en /exec). Vacío = la tarjeta del reto no aparece.
 };
 const POST_EVENTO = Date.now() >= Date.parse(CONFIG.postEvento);
+/* 11 nov 2026 (Stefany): desde el 6 dic la página del concurso lleva directo al Inicio (el concurso es de cada edición). */
+if (POST_EVENTO && /(^|\/)concurso(\.html)?$/.test(location.pathname)) location.replace('index.html');
 if (CONFIG.premiosCSV2027 && Date.now() >= Date.parse(CONFIG.premiosCSV2027Desde)) CONFIG.premiosCSV = CONFIG.premiosCSV2027;   // 11 nov: cambio automático al Tablero 2027
 
 const PRODUCTOS = [

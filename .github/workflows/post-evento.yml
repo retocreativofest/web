@@ -20,10 +20,10 @@ jobs:
       - run: python scripts/post_evento.py
       - name: Guardar si cambió
         run: |
-          if ! git diff --quiet index.html concurso.html; then
+          if ! git diff --quiet index.html concurso.html sitemap.xml; then
             git config user.name "rcf-bot"
             git config user.email "rcf-bot@users.noreply.github.com"
-            git add index.html concurso.html
+            git add index.html concurso.html sitemap.xml
             git commit -m "La vista previa de la web deja atrás el festival (6 dic)"
             git pull --rebase
             git push

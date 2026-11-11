@@ -14,6 +14,9 @@ CAMBIOS = {
         ('Festival de ilustración en Caracas: concurso de dibujo en vivo, charlas, bazar creativo y premiación del #RetoMenteMilenial. Sábado 5 de diciembre en FACES-UCV. Entrada gratuita.',
          'Dibuja cada semana con el #RetoMenteMilenial: descarga gratis la app, mira el reto, sube tu dibujo y gana premios en el Reto Creativo Fest, el festival de ilustración de Caracas.'),
     ],
+    'sitemap.xml': [   # la página del concurso lleva al Inicio: sale del mapa del sitio para Google
+        ('  <url><loc>https://retocreativofest.com/concurso.html</loc></url>\n', ''),
+    ],
     'concurso.html': [
         ('Concurso de dibujo en vivo «Luces de Navidad en Venezuela». Sábado 5 de diciembre en el Sótano de FACES-UCV. Requisitos, programa y jurado.',
          'Así fue el concurso de dibujo en vivo «Luces de Navidad en Venezuela» de la 4.ª edición del Reto Creativo Fest. Sigue dibujando cada semana con el #RetoMenteMilenial.'),
