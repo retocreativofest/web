@@ -5,7 +5,7 @@
   const ORDEN = [
     {k:'ilustrador estrella',          h:'h-yellow', pill:'1 ganador'},
     {k:'premio a la constancia',       h:'h-soft',   pill:'1 ganador'},
-    {k:'ilustración más interactiva',  h:'h-lav',    pill:'1 ganador'},
+    {k:'ilustración más interactiva',  h:'h-lav',    pill:'Reconocimiento'},
     {k:'mejor ilustración digital',    h:'h-cyan',   pill:'1 ganador · 4 nominados'},
     {k:'mejor ilustración tradicional',h:'h-pink',   pill:'1 ganador · 4 nominados'},
     {k:'ilustradores destacados',      h:'h-purple', pill:'3 ganadores'},
@@ -18,6 +18,8 @@
   const DEF = {
     /* 10 nov 2026: la hoja dice que se puede sumar; según las bases es categoría principal (no se suma) y rotativa por año. */
     'premio a la constancia':        () => 'Quien participó en más semanas del periodo, seguidas o no. Es una categoría principal: no se suma a otro premio y es rotativa por año.',
+    /* 10 nov 2026: es solo un reconocimiento (medalla), no incluye premios. */
+    'ilustración más interactiva':   () => 'La ilustración con más «Me gusta» del Padlet. Los votos se revisan para confirmar que son reales. Es solo un reconocimiento (medalla conmemorativa, sin premios) y se puede sumar a otra categoría.',
     'mejor ilustración digital':     () => `Nominadas: las 4 ilustraciones digitales con más «Me gusta» en el Padlet (${votoSemanal()}). El jurado elige la ganadora.`,
     'mejor ilustración tradicional': () => `Nominadas: las 4 ilustraciones tradicionales con más «Me gusta» en el Padlet (${votoSemanal()}). El jurado elige la ganadora.`
   };
