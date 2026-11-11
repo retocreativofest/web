@@ -17,7 +17,7 @@
 <link rel="icon" type="image/png" href="assets/img/logo-rcf-64.png">
 <link rel="preload" href="assets/fonts/quicksand.woff" as="font" type="font/woff" crossorigin>
 <link rel="preload" href="assets/fonts/poppins-700.woff" as="font" type="font/woff" crossorigin>
-<link rel="stylesheet" href="assets/css/rcf.css?v=20261111a">
+<link rel="stylesheet" href="assets/css/rcf.css?v=20261111b">
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -78,6 +78,45 @@
 </div></section>
 <section class="sec reto-sec" aria-label="Reto de la semana" data-solo-post hidden><div class="wrap"><div class="reto-ya" data-reto-web hidden></div></div></section>
 <section class="sec" aria-label="Tienda" data-hasta="2026-12-06T00:00:00-04:00"><div class="wrap"><div class="pgrid" data-products></div></div></section>
+<section class="sec charlas" id="charlas" data-hasta="2026-12-06T00:00:00-04:00"><div class="wrap">
+  <span class="pill p-yellow">5 de diciembre · Auditorio naranja de FACES-UCV</span>
+  <h2>Charlas con propósito</h2>
+  <p class="lead">La intención de nuestras charlas es unir fuerzas en apoyo a nuestra comunidad universitaria y promover el talento&nbsp;creativo.</p>
+  <div class="ch-or">
+    <img class="ch-all" src="assets/img/charlas-oradores.webp" width="1500" height="616" loading="lazy" alt="">
+    <a style="--l:0%;--w:24.9%" href="https://www.instagram.com/hamktrazos/" target="_blank" rel="noopener" aria-label="HamkTrazos: «Vida en trazos», 11:00 a. m. Abre su Instagram en otra pestaña"><img src="assets/img/charla-hamktrazos.webp?v=2" width="363" height="600" loading="lazy" alt="HamkTrazos, 11:00 a. m.: Vida en trazos"><span>@hamktrazos</span></a>
+    <a style="--l:33.4%;--w:24.9%" href="https://www.instagram.com/olivarescfc/" target="_blank" rel="noopener" aria-label="Oscar Olivares: «Cómo vivir del arte en Venezuela», 12:00 p. m. Abre su Instagram en otra pestaña"><img src="assets/img/charla-olivares.webp?v=2" width="363" height="600" loading="lazy" alt="Oscar Olivares, 12:00 p. m.: Cómo vivir del arte en Venezuela"><span>@olivarescfc</span></a>
+    <a style="--l:62.3%;--w:37.7%" href="https://www.instagram.com/garabatoenvivo/" target="_blank" rel="noopener" aria-label="Garabato: «Los Garabatos también se escuchan», 1:00 p. m. Abre su Instagram en otra pestaña"><img src="assets/img/charla-garabato.webp?v=2" width="551" height="600" loading="lazy" alt="Garabato, 1:00 p. m.: Los Garabatos también se escuchan"><span>@garabatoenvivo</span></a>
+  </div>
+  <h3>Productos aceptados</h3>
+  <div class="ch-prod">
+    <div><img src="assets/img/charlas-insumos.webp" width="859" height="240" loading="lazy" alt="Juguetes, alimentos no perecederos y productos de higiene personal"><b>Insumos de primera necesidad</b><p>Para el Centro de Acopio&nbsp;UCV.</p></div>
+    <div><img src="assets/img/charlas-arte.webp" width="859" height="197" loading="lazy" alt="Marcadores, blocs, lápices, pinturas, pinceles, pega, cinta, cartulinas y tijeras"><b>Material de arte</b><p>Todo el material de arte recolectado se utilizará para seguir impulsando nuestros eventos&nbsp;creativos.</p></div>
+  </div>
+  <p class="ch-nota"><b>Donación individual</b> (únicamente productos&nbsp;nuevos).<br>Los menores de 12 años no requieren presentar&nbsp;donación.</p>
+</div></section>
+<section class="sec" id="asistencia" data-hasta="2026-12-06T00:00:00-04:00" style="background:var(--yellowsoft,#FFF6CC);border-top:3px solid var(--ink)"><div class="wrap lead-wrap">
+  <div class="txt"><span class="pill p-ink">Entrada gratuita</span><h2>Confirma tu asistencia</h2>
+    <p class="lead">El festival es libre y no necesitas registrarte para entrar. Si nos dices que vienes, nos ayudas a preparar el espacio para todos. Te toma 30&nbsp;segundos.</p>
+    <p class="lead" style="font-size:15px"><b>Sábado 5 de diciembre</b>, de 10:00 a. m. a 4:00&nbsp;p.&nbsp;m.<br>FACES-UCV, Caracas</p></div>
+  <form class="lform card" data-form="asistencia" novalidate>
+    <label class="fl" for="as-nombre">Tu nombre<input id="as-nombre" name="nombre" type="text" autocomplete="name" maxlength="80" placeholder="Nombre y apellido" required></label>
+    <label class="fl" for="as-correo">Tu correo<input id="as-correo" name="correo" type="email" autocomplete="email" placeholder="tucorreo@gmail.com" required></label>
+    <label class="fl" for="as-personas">¿Cuántas personas vienen, contándote?<select id="as-personas" name="personas" required><option value="1">Solo yo</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 o más</option></select></label>
+    <fieldset class="chips-in"><legend>¿A qué vienes? (puedes marcar varias)</legend>
+      <label><input type="checkbox" name="vienes" value="Concurso"> Concurso</label><label><input type="checkbox" name="vienes" value="Bazar"> Bazar</label><label><input type="checkbox" name="vienes" value="Charlas"> Charlas</label><label><input type="checkbox" data-todas="vienes"> Todas las anteriores</label></fieldset>
+    <fieldset class="chips-in"><legend>¿Viene alguien menor de 18 años?</legend>
+      <label><input type="radio" name="menores" value="No" checked> No</label><label><input type="radio" name="menores" value="Sí"> Sí</label></fieldset>
+    <label class="fl" for="as-enterado">¿Cómo te enteraste?<select id="as-enterado" name="enterado" required><option value="">Elige una opción</option><option>Instagram</option><option>TikTok</option><option>Canal de WhatsApp</option><option>Un amigo o familiar</option><option>Un patrocinante</option><option>Otro</option></select></label>
+    <label class="check"><input type="checkbox" name="avisos" value="Sí"> <span>Quiero que me avisen del próximo Reto Creativo Fest.</span></label>
+    <label class="check"><input type="checkbox" name="consentimiento" value="Sí" required> <span>Acepto que guarden estos datos para organizar el festival. Si soy menor de 18 años, tengo el permiso de mi representante. <a href="privacidad.html">Privacidad</a></span></label>
+    <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <p class="ferr" role="alert" hidden></p>
+    <button class="btn b-ink y" type="submit">Voy a ir</button>
+    <div class="fok" role="status" hidden><p style="margin:0 0 10px"><b>¡Te esperamos el sábado 5 de diciembre!</b> Si cambia algo, te escribimos.</p>
+      <div class="ctas"><a class="btn b-ink" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Reto%20Creativo%20Fest%202026&amp;dates=20261205T140000Z%2F20261205T200000Z&amp;location=FACES-UCV%2C%20Caracas&amp;details=Festival%20de%20ilustraci%C3%B3n%2C%20entrada%20gratuita.%20retocreativofest.com" target="_blank" rel="noopener">Agregar a mi calendario</a><a class="btn b-cyan" style="background:var(--cyansoft);border-color:var(--ink)" data-link="canal" href="#">Unirme al canal</a></div></div>
+  </form>
+</div></section>
 <section class="sec canal-sec" aria-labelledby="canal-h" data-desde="2026-12-06T00:00:00-04:00" hidden><div class="wrap canal-card">
   <div class="txt"><span class="pill p-white">Canal de WhatsApp</span><h2 id="canal-h">Entérate primero de todo</h2>
     <p class="lead">El reto de cada semana, los ganadores, las fechas del próximo Reto Creativo Fest y los descuentos de nuestras marcas aliadas llegan primero al canal. Es gratis y nadie ve tu número.</p>
@@ -121,44 +160,6 @@
     <div><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 C54 34 66 46 96 50 C66 54 54 66 50 96 C46 66 34 54 4 50 C34 46 46 34 50 4Z" fill="#F0479B" stroke="#0B0B0F" stroke-width="6" stroke-linejoin="round"/></svg><h3>Premiación</h3><p>A las 3:00 p.m: ganadores del concurso y del #RetoMenteMilenial.</p></div>
   </div>
   <div class="sched-wrap" role="region" aria-label="Programa del sábado 5 de diciembre" tabindex="0"><div class="sched"><span></span><div class="hd"><b>Auditorio naranja</b>Charlas y premiación</div><div class="hd"><b>Sótano de FACES</b>Concurso de dibujo</div><div class="hd"><b>Planta baja de FACES</b>Bazar y premiación secundaria</div><div class="cell c-time">9:00 a.m<br>9:50 a.m</div><div class="cell c-off"><span><b>Solo participantes</b><small>El público entra desde las 10:00 a.m</small></span></div><div class="cell c-p"><span><b>Check-in</b>Participantes del concurso</span></div><div class="cell c-off"><span><b>Montaje del bazar</b><small>Abre a las 10:00 a.m</small></span></div><div class="cell c-time">10:00 a.m<br>10:45 a.m</div><div class="cell c-y"><span><b>Bienvenida</b><small>Apertura de puertas al público</small></span></div><div class="cell c-p"><span><b>Primer lote</b>12 personas</span></div><div class="cell c-c" style="grid-column:4;grid-row:3 / span 5"><span><b>Bazar de emprendimientos y Ruta Creativa</b></span></div><div class="cell c-time">11:00 a.m<br>11:45 a.m</div><div class="cell c-y"><span><b>Primera Charla</b>@hamktrazos</span></div><div class="cell c-p"><span><b>Segundo lote</b>12 personas</span></div><div class="cell c-time">12:00 p.m<br>12:45 p.m</div><div class="cell c-y"><span><b>Segunda Charla</b>@olivarescfc</span></div><div class="cell c-p"><span><b>Tercer lote</b>12 personas</span></div><div class="cell c-time">1:00 p.m<br>1:45 p.m</div><div class="cell c-y"><span><b>Tercera Charla</b>@garabatoenvivo</span></div><div class="cell c-p" style="grid-column:3;grid-row:6 / span 2"><span><b>Deliberación del jurado</b><small>1:00 p.m a 2:50 p.m</small></span></div><div class="cell c-time">2:00 p.m<br>2:50 p.m</div><div class="cell c-y" style="grid-column:2"><span><b>Descanso</b></span></div><div class="cell c-time">3:00 p.m<br>3:45 p.m</div><div class="cell c-y"><span><b>Premiación principal</b><small>#RetoMenteMilenial<br>(3:00 p.m)</small></span></div><div class="cell c-p"><span><b>Premiación en el auditorio</b></span></div><div class="cell c-c"><span><b>Premiación secundaria</b><small>(3:40 p.m)</small></span></div><div class="cell c-time" style="min-height:56px">4:00 p.m</div><div class="cell c-h" style="grid-column:2 / span 3;min-height:56px">CIERRE DEL EVENTO</div></div></div>
-</div></section>
-<section class="sec charlas" id="charlas" data-hasta="2026-12-06T00:00:00-04:00"><div class="wrap">
-  <span class="pill p-yellow">5 de diciembre · Auditorio naranja de FACES-UCV</span>
-  <h2>Charlas con propósito</h2>
-  <p class="lead">La intención de nuestras charlas es unir fuerzas en apoyo a nuestra comunidad universitaria y promover el talento&nbsp;creativo.</p>
-  <div class="ch-or">
-    <a style="--w:161" href="https://www.instagram.com/hamktrazos/" target="_blank" rel="noopener" aria-label="HamkTrazos: «Vida en trazos», 11:00 a. m. Abre su Instagram en otra pestaña"><img src="assets/img/charla-hamktrazos.webp" width="322" height="560" loading="lazy" alt="HamkTrazos, 11:00 a. m.: Vida en trazos"><span>@hamktrazos</span></a>
-    <a style="--w:162" href="https://www.instagram.com/olivarescfc/" target="_blank" rel="noopener" aria-label="Oscar Olivares: «Cómo vivir del arte en Venezuela», 12:00 p. m. Abre su Instagram en otra pestaña"><img src="assets/img/charla-olivares.webp" width="324" height="560" loading="lazy" alt="Oscar Olivares, 12:00 p. m.: Cómo vivir del arte en Venezuela"><span>@olivarescfc</span></a>
-    <a style="--w:244" href="https://www.instagram.com/garabatoenvivo/" target="_blank" rel="noopener" aria-label="Garabato: «Los Garabatos también se escuchan», 1:00 p. m. Abre su Instagram en otra pestaña"><img src="assets/img/charla-garabato.webp" width="488" height="560" loading="lazy" alt="Garabato, 1:00 p. m.: Los Garabatos también se escuchan"><span>@garabatoenvivo</span></a>
-  </div>
-  <h3>Productos aceptados</h3>
-  <div class="ch-prod">
-    <div><img src="assets/img/charlas-insumos.webp" width="859" height="240" loading="lazy" alt="Juguetes, alimentos no perecederos y productos de higiene personal"><b>Insumos de primera necesidad</b><p>Para el Centro de Acopio&nbsp;UCV.</p></div>
-    <div><img src="assets/img/charlas-arte.webp" width="859" height="197" loading="lazy" alt="Marcadores, blocs, lápices, pinturas, pinceles, pega, cinta, cartulinas y tijeras"><b>Material de arte</b><p>Todo el material de arte recolectado se utilizará para seguir impulsando nuestros eventos&nbsp;creativos.</p></div>
-  </div>
-  <p class="ch-nota"><b>Donación individual</b> (únicamente productos&nbsp;nuevos).<br>Los menores de 12 años no requieren presentar&nbsp;donación.</p>
-</div></section>
-<section class="sec" id="asistencia" data-hasta="2026-12-06T00:00:00-04:00" style="background:var(--yellowsoft,#FFF6CC);border-top:3px solid var(--ink)"><div class="wrap lead-wrap">
-  <div class="txt"><span class="pill p-ink">Entrada gratuita</span><h2>Confirma tu asistencia</h2>
-    <p class="lead">El festival es libre y no necesitas registrarte para entrar. Si nos dices que vienes, nos ayudas a preparar el espacio para todos. Te toma 30&nbsp;segundos.</p>
-    <p class="lead" style="font-size:15px"><b>Sábado 5 de diciembre</b>, de 10:00 a. m. a 4:00&nbsp;p.&nbsp;m.<br>FACES-UCV, Caracas</p></div>
-  <form class="lform card" data-form="asistencia" novalidate>
-    <label class="fl" for="as-nombre">Tu nombre<input id="as-nombre" name="nombre" type="text" autocomplete="name" maxlength="80" placeholder="Nombre y apellido" required></label>
-    <label class="fl" for="as-correo">Tu correo<input id="as-correo" name="correo" type="email" autocomplete="email" placeholder="tucorreo@gmail.com" required></label>
-    <label class="fl" for="as-personas">¿Cuántas personas vienen, contándote?<select id="as-personas" name="personas" required><option value="1">Solo yo</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 o más</option></select></label>
-    <fieldset class="chips-in"><legend>¿A qué vienes? (puedes marcar varias)</legend>
-      <label><input type="checkbox" name="vienes" value="Concurso"> Concurso</label><label><input type="checkbox" name="vienes" value="Bazar"> Bazar</label><label><input type="checkbox" name="vienes" value="Charlas"> Charlas</label><label><input type="checkbox" data-todas="vienes"> Todas las anteriores</label></fieldset>
-    <fieldset class="chips-in"><legend>¿Viene alguien menor de 18 años?</legend>
-      <label><input type="radio" name="menores" value="No" checked> No</label><label><input type="radio" name="menores" value="Sí"> Sí</label></fieldset>
-    <label class="fl" for="as-enterado">¿Cómo te enteraste?<select id="as-enterado" name="enterado" required><option value="">Elige una opción</option><option>Instagram</option><option>TikTok</option><option>Canal de WhatsApp</option><option>Un amigo o familiar</option><option>Un patrocinante</option><option>Otro</option></select></label>
-    <label class="check"><input type="checkbox" name="avisos" value="Sí"> <span>Quiero que me avisen del próximo Reto Creativo Fest.</span></label>
-    <label class="check"><input type="checkbox" name="consentimiento" value="Sí" required> <span>Acepto que guarden estos datos para organizar el festival. Si soy menor de 18 años, tengo el permiso de mi representante. <a href="privacidad.html">Privacidad</a></span></label>
-    <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-    <p class="ferr" role="alert" hidden></p>
-    <button class="btn b-ink y" type="submit">Voy a ir</button>
-    <div class="fok" role="status" hidden><p style="margin:0 0 10px"><b>¡Te esperamos el sábado 5 de diciembre!</b> Si cambia algo, te escribimos.</p>
-      <div class="ctas"><a class="btn b-ink" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Reto%20Creativo%20Fest%202026&amp;dates=20261205T140000Z%2F20261205T200000Z&amp;location=FACES-UCV%2C%20Caracas&amp;details=Festival%20de%20ilustraci%C3%B3n%2C%20entrada%20gratuita.%20retocreativofest.com" target="_blank" rel="noopener">Agregar a mi calendario</a><a class="btn b-cyan" style="background:var(--cyansoft);border-color:var(--ink)" data-link="canal" href="#">Unirme al canal</a></div></div>
-  </form>
 </div></section>
 <section class="sec patro" id="patrocinantes" aria-labelledby="patro-h" data-hasta="2026-12-06T00:00:00-04:00"><div class="wrap">
   <h2 class="h-sec" id="patro-h"><span data-hasta="2026-12-06T00:00:00-04:00">Patrocinantes de esta edición</span><span data-desde="2026-12-06T00:00:00-04:00" hidden>Gracias a los patrocinantes de la 4.ª edición</span></h2>
