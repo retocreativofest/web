@@ -28,7 +28,7 @@ const vigente = p => !p.hasta || Date.now() < Date.parse(p.hasta);   // la Ruta 
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
-const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money = n => '$' + (Math.round(n * 100) / 100).toLocaleString('es-VE', {minimumFractionDigits: n % 1 ? 1 : 0, maximumFractionDigits: 2});
 const waLink = msg => `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`;
 const store = {
