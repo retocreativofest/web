@@ -16,6 +16,8 @@
      (WhatsApp hasta dic 2026; app desde la 3.ª temporada). La web usa este texto aunque la hoja diga otra cosa. */
   const votoSemanal = () => (typeof POST_EVENTO !== 'undefined' && POST_EVENTO) ? 'no cuenta la votación de la app' : 'no cuentan los votos de WhatsApp';
   const DEF = {
+    /* 10 nov 2026: la hoja dice que se puede sumar; según las bases es categoría principal (no se suma) y rotativa por año. */
+    'premio a la constancia':        () => 'Quien participó en más semanas del periodo, seguidas o no. Es una categoría principal: no se suma a otro premio y es rotativa por año.',
     'mejor ilustración digital':     () => `Nominadas: las 4 ilustraciones digitales con más «Me gusta» en el Padlet (${votoSemanal()}). El jurado elige la ganadora.`,
     'mejor ilustración tradicional': () => `Nominadas: las 4 ilustraciones tradicionales con más «Me gusta» en el Padlet (${votoSemanal()}). El jurado elige la ganadora.`
   };
