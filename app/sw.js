@@ -1,6 +1,6 @@
 /* #RetoMenteMilenial · funciona sin conexión para la parte visual. Los datos siempre se piden en línea. */
-const VERSION = 'rmm-app-v96';
-const BASE = ['./', 'index.html', 'app.css?v=52', 'app.js?v=91', 'personaje.js?v=1', 'manifest.webmanifest',
+const VERSION = 'rmm-app-v97';
+const BASE = ['./', 'index.html', 'app.css?v=53', 'app.js?v=92', 'splash.js?v=1', 'personaje.js?v=1', 'manifest.webmanifest',
   'img/digi.webp', 'img/tradi.webp', 'img/digi-cara.webp', 'img/tradi-cara.webp', 'img/icon-192.png',
   'img/sticker-1.webp', 'img/sticker-2.webp', 'img/sticker-3.webp', 'chispa.js?v=22', 'img/badge-96.png',
   'img/estrella-1.webp', 'img/estrella-3.webp', 'img/estrella-6.webp',
@@ -15,6 +15,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin) return;   // Google, Padlet y el Apps Script van directo
+  if (url.pathname.endsWith('.mp4')) return;   // 11 nov: los videos los maneja el navegador (iPhone pide trozos y la caché no los guarda)
   if (e.request.mode === 'navigate') {
     e.respondWith(fetch(e.request.url, { cache: 'no-cache', credentials: 'same-origin' }).catch(() => caches.match('index.html')));   // 7 nov: siempre la página más nueva
     return;

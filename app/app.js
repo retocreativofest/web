@@ -50,7 +50,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '91 · 10 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '92 · 11 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -1067,15 +1067,15 @@ function dibujarVotar(v, error) {
     } else {
       const medalla = n => n === 1 ? '🔴 1.º' : '🔵 ' + n + '.º';
       cuerpo += `<section class="cat-app podio"><h2>🏆 Podio de la semana ${v.semana}</h2><p>${v.votantes ? 'Votaron ' + v.votantes + (v.votantes === 1 ? ' persona.' : ' personas.') : 'Nadie votó: decidieron los «Me gusta».'}</p><ol>
-        ${(v.podio || []).map(p => `<li class="${p.puesto === 1 ? 'gana' : ''}"><span><b>${medalla(p.puesto)} · ${esc(String(p.titulo).split(' · ')[0])}</b><small>${esc(p.titulo)} · ${p.votos} ${p.votos === 1 ? 'voto' : 'votos'}</small></span><em>${p.puesto === 1 ? '+3 puntos' : '+1 punto'}</em></li>`).join('')}</ol></section>
-        ${v.relampago ? `<section class="cat-app"><h2>⚡ Relámpago creativo</h2><ol><li class="gana"><span><b>${esc(v.relampago.titulo)}</b><small>Primera en publicar esta semana</small></span></li></ol></section>` : ''}
+        ${(v.podio || []).map(p => `<li class="${p.puesto === 1 ? 'gana' : ''}"><span><b>${medalla(p.puesto)} · ${esc(String(p.titulo).split(' · ')[0])}</b><small>${esc(p.titulo)} · ${p.votos} ${p.votos === 1 ? 'voto' : 'votos'}</small></span><em>${p.puesto === 1 ? '+3 puntos' : '+1 punto'}</em></li>`).join('')}
+        ${v.relampago ? `<li class="relampago"><span><b>⚡ Relámpago · ${esc(String(v.relampago.titulo).split(' · ')[0])}</b><small>${esc(v.relampago.titulo)} · primera en publicar esta semana</small></span></li>` : ''}</ol></section>
         <div class="caja agua">Los puntos ya cuentan para el ranking. El anuncio completo es en el stream del miércoles.</div>`;
     }
     cuerpo += fins.map((f, i) => {
       const puedeVotar = abierta && v.puede && !v.miVoto && !f.mio;
       const etiqueta = f.mio ? '<span class="votar ok">Tu dibujo</span>' : f.id === v.miVoto ? '<span class="votar ok">✓ Tu voto</span>' : puedeVotar ? `<button type="button" class="votar" data-votar="${esc(f.id)}">VOTAR</button>` : '';
-      return `<div class="fin ${f.id === v.miVoto ? 'elegido' : ''}"><button type="button" class="art" data-ver="${i}" aria-label="Ver grande el dibujo de ${nombreFin(f)}"><img src="${esc(f.img)}" alt="" loading="lazy"><b>Finalista ${i + 1}</b><span class="mg">❤️ ${f.meGusta}</span></button>
-        <div class="pie"><div><strong>${nombreFin(f)}</strong><small>@${esc(f.usuario)}${f.tecnica ? ' · ' + esc(f.tecnica) : ''}</small></div>${etiqueta}</div></div>`;
+      return `<div class="fin ${f.id === v.miVoto ? 'elegido' : ''}"><button type="button" class="art" data-ver="${i}" aria-label="Ver grande el dibujo de ${nombreFin(f)}"><img src="${esc(f.img)}" alt="" loading="lazy"><b>Finalista ${i + 1}</b></button>
+        <div class="pie"><div><strong>${nombreFin(f)}</strong><small>@${esc(f.usuario)}${f.tecnica ? ' · ' + esc(f.tecnica) : ''}</small><small class="mg-padlet">❤️ ${f.meGusta} «Me gusta» en el Padlet</small></div>${etiqueta}</div></div>`;
     }).join('') || '<div class="caja crema">Todavía no hay finalistas. Si la votación ya abrió, intenta en unos minutos.</div>';
   }
   conNav('hoy', cabecera('Votación') + `<main class="cont con-nav">${cuerpo}</main>`, root => {

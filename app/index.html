@@ -15,17 +15,19 @@
 <meta name="apple-mobile-web-app-title" content="Reto MM">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="img/icon-192.png">
-<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon-lila.png">
 <link rel="preload" href="../assets/fonts/quicksand.woff" as="font" type="font/woff" crossorigin>
 <link rel="preload" href="../assets/fonts/poppins-700.woff" as="font" type="font/woff" crossorigin>
-<link rel="stylesheet" href="app.css?v=52">
+<link rel="stylesheet" href="app.css?v=53">
 </head>
 <body>
+<div id="splash" class="splash" aria-hidden="true"><video muted playsinline preload="auto" disablepictureinpicture></video></div>
+<script src="splash.js?v=1"></script>
 <div id="app" class="app" aria-live="polite">
   <div class="cargando" role="status"><span class="spin" aria-hidden="true"></span>Cargando…</div>
 </div>
 <div id="toast" class="toast" role="status" hidden></div>
 <noscript><p class="noscript">Para usar la app del #RetoMenteMilenial necesitas activar JavaScript en tu navegador.</p></noscript>
-<script type="module" src="app.js?v=91"></script>
+<script type="module" src="app.js?v=92"></script>
 </body>
 </html>

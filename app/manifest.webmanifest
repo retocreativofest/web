@@ -8,12 +8,12 @@
   "scope": "/app/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0B0B0F",
+  "background_color": "#9E4CF6",
   "theme_color": "#0B0B0F",
   "icons": [
-    { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "img/icon-lila-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "img/icon-lila-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "img/icon-lila-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
     { "src": "img/icon-monochrome-512.png", "sizes": "512x512", "type": "image/png", "purpose": "monochrome" }
   ]
 }
