@@ -12,6 +12,13 @@
     {k:'relámpago creativo',           h:'h-cream',  pill:'1 ganador'}
   ];
   const STATUS = ['Va ganando','En carrera','Nominado','Por definir'];
+  /* 10 nov 2026 (Stefany): Digital y Tradicional se clasifican por los «Me gusta» del Padlet, no por la votación semanal
+     (WhatsApp hasta dic 2026; app desde la 3.ª temporada). La web usa este texto aunque la hoja diga otra cosa. */
+  const votoSemanal = () => (typeof POST_EVENTO !== 'undefined' && POST_EVENTO) ? 'no cuenta la votación de la app' : 'no cuentan los votos de WhatsApp';
+  const DEF = {
+    'mejor ilustración digital':     () => `Nominadas: las 4 ilustraciones digitales con más «Me gusta» en el Padlet (${votoSemanal()}). El jurado elige la ganadora.`,
+    'mejor ilustración tradicional': () => `Nominadas: las 4 ilustraciones tradicionales con más «Me gusta» en el Padlet (${votoSemanal()}). El jurado elige la ganadora.`
+  };
 
   function parse(rows){
     const out = {lead:'', cats:[], legal:''};
@@ -62,6 +69,7 @@
       requestAnimationFrame(() => requestAnimationFrame(() => { $('#weekFill').style.width = Math.round(a / b * 100) + '%'; }));
     }
     const cats = ORDEN.map(o => ({o, c:d.cats.find(c => c.name.toLowerCase().startsWith(o.k))})).filter(x => x.c);
+    cats.forEach(({o, c}) => { if (DEF[o.k]) c.def = DEF[o.k](); });
     if (soloExplica){
       $('#cats').innerHTML = cats.map(({o, c}) => `<article class="cat"><header class="${o.h}"><h3>${esc(cap(c.name))}</h3><span class="pill">${esc(o.pill)}</span></header>
         <p class="def">${esc(c.def)}</p><p class="def-only">Aún sin artistas en carrera: se llena con los resultados de cada semana.</p></article>`).join('') + $('#rulesTpl').innerHTML;

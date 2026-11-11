@@ -1,6 +1,8 @@
 /* #RetoMenteMilenial · Chispa del día: un mini reto de 3 minutos (opcional, no suma puntos ni racha).
    Gratis: pincel mediano, borrador, deshacer y 22 colores. Toda chispa se guarda con el marco y la marca de agua del reto.
    Club Estrella (Chispa Pro): 3 tamaños, cubeta, cambiar la chispa 1 vez al día y video acelerado (también con marca de agua).
+   10 nov 2026 (pedido de los testers): opacidad del pincel, para todos (gratis). El trazo se dibuja en una capa aparte
+   y al soltar se pega con esa opacidad, así un mismo trazo no se oscurece donde se cruza consigo mismo.
    6 nov 2026: sin selector de marcos. Quien gana el Adviento recibe una insignia y su marco pasa a verde navideño. */
 const POOL = ['3 gatos azules', '2 bomberos verdes', '1 taza rosada', '2 perros amarillos', '3 peces naranja', '1 sombrero morado',
   '2 zapatos rojos', '1 cara feliz amarilla', '3 pájaros rojos', '2 doctoras moradas', '1 elefante rosado', '3 camisas verdes',
@@ -132,8 +134,8 @@ const IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform 
 export function abrirChispa(ctx) {
   const { root, esc } = ctx, club = !!ctx.club;
   const hoy = chispaDeHoy();
-  const S = { fase: 'lista', quedan: LIMITE, herramienta: 'pincel', color: '#000000', tam: 1, ops: 0, video: false, chispa: hoy.chispa, cambiada: hoy.cambiada };
-  let hist = [], cuadros = [], foto = null, reloj = null, dibujando = false, ultimo = null, medio = null, bloqueoT = null;
+  const S = { fase: 'lista', quedan: LIMITE, herramienta: 'pincel', color: '#000000', tam: 1, opac: 1, ops: 0, video: false, chispa: hoy.chispa, cambiada: hoy.cambiada };
+  let hist = [], cuadros = [], foto = null, lapiz = null, reloj = null, dibujando = false, ultimo = null, medio = null, bloqueoT = null;
   const candado = club ? '' : ' 🔒';
 
   root.innerHTML = `
@@ -145,7 +147,7 @@ export function abrirChispa(ctx) {
     </header>
     <main class="cont ch">
       <div class="ch-tit"><span class="pill-ch">${adviento() ? '🎄 ADVIENTO · DÍA ' + adviento().dia + ' DE ' + adviento().total + ' · TU CHISPA ES…' : hoy.fiesta ? esc(hoy.fiesta.aviso) : 'TU CHISPA DE HOY ES…'}</span><h2 id="ch-t">${esc(sinViuda('Dibuja ' + S.chispa))}</h2></div>
-      <div class="lienzo"><canvas id="ch-c" width="${ANCHO}" height="${ALTO}" aria-label="Lienzo para dibujar"></canvas><div class="ch-empezar" id="ch-emp">Toca el lienzo para empezar ✏️</div></div>
+      <div class="lienzo"><canvas id="ch-c" width="${ANCHO}" height="${ALTO}" aria-label="Lienzo para dibujar"></canvas><canvas id="ch-capa" class="ch-capa" width="${ANCHO}" height="${ALTO}" aria-hidden="true"></canvas><div class="ch-empezar" id="ch-emp">Toca el lienzo para empezar ✏️</div></div>
       <div class="ch-tools" id="ch-tools">
         <button type="button" class="tool" data-tool="pincel" aria-pressed="true" aria-label="Pincel" title="Pincel">🖌️<span class="tt"> Pincel</span></button>
         <button type="button" class="tool" data-tool="borrador" aria-pressed="false" aria-label="Borrar" title="Borrar">🧽<span class="tt"> Borrar</span></button>
@@ -153,11 +155,13 @@ export function abrirChispa(ctx) {
         <button type="button" class="tool" id="ch-undo" aria-label="Deshacer">↩︎</button>
         <span class="tams">${SIZES.map((z, i) => `<button type="button" class="tam" data-tam="${i}" aria-pressed="${i === 1}" aria-label="Tamaño ${z[0].toLowerCase()}${club || i === 1 ? '' : ' (Club Estrella)'}"><i style="width:${[6, 10, 15][i]}px;height:${[6, 10, 15][i]}px;${club || i === 1 ? '' : 'background:#B9AECB'}"></i></button>`).join('')}</span>
       </div>
+      <label class="ch-opac" for="ch-op"><span>Opacidad</span><input type="range" id="ch-op" min="10" max="100" step="5" value="100"><b id="ch-opv">100 %</b></label>
       <div class="paleta" role="group" aria-label="Colores">${PALETA.map(c => `<button type="button" class="col" data-col="${c[1]}" aria-label="${esc(c[0])}" aria-pressed="${c[1] === S.color}" style="background:${c[1]}"></button>`).join('')}</div>
       <div id="ch-lock" class="ch-lock" hidden></div>
       <div id="ch-abajo"></div>
     </main>`;
   const c = root.querySelector('#ch-c'), x = c.getContext('2d');
+  const capa = root.querySelector('#ch-capa'), xc = capa.getContext('2d');
   const blanco = () => { x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, ANCHO, ALTO); };
   blanco();
   const $ = s => root.querySelector(s);
@@ -273,18 +277,21 @@ export function abrirChispa(ctx) {
     guardarHist(); dibujando = true; ultimo = p; medio = p;
     if (c.setPointerCapture && e.pointerId != null) { try { c.setPointerCapture(e.pointerId); } catch (err) {} }
     const w = S.herramienta === 'borrador' ? tam().borrador : tam().pincel;
-    x.beginPath(); x.fillStyle = S.herramienta === 'borrador' ? '#FFFFFF' : S.color; x.arc(p.x, p.y, w / 2, 0, Math.PI * 2); x.fill();
+    /* Con opacidad menor a 100 % el pincel pinta en la capa de arriba (que se ve con esa opacidad); el borrador siempre borra completo. */
+    lapiz = S.herramienta === 'pincel' && S.opac < 1 ? xc : x;
+    capa.style.opacity = String(S.opac);
+    lapiz.beginPath(); lapiz.fillStyle = S.herramienta === 'borrador' ? '#FFFFFF' : S.color; lapiz.arc(p.x, p.y, w / 2, 0, Math.PI * 2); lapiz.fill();
   }
   /* Trazo fluido (7 nov 2026): se leen TODOS los puntos que registra la pantalla o el lápiz (getCoalescedEvents)
      y se unen con curvas que pasan por el punto medio entre cada par. Antes eran rectas sueltas y salían «picos». */
   function estilo() {
-    x.strokeStyle = S.herramienta === 'borrador' ? '#FFFFFF' : S.color;
-    x.lineWidth = S.herramienta === 'borrador' ? tam().borrador : tam().pincel; x.lineCap = 'round'; x.lineJoin = 'round';
+    lapiz.strokeStyle = S.herramienta === 'borrador' ? '#FFFFFF' : S.color;
+    lapiz.lineWidth = S.herramienta === 'borrador' ? tam().borrador : tam().pincel; lapiz.lineCap = 'round'; lapiz.lineJoin = 'round';
   }
   function seguir(p) {
     if (Math.hypot(p.x - ultimo.x, p.y - ultimo.y) < 1.2) return;
     const m = { x: (ultimo.x + p.x) / 2, y: (ultimo.y + p.y) / 2 };
-    x.beginPath(); x.moveTo(medio.x, medio.y); x.quadraticCurveTo(ultimo.x, ultimo.y, m.x, m.y); x.stroke();
+    lapiz.beginPath(); lapiz.moveTo(medio.x, medio.y); lapiz.quadraticCurveTo(ultimo.x, ultimo.y, m.x, m.y); lapiz.stroke();
     medio = m; ultimo = p;
   }
   function mover(e) {
@@ -297,7 +304,9 @@ export function abrirChispa(ctx) {
   function arriba() {
     if (!dibujando) return;
     dibujando = false;
-    estilo(); x.beginPath(); x.moveTo(medio.x, medio.y); x.lineTo(ultimo.x, ultimo.y); x.stroke();   // cierra el último tramo
+    estilo(); lapiz.beginPath(); lapiz.moveTo(medio.x, medio.y); lapiz.lineTo(ultimo.x, ultimo.y); lapiz.stroke();   // cierra el último tramo
+    if (lapiz === xc) { x.globalAlpha = S.opac; x.drawImage(capa, 0, 0); x.globalAlpha = 1; xc.clearRect(0, 0, ANCHO, ALTO); }   // pega el trazo con su opacidad
+    lapiz = null;
     S.ops++; cuadro(); pintarAbajo();
   }
   c.addEventListener('pointerdown', abajo); c.addEventListener('pointermove', mover);
@@ -318,6 +327,10 @@ export function abrirChispa(ctx) {
     S.color = b.dataset.col; if (S.herramienta === 'borrador') { S.herramienta = 'pincel'; root.querySelectorAll('[data-tool]').forEach(t => t.setAttribute('aria-pressed', String(t.dataset.tool === 'pincel'))); }
     root.querySelectorAll('[data-col]').forEach(t => t.setAttribute('aria-pressed', String(t === b)));
   }));
+  $('#ch-op').addEventListener('input', ev => {
+    S.opac = +ev.target.value / 100; $('#ch-opv').textContent = ev.target.value + ' %';
+    if (S.herramienta === 'borrador') { S.herramienta = 'pincel'; root.querySelectorAll('[data-tool]').forEach(t => t.setAttribute('aria-pressed', String(t.dataset.tool === 'pincel'))); }
+  });
   $('#ch-undo').addEventListener('click', () => {
     if (S.fase !== 'dibujando' || !hist.length) return;
     x.putImageData(hist.pop(), 0, 0); S.ops = Math.max(0, S.ops - 1); cuadro(); pintarAbajo();
