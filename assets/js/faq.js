@@ -136,7 +136,7 @@ const SINONIMOS = [
   ['tienda','comprar','compra','producto','productos','pedido','franela','camisa','sticker','stickers','guante','ruta','tote','totebag'],
   ['envio','envios','enviar','mrw','delivery','despacho','tarda','tiempo','entrega','llega','retirar'],
   ['stand','stands','bazar','expositor','exponer','vender','emprendimiento','emprendedor','marca','mesa','silla','mobiliario','caballete'],
-  ['charla','charlas','insumos','donar','donacion','acopio','alimentos','juguetes','medicinas'],
+  ['charla','charlas','insumos','donar','donacion','acopio','alimentos','juguetes','medicinas','higiene'],
   ['estacionamiento','parking','carro','estacionar','aparcar'],
   ['stream','streams','vivo','directo','twitch','youtube','kick','tiktok','transmision'],
   ['discord','patreon','comunidad','suscripcion','miembro','club','estrella','membresia'],
