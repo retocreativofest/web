@@ -50,7 +50,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '94 · 11 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '95 · 11 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -480,7 +480,7 @@ function vistaPerfil(error) {
       <div class="muestra" aria-hidden="true"><i></i><span><b id="prev">Nombre · @usuario</b><small>Así se verá el título en el Padlet</small></span></div>
       <div class="caja crema" id="cambio" role="note" hidden></div>
       ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}
-      ${editando ? '' : '<span class="pasos" aria-label="Paso 1 de 3"><i class="on"></i><i></i><i></i></span>'}
+      ${editando ? '' : '<span class="pasos" aria-label="Paso 1 de 2"><i class="on"></i><i></i></span>'}
       <button type="submit" class="btn">SIGUIENTE</button>
     </form>`, root => {
     const nom = root.querySelector('#nom'), usr = root.querySelector('#usr'), prev = root.querySelector('#prev');
@@ -580,7 +580,7 @@ function vistaEdad(error) {
         <label class="check" for="ofe"><input id="ofe" type="checkbox" ${b.ofertas === 'Sí' ? 'checked' : ''}><span>Quiero recibir ofertas y descuentos del Reto Creativo Fest por correo y WhatsApp. <span style="font-weight:600;color:var(--muted)">Puedes darte de baja cuando quieras.</span></span></label>` : ''}
       ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}
       <span class="nota izq">Nunca mostramos tu edad, tu país, tu estado, tu cumpleaños ni tu contacto en la app. Para entregar premios verificamos la edad y el país en persona.</span>
-      ${E.perfil && E.perfil.completo && !E.completando ? '' : '<span class="pasos" aria-label="Paso 2 de 3"><i></i><i class="on"></i><i></i></span>'}
+      ${E.perfil && E.perfil.completo && !E.completando ? '' : '<span class="pasos" aria-label="Paso 2 de 2"><i></i><i class="on"></i></span>'}
       <button type="button" class="btn" id="ok">${E.perfil && E.perfil.completo && !E.completando ? 'GUARDAR' : 'SIGUIENTE'}</button>
     </div>`, root => {
     const leerCampos = () => {
@@ -625,7 +625,7 @@ function vistaEdad(error) {
       const nuevo = !(E.perfil && E.perfil.completo) || E.completando;
       E.perfil = r.perfil; guardar('perfil', E.perfil); E.borrador = {};
       if (E.completando) { E.completando = false; guardar('nombreLocal', null); }
-      if (nuevo) return vistaListo();   // 7 nov 2026: paso 3, personaje y avisos
+      if (nuevo) { aviso('¡Listo! Bienvenid@ al #RetoMenteMilenial'); return ir('hoy'); }   // 11 nov 2026: directo al reto; personaje y avisos, después del primer dibujo
       aviso('Guardado ✓');
       ir('yo');
     });
@@ -638,6 +638,8 @@ function vistaEdad(error) {
    «Listo» = lo guardó con el editor, o ya tenía uno en el servidor. Uno al azar sin guardar (E.pjTemporal) no cuenta.
    Los avisos siguen siendo opcionales. */
 const pjListo = () => !!E.pj && !E.pjTemporal;
+/* 11 nov 2026: el personaje se pide después del primer dibujo (antes, al registrarse). */
+const pjObligatorio = () => !!E.pjTemporal && (yaSubio() || !!(E.progreso && (E.progreso.semanas > 0 || E.progreso.racha > 0)));
 function vistaListo() {
   E.enListo = true;
   if (!E.pj) {   // busca el suyo en el servidor; mientras tanto (o si no tiene) usa uno de muestra que NO se guarda
@@ -647,7 +649,7 @@ function vistaListo() {
   const listo = pjListo();
   pintar(`
     <header class="barra">
-      <div style="flex:1"><h1>¡Ya casi!</h1><span class="sub">Arma tu personaje para&nbsp;entrar</span></div>
+      <div style="flex:1"><h1>Tu personaje</h1><span class="sub">Ármalo para&nbsp;seguir</span></div>
       ${caraBarra()}
     </header>
     <div class="cont listo">
@@ -657,13 +659,12 @@ function vistaListo() {
         <button type="button" class="btn ${listo ? 'blanco' : 'amarillo'} chico" id="pj-editar" ${E.pj ? '' : 'disabled'}>${listo ? '✏️ Cambiar mi personaje' : '✏️ ARMAR MI PERSONAJE'}</button>
       </section>
       ${avisosListo()}
-      <span class="pasos" aria-label="Paso 3 de 3"><i></i><i></i><i class="on"></i></span>
-      <button type="button" class="btn" id="ok" ${listo ? '' : 'disabled'}>EMPEZAR</button>
-      ${listo ? '' : '<p class="nota" style="margin:0">Para empezar, primero arma y guarda tu&nbsp;personaje.</p>'}
+      <button type="button" class="btn" id="ok" ${listo ? '' : 'disabled'}>CONTINUAR</button>
+      ${listo ? '' : '<p class="nota" style="margin:0">Para seguir, primero arma y guarda tu&nbsp;personaje.</p>'}
     </div>`, root => {
     on('#pj-editar', 'click', () => ventanaPersonaje(vistaListo));
     activarAvisosEn(root, vistaListo);
-    on('#ok', 'click', () => { if (!pjListo()) return; E.enListo = false; aviso('¡Listo! Bienvenid@ al #RetoMenteMilenial'); ir('hoy'); });
+    on('#ok', 'click', () => { if (!pjListo()) return; E.enListo = false; aviso('¡Personaje guardado!'); ir('hoy'); });
   }, 'listo');
   // la primera vez, el editor se abre solo
   if (!listo && E.pj && !E.pjEditorAbierto && !document.querySelector('.velo')) { E.pjEditorAbierto = true; setTimeout(() => ventanaPersonaje(vistaListo), 500); }
@@ -732,7 +733,7 @@ function pjRevisar() {
       const x = r.ok && r.p && pjDeTexto(r.p[yo]);
       if (x) { E.pj = x; E.pjTemporal = false; guardar('personaje', x); E.pjs[yo] = x; }
       else { E.pj = PJ.nuevo(); E.pjTemporal = true; }   // muestra para el editor: NO se guarda hasta que la persona lo arme
-      if (E.enListo || E.pjTemporal) vistaListo(); else if (estaEn) mostrar(estaEn);
+      if (E.enListo || pjObligatorio()) vistaListo(); else if (estaEn) mostrar(estaEn);
     });
     return;
   }
@@ -789,7 +790,7 @@ function cabecera(titulo) {
      ✦ chispas = días seguidos haciendo la Chispa del día · 🔥 racha = semanas seguidas subiendo el dibujo del reto. */
   const chispas = `<button type="button" class="contador chispas" data-explica="chispas" aria-label="Chispas: ${ch} ${ch === 1 ? 'día seguido' : 'días seguidos'} haciendo la Chispa del día">${ICO.chispaMini}<b>${ch}</b></button>`;
   const fuego = `<button type="button" class="contador racha ${pr && pr.enRiesgo ? 'riesgo' : ''}" data-explica="racha" aria-label="Racha del reto: ${racha} ${racha === 1 ? 'semana seguida' : 'semanas seguidas'} subiendo tu dibujo">${ICO.fuego}<b>${racha}</b></button>`;
-  return `<header class="top"><button type="button" class="avatar${E.pj ? ' pj' : ''}" data-ir="yo" aria-label="Mi perfil">${E.pj ? PJ.svg(E.pj) : ini}</button><h1>${esc(titulo)}</h1><span class="top-der">${chispas}${fuego}<a class="redondo" href="${CONFIG.web}/preguntas-frecuentes.html" target="_blank" rel="noopener" aria-label="Preguntas frecuentes">?</a></span></header>`;
+  return `<header class="top"><button type="button" class="avatar${pjListo() ? ' pj' : ''}" data-ir="yo" aria-label="Mi perfil">${pjListo() ? PJ.svg(E.pj) : ini}</button><h1>${esc(titulo)}</h1><span class="top-der">${chispas}${fuego}<a class="redondo" href="${CONFIG.web}/preguntas-frecuentes.html" target="_blank" rel="noopener" aria-label="Preguntas frecuentes">?</a></span></header>`;
 }
 
 let reloj, desfase = 0;   // diferencia entre la hora del servidor y la del teléfono
@@ -808,6 +809,7 @@ function cuantoFalta(iso) {
 async function vistaHoy() {
   clearInterval(reloj);
   dibujarHoy(E.hoy);
+  const pm = api('mi_semana', { sesion: E.sesion });   // 11 nov 2026: las consultas salen a la vez (antes, una detrás de otra)
   const r = await api('hoy', { sesion: E.sesion });
   if (!r.ok) { if (!E.hoy) dibujarHoy(null, textoError(r.error)); return; }
   E.hoy = r; guardar('hoy', r);   // la próxima vez se muestra al instante
@@ -817,7 +819,8 @@ async function vistaHoy() {
      en modo prueba la del teléfono. */
   desfase = r.real ? new Date(r.real) - Date.now() : r.prueba ? 0 : new Date(r.ahora) - Date.now(); ajustarHora(desfase);
   if (estaEn === 'hoy') dibujarHoy(r);
-  const m = await api('mi_semana', { sesion: E.sesion });
+  const pv = r.votacion && r.votacion.estado === 'abierta' ? api('votacion', { sesion: E.sesion }) : null;
+  const m = await pm;
   if (m.ok) {
     if (r.actual) { E.semana = { id: semanaId(r.actual), subido: !!m.subido, padlet: m.padlet || '' }; guardar('semana', E.semana); }
     if (m.progreso) { E.progreso = m.progreso; guardar('progreso', E.progreso); }
@@ -829,20 +832,28 @@ async function vistaHoy() {
       setTimeout(ventanaMolesto, 900);
     }
   } else if (m.error === 'sesion') cerrarSesion(true);
-  if (r.votacion && r.votacion.estado === 'abierta') {   // para las miniaturas y saber si ya votó
-    const v = await api('votacion', { sesion: E.sesion });
+  if (pv) {   // para las miniaturas y saber si ya votó
+    const v = await pv;
     if (v.ok) { E.votacion = v; if (estaEn === 'hoy') dibujarHoy(E.hoy); }
   }
 }
 /* Tradi o Digi molestos (7 nov 2026): si tu racha está en riesgo y todavía no subes tu dibujo, tu guía te lo reclama.
    Sale una vez al día por teléfono y solo si tienes racha que perder (1 semana o más) y el reto sigue abierto.
    Si Stefany sube img/tradi-molesto.webp y img/digi-molesto.webp, se usan esas; mientras tanto, la ilustración normal con 💢. */
+/* 11 nov 2026: máximo UNA ventana automática por apertura de la app (Tradi/Digi molestos o la del Club Estrella),
+   y ninguna si en esta apertura ya salió un tutorial. Vuelve a contar si la app estuvo cerrada más de 30 minutos. */
+let ventanaAuto = false, ocultaDesde = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') ocultaDesde = Date.now();
+  else if (ocultaDesde && Date.now() - ocultaDesde > 30 * 60000) ventanaAuto = false;
+});
 function ventanaMolesto() {
+  if (ventanaAuto) return;
   const pr = E.progreso, a = E.hoy && E.hoy.actual;
   if (estaEn !== 'hoy' || !pr || !pr.enRiesgo || !(pr.racha > 0) || !a || yaSubio() || bloqueado() || document.querySelector('.velo')) return;
   const dia = new Date(ahora() - 4 * 36e5).toISOString().slice(0, 10);
   if (leer('molesto') === dia) return;
-  guardar('molesto', dia);
+  guardar('molesto', dia); ventanaAuto = true;
   const g = E.guia === 'tradi' ? 'tradi' : 'digi', G = g === 'tradi' ? 'Tradi' : 'Digi', nom = esc(nombreCorto());
   ventana(`<div class="molesto">
       <div class="molesto-img"><img src="img/${g}-molesto.webp" data-normal="${imgGuia(g)}" alt="${G} molesto" width="150" height="145"><span class="molesto-ira" aria-hidden="true">💢</span></div>
@@ -1327,7 +1338,7 @@ async function vistaRanking() {
 const rkUsuario = it => { const t = String(it.red || '').trim(), m = t.match(/@([\w.]+)/); return m ? m[1] : (/^[\w.]{3,30}$/.test(t) ? t : ''); };
 /* 8 nov 2026: el círculo del ranking tiene su propia clase (antes usaba «mini», que es la de los botones y lo estiraba en óvalo).
    Todas las filas llevan círculo: el personaje si lo armó; si no, su inicial. Así nombre, usuario y puntaje quedan alineados. */
-const rkPj = it => it.yo && E.pj ? E.pj : E.pjs[pjUsuario(rkUsuario(it))];
+const rkPj = it => it.yo && pjListo() ? E.pj : E.pjs[pjUsuario(rkUsuario(it))];
 const rkAvatar = it => { const pj = rkPj(it); return pj ? `<span class="rk-av pj" aria-hidden="true">${PJ.svg(pj)}</span>` : `<span class="rk-av" aria-hidden="true">${esc(String(it.nombre || '?').trim().charAt(0).toUpperCase() || '?')}</span>`; };
 const rkRed = it => { const u = rkUsuario(it); return u ? '@' + u : String(it.red || '').trim(); };
 function dibujarRanking(r, error) {
@@ -1559,7 +1570,7 @@ function ventanaToque(usuario, nombre) {
   ventana(`
     <h2 id="v-h" tabindex="-1">Dale un toque a ${esc(nombre)}</h2>
     <p style="font-size:14px">Le aparecerá en su app con el sticker que elijas.</p>
-    <div class="stickers">${STICKERS.map((st, i) => `<button type="button" class="sticker" data-st="${i}" aria-pressed="${i === elegido}">${i === TOQUE_PJ && E.pj ? `<span class="toque-pj" style="width:80px;height:80px">${PJ.svg(E.pj)}</span>` : `<img src="${st[0]}" alt="" width="80" height="80">`}<span>${esc(st[1])}</span></button>`).join('')}</div>
+    <div class="stickers">${STICKERS.map((st, i) => `<button type="button" class="sticker" data-st="${i}" aria-pressed="${i === elegido}">${i === TOQUE_PJ && pjListo() ? `<span class="toque-pj" style="width:80px;height:80px">${PJ.svg(E.pj)}</span>` : `<img src="${st[0]}" alt="" width="80" height="80">`}<span>${esc(st[1])}</span></button>`).join('')}</div>
     <button type="button" class="btn amarillo" id="dar">DAR TOQUE</button>
     <button type="button" class="enlace" id="quitar" style="font-size:12px;color:var(--muted)">Quitar, bloquear o reportar a @${esc(usuario)}</button>`, (v, cerrar) => {
     v.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => { elegido = +b.dataset.st; v.querySelectorAll('[data-st]').forEach(x => x.setAttribute('aria-pressed', String(+x.dataset.st === elegido))); }));
@@ -1645,10 +1656,10 @@ let cerrarChispa = null;
 /* Banner del Club al terminar la chispa (6 nov 2026): solo mayores de edad (los menores nunca reciben ofertas),
    nunca a miembros, nunca en la versión de Google Play (política de pagos) y máximo una vez al día por teléfono. */
 function promoClub() {
-  if (PLAY || (E.club && E.club.activo) || !E.perfil || E.perfil.mayor !== 'Sí') return false;
+  if (ventanaAuto || PLAY || (E.club && E.club.activo) || !E.perfil || E.perfil.mayor !== 'Sí') return false;
   const dia = new Date(Date.now() - 4 * 36e5).toISOString().slice(0, 10);
   if (leer('promoClub') === dia) return false;
-  guardar('promoClub', dia); return true;
+  guardar('promoClub', dia); ventanaAuto = true; return true;
 }
 function vistaChispa() {
   pintar('<div id="chispa"></div>', root => {
@@ -1756,7 +1767,7 @@ function vistaYo() {
   const p = E.perfil || {}, ini = esc((nombreCorto() || '?').charAt(0).toUpperCase());
   const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent), instalada = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
   conNav('yo', cabecera('Yo') + `<main class="cont con-nav">
-      <div class="perfil"><span class="avatar${E.pj ? ' pj' : ''}">${E.pj ? PJ.svg(E.pj) : ini}</span><div style="min-width:0;flex:1"><h2>${esc(p.nombre || '')}</h2><span>@${esc(p.usuario || '')}</span></div><button type="button" class="btn blanco chico mini" id="pj-editar">✏️ Mi personaje</button></div>
+      <div class="perfil"><span class="avatar${pjListo() ? ' pj' : ''}">${pjListo() ? PJ.svg(E.pj) : ini}</span><div style="min-width:0;flex:1"><h2>${esc(p.nombre || '')}</h2><span>@${esc(p.usuario || '')}</span></div><button type="button" class="btn blanco chico mini" id="pj-editar">✏️ Mi personaje</button></div>
       ${progresoHtml()}
       <div class="lista">
         ${p.correo ? `<div><span>Correo</span><span>${esc(p.correo)}</span></div>` : ''}
@@ -1873,7 +1884,7 @@ function tutorial(clave, intento) {
   const vistos = leer('tuto') || {};
   if (vistos[clave]) return;
   if (document.querySelector('.velo')) { if (!intento) setTimeout(() => tutorial(clave, 1), 4000); return; }   // hay otra ventana abierta
-  vistos[clave] = true; guardar('tuto', vistos);
+  vistos[clave] = true; guardar('tuto', vistos); ventanaAuto = true;
   const g = E.guia === 'tradi' ? 'Tradi' : 'Digi', emoji = E.guia === 'tradi' ? '✏️' : '💻';
   let i = 0;
   const html = () => {
@@ -1906,7 +1917,7 @@ function ir(donde) {
     E.completando = true; E.borrador = { nombre: leer('nombreLocal') || '', usuario: E.perfil.usuario || '', mayor: 'No', venezuela: E.perfil.venezuela };
     return vistaPerfil();
   }
-  if (E.pjTemporal) return vistaListo();   // personaje obligatorio (7 nov 2026)
+  if (pjObligatorio()) return vistaListo();   // personaje obligatorio después del primer dibujo (11 nov 2026)
   if ((donde === 'club' || donde === 'chispa') && estaEn !== donde) E.volverA = estaEn || 'hoy';
   estaEn = donde;
   if (donde === 'subir' && bloqueado()) { aviso(ERRORES.autorizacion); estaEn = 'hoy'; donde = 'hoy'; }
