@@ -50,7 +50,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '95 · 11 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '96 · 11 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -63,7 +63,7 @@ function aviso(texto) {
 
 /* Pedidos al servidor. Si Google está saturado (mucha gente a la vez), reintenta solo hasta 3 veces
    esperando cada vez más. Las acciones que solo leen también se reintentan si falla la conexión. */
-const API_LEER = ['hoy', 'perfil', 'mi_semana', 'ranking', 'amigos', 'club', 'votacion'];
+const API_LEER = ['inicio', 'hoy', 'perfil', 'mi_semana', 'ranking', 'amigos', 'club', 'votacion'];
 const espera = ms => new Promise(ok => setTimeout(ok, ms));
 async function apiUnaVez(accion, datos, intento) {
   const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), accion === 'subir' ? 60000 : 25000);
@@ -809,8 +809,17 @@ function cuantoFalta(iso) {
 async function vistaHoy() {
   clearInterval(reloj);
   dibujarHoy(E.hoy);
-  const pm = api('mi_semana', { sesion: E.sesion });   // 11 nov 2026: las consultas salen a la vez (antes, una detrás de otra)
-  const r = await api('hoy', { sesion: E.sesion });
+  /* 11 nov 2026: UN solo pedido («inicio») trae el reto, mi semana y la votación. Si el servidor todavía no lo conoce
+     (responde «accion»), se piden por separado y a la vez, como antes. */
+  let r, m, v = null;
+  const t = await api('inicio', { sesion: E.sesion });
+  if (t.ok && t.hoy) { r = t.hoy; m = t.semana || { ok: false }; v = t.votacion || null; }
+  else if (t.error === 'accion') {
+    const pm = api('mi_semana', { sesion: E.sesion });
+    r = await api('hoy', { sesion: E.sesion });
+    if (r.ok && r.votacion && r.votacion.estado === 'abierta') v = api('votacion', { sesion: E.sesion });
+    m = pm;
+  } else r = t;
   if (!r.ok) { if (!E.hoy) dibujarHoy(null, textoError(r.error)); return; }
   E.hoy = r; guardar('hoy', r);   // la próxima vez se muestra al instante
   cargarPatrocinio();
@@ -819,8 +828,7 @@ async function vistaHoy() {
      en modo prueba la del teléfono. */
   desfase = r.real ? new Date(r.real) - Date.now() : r.prueba ? 0 : new Date(r.ahora) - Date.now(); ajustarHora(desfase);
   if (estaEn === 'hoy') dibujarHoy(r);
-  const pv = r.votacion && r.votacion.estado === 'abierta' ? api('votacion', { sesion: E.sesion }) : null;
-  const m = await pm;
+  m = await m;
   if (m.ok) {
     if (r.actual) { E.semana = { id: semanaId(r.actual), subido: !!m.subido, padlet: m.padlet || '' }; guardar('semana', E.semana); }
     if (m.progreso) { E.progreso = m.progreso; guardar('progreso', E.progreso); }
@@ -832,10 +840,8 @@ async function vistaHoy() {
       setTimeout(ventanaMolesto, 900);
     }
   } else if (m.error === 'sesion') cerrarSesion(true);
-  if (pv) {   // para las miniaturas y saber si ya votó
-    const v = await pv;
-    if (v.ok) { E.votacion = v; if (estaEn === 'hoy') dibujarHoy(E.hoy); }
-  }
+  v = await v;
+  if (v && v.ok) { E.votacion = v; if (estaEn === 'hoy') dibujarHoy(E.hoy); }   // para las miniaturas y saber si ya votó
 }
 /* Tradi o Digi molestos (7 nov 2026): si tu racha está en riesgo y todavía no subes tu dibujo, tu guía te lo reclama.
    Sale una vez al día por teléfono y solo si tienes racha que perder (1 semana o más) y el reto sigue abierto.
