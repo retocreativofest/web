@@ -673,3 +673,4 @@ html,body{overflow-x:clip}
   .ch-or a span,.ch-or a:nth-of-type(3) span{position:static;padding:0}
   .ch-prod{grid-template-columns:minmax(0,1fr)}
 }
+.ch-nota a{color:inherit;font-weight:700}
