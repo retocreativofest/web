@@ -674,3 +674,5 @@ html,body{overflow-x:clip}
   .ch-prod{grid-template-columns:minmax(0,1fr)}
 }
 .ch-nota a{color:inherit;font-weight:700}
+/* 11 nov 2026: en teléfonos, el punto separador se convierte en salto de línea (sin puntos ni palabras sueltas al final de la línea) */
+@media (max-width:600px){.pt-m{display:block;height:0;overflow:hidden;visibility:hidden}}
