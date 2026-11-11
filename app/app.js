@@ -1,6 +1,6 @@
 /* #RetoMenteMilenial · app: entrar, registro, Hoy, subir al Padlet, rachas, ranking, amigos, Chispa del día y Club Estrella */
 import * as PJ from './personaje.js?v=1';
-import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe, rachaChispas, chispasDelAnio, ajustarHora, mostrarPromoClub, bannerClub } from './chispa.js?v=22';
+import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe, rachaChispas, ajustarHora, mostrarPromoClub, bannerClub } from './chispa.js?v=22';
 const CONFIG = {
   api: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
@@ -50,7 +50,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '89 · 10 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '90 · 10 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -908,12 +908,7 @@ function tarjetaChispa() {
 function circulosChispa() {
   const d = diasChispaSemana(), n = d.filter(x => x.hecha).length;
   return `<div class="hist ch-hist" role="img" aria-label="Chispas de esta semana: ${n} de 7. No afecta tu racha.">${d.map(x =>
-    `<span class="dia ${x.hecha ? 'si' : x.hoy ? 'abierta' : ''}" aria-hidden="true"><i></i>${x.letra}</span>`).join('')}</div>${totalChispas()}`;
-}
-/* 9 nov 2026: total del año (los círculos se vacían cada lunes; este número no). */
-function totalChispas() {
-  const t = chispasDelAnio();
-  return t.n ? `<p class="nota ch-anio" style="margin:4px 0 0;text-align:left">✨ Chispas ${t.anio}: <b>${t.n}</b></p>` : '';
+    `<span class="dia ${x.hecha ? 'si' : x.hoy ? 'abierta' : ''}" aria-hidden="true"><i></i>${x.letra}</span>`).join('')}</div>`;   // 10 nov 2026: Stefany quitó el total «Chispas del año»
 }
 /* Calendario del Adviento de Chispas: un cuadrito por día; ✓ hecho, borde grueso hoy. */
 function calendarioAdviento(adv) {
