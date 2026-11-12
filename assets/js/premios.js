@@ -17,7 +17,7 @@
   const votoSemanal = () => (typeof POST_EVENTO !== 'undefined' && POST_EVENTO) ? 'no cuenta la votación de la app' : 'no cuentan los votos de WhatsApp';
   const DEF = {
     /* 10 nov 2026: la hoja dice que se puede sumar; según las bases es categoría principal (no se suma) y rotativa por año. */
-    'premio a la constancia':        () => 'Quien participó en más semanas del periodo, seguidas o no. Es una categoría principal: no se suma a otro premio y es rotativa por año.',
+    'premio a la constancia':        () => 'Quien participó en más semanas del periodo, seguidas o no. Si empatan: la racha más larga; luego, quien votó en más semanas en la app; por último, sorteo en vivo. Es una categoría principal: no se suma a otro premio y es rotativa por año.',
     /* 10 nov 2026: reconocimiento; la organización solo da la medalla, una marca puede sumar su premio. */
     'ilustración más interactiva':   () => 'La ilustración con más «Me gusta» del Padlet. Los votos se revisan para confirmar que son reales. Es un reconocimiento: la organización entrega una medalla conmemorativa (una marca aliada puede sumar su premio). Se puede sumar a otra categoría.',
     'mejor ilustración digital':     () => `Nominadas: las 4 ilustraciones digitales con más «Me gusta» en el Padlet (${votoSemanal()}). El jurado elige la ganadora.`,
