@@ -58,6 +58,17 @@ export function fiestaDe(dia) {
   return f ? { nombre: f[0], aviso: f[1], chispa: f[2] } : null;
 }
 const LIMITE = 180, ANCHO = 648, ALTO = 700;
+/* 12 nov 2026 (pedido de Stefany): para que la chispa cuente hay que dibujar al menos 10 segundos con el pincel
+   (se suma solo el tiempo en que el dedo o el lápiz se mueve sobre el lienzo). Un garabato rápido ya no la termina. */
+const MIN_DIBUJO = 10;
+/* Candado dibujado con el mismo trazo negro y relleno amarillo que la estrella de la chispa y el fuego de la racha (reemplaza al emoji). */
+export const CANDADO = '<svg class="ico-candado" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.6 10.5V7.4a4.4 4.4 0 0 1 8.8 0v3.1" fill="none" stroke="#0B0B0F" stroke-width="2.4" stroke-linecap="round"/><rect x="4.4" y="10.3" width="15.2" height="11.2" rx="3.2" fill="#FFD60A" stroke="#0B0B0F" stroke-width="2.2" stroke-linejoin="round"/><circle cx="12" cy="15.9" r="1.7" fill="#0B0B0F"/></svg>';
+const trazo = d => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
+const ICO_GUARDAR = trazo('<path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/>');
+const ICO_COMPARTIR = trazo('<path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>');
+const ICO_VIDEO = trazo('<rect x="3" y="6" width="12" height="12" rx="2.5"/><path d="M15 10.5l6-3.5v10l-6-3.5z"/>');
+/* Logo de la app para la imagen guardada (ya está en la caché de la app). */
+const LOGO = new Image(); LOGO.src = 'img/icon-192.png';
 
 const leerLS = k => { try { return JSON.parse(localStorage.getItem('rcf.' + k)); } catch (e) { return null; } };
 const guardarLS = (k, v) => { try { localStorage.setItem('rcf.' + k, JSON.stringify(v)); } catch (e) {} };
@@ -134,9 +145,10 @@ const IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform 
 export function abrirChispa(ctx) {
   const { root, esc } = ctx, club = !!ctx.club;
   const hoy = chispaDeHoy();
-  const S = { fase: 'lista', quedan: LIMITE, herramienta: 'pincel', color: '#000000', tam: 1, opac: 1, ops: 0, video: false, chispa: hoy.chispa, cambiada: hoy.cambiada };
-  let hist = [], cuadros = [], foto = null, lapiz = null, reloj = null, dibujando = false, ultimo = null, medio = null, bloqueoT = null;
-  const candado = club ? '' : ' 🔒';
+  const S = { fase: 'lista', quedan: LIMITE, herramienta: 'pincel', color: '#000000', tam: 1, opac: 1, ops: 0, ms: 0, vale: false, video: false, chispa: hoy.chispa, cambiada: hoy.cambiada };
+  let hist = [], cuadros = [], foto = null, lapiz = null, reloj = null, dibujando = false, ultimo = null, medio = null, bloqueoT = null, tMov = 0;
+  const candado = club ? '' : ' ' + CANDADO;
+  const faltan = () => Math.max(0, Math.ceil(MIN_DIBUJO - S.ms / 1000));
 
   root.innerHTML = `
     <header class="barra ch-barra" style="padding-bottom:10px;gap:8px">
@@ -168,7 +180,7 @@ export function abrirChispa(ctx) {
 
   function bloqueado(que) {
     const l = $('#ch-lock');
-    l.innerHTML = `🔒 <b>${esc(que)}</b> es del Club Estrella. <button type="button" class="enlace" id="ch-club" style="min-height:0;padding:0 4px;font-size:13px">Conocer el Club</button>`;
+    l.innerHTML = `${CANDADO} <b>${esc(que)}</b> es del Club Estrella. <button type="button" class="enlace" id="ch-club" style="min-height:0;padding:0 4px;font-size:13px">Conocer el Club</button>`;
     l.hidden = false;
     $('#ch-club').addEventListener('click', () => { parar(); ctx.irClub(); });
     clearTimeout(bloqueoT); bloqueoT = setTimeout(() => { l.hidden = true; }, 3500);
@@ -221,16 +233,17 @@ export function abrirChispa(ctx) {
       S.quedan--;
       if (S.quedan <= 0) { S.quedan = 0; campana(); terminar(); }
       else if (S.quedan <= 30) tic(S.quedan % 2 === 0, S.quedan <= 10);   // los últimos 30 s: tic-tac de suspenso
-      pintarReloj();
+      pintarReloj(); pintarFin();
     }, 1000);
     pintarAbajo();
   }
   function terminar() {
     if (S.fase === 'hecha') return;
     parar(); dibujando = false; S.fase = 'hecha'; guardarFoto();
-    if (S.ops > 0) marcarHecha();
+    S.vale = S.ops > 0 && faltan() === 0;   // 12 nov: sin 10 segundos de dibujo no cuenta
+    if (S.vale) marcarHecha();
     pintarAbajo();
-    avisoLienzo(S.ops <= 0 ? '' : S.quedan === 0 ? '⏰ ¡Se acabó el tiempo!' : '🎉 ¡Chispa terminada!');
+    avisoLienzo(!S.vale ? '' : S.quedan === 0 ? '⏰ ¡Se acabó el tiempo!' : '🎉 ¡Chispa terminada!');
   }
   /* 7 nov 2026: el aviso del final sale en el centro del dibujo y se va solo a los 2,5 segundos. */
   function avisoLienzo(texto) {
@@ -274,7 +287,7 @@ export function abrirChispa(ctx) {
       if (cubeta(p.x, p.y, S.color)) { S.ops++; cuadro(); pintarAbajo(); } else hist.pop();
       return;
     }
-    guardarHist(); dibujando = true; ultimo = p; medio = p;
+    guardarHist(); dibujando = true; ultimo = p; medio = p; tMov = performance.now();
     if (c.setPointerCapture && e.pointerId != null) { try { c.setPointerCapture(e.pointerId); } catch (err) {} }
     const w = S.herramienta === 'borrador' ? tam().borrador : tam().pincel;
     /* Con opacidad menor a 100 % el pincel pinta en la capa de arriba (que se ve con esa opacidad); el borrador siempre borra completo. */
@@ -293,6 +306,10 @@ export function abrirChispa(ctx) {
     const m = { x: (ultimo.x + p.x) / 2, y: (ultimo.y + p.y) / 2 };
     lapiz.beginPath(); lapiz.moveTo(medio.x, medio.y); lapiz.quadraticCurveTo(ultimo.x, ultimo.y, m.x, m.y); lapiz.stroke();
     medio = m; ultimo = p;
+    /* Tiempo de dibujo: solo cuenta el pincel en movimiento (las pausas con el dedo quieto suman como mucho un cuarto de segundo). */
+    const ya = performance.now();
+    if (S.herramienta === 'pincel') S.ms += Math.min(250, Math.max(0, ya - tMov));
+    tMov = ya;
   }
   function mover(e) {
     if (!dibujando || S.fase !== 'dibujando') return;
@@ -349,26 +366,37 @@ export function abrirChispa(ctx) {
     y.fillStyle = '#0B0B0F'; y.fillRect(34, 34, ANCHO + 12, ALTO + 12);
     y.drawImage(src || c, 40, 40);
     y.textAlign = 'center';
-    y.fillStyle = m[2]; y.font = '800 40px Poppins, sans-serif'; y.fillText('#RetoMenteMilenial', o.width / 2, ALTO + 98);   // 6 nov: las 3 líneas centradas en la franja de abajo
+    /* 12 nov 2026 (pedido de Stefany): orden de lectura de arriba a abajo, cada línea un poco más pequeña que la anterior:
+       1) quién lo dibujó · 2) #RetoMenteMilenial · 3) la chispa del día · 4) logo de la app + retocreativofest.com. */
+    const cx = o.width / 2, max = o.width - 56;
+    const texto = (t, peso, fam, tamano, color, yy) => {
+      let f = tamano; y.font = peso + ' ' + f + 'px ' + fam;
+      while (y.measureText(t).width > max && f > 16) { f -= 2; y.font = peso + ' ' + f + 'px ' + fam; }
+      y.fillStyle = color; y.fillText(t, cx, yy);
+    };
+    const au = ctx.autor || {}, us = String(au.usuario || '').replace(/^@+/, '');
+    const firma = au.nombre && us ? au.nombre + ' · @' + us : us ? '@' + us : au.nombre || '';
     const adv = adviento();
     const fi = !S.cambiada && hoy.fiesta;
     const linea = (adv ? 'Adviento de Chispas · día ' + adv.dia + ': ' : fi ? fi.nombre + ': ' : 'Chispa del día: ') + S.chispa;
-    let fs = 30; y.font = '700 ' + fs + 'px Quicksand, sans-serif';
-    while (y.measureText(linea).width > o.width - 48 && fs > 16) { fs -= 2; y.font = '700 ' + fs + 'px Quicksand, sans-serif'; }
-    y.fillStyle = m[1]; y.fillText(linea, o.width / 2, ALTO + 138);
-    /* 8 nov 2026: la autoría va en la imagen (y en el video): nombre de pila y @usuario de la app. */
-    const au = ctx.autor || {}, us = String(au.usuario || '').replace(/^@+/, '');
-    const firma = au.nombre && us ? 'Dibujo de ' + au.nombre + ' · @' + us : us ? 'Dibujo de @' + us : au.nombre ? 'Dibujo de ' + au.nombre : '';
-    let fy = ALTO + 172;
-    if (firma) {
-      let ff = 28; y.font = '800 ' + ff + 'px Poppins, sans-serif';
-      while (y.measureText(firma).width > o.width - 48 && ff > 16) { ff -= 2; y.font = '800 ' + ff + 'px Poppins, sans-serif'; }
-      y.fillStyle = m[2]; y.fillText(firma, o.width / 2, ALTO + 178); y.fillStyle = m[1]; fy = ALTO + 214;
+    let yy = ALTO + 52;
+    if (firma) { yy += 50; texto(firma, '800', 'Poppins, sans-serif', 38, m[2], yy); yy += 42; texto('#RetoMenteMilenial', '700', 'Poppins, sans-serif', 28, m[1], yy); }
+    else { yy += 50; texto('#RetoMenteMilenial', '800', 'Poppins, sans-serif', 38, m[2], yy); }
+    yy += 38; texto(linea, '700', 'Quicksand, sans-serif', 25, m[1], yy);
+    /* Cierre: el logo de la app y la web, juntos y centrados, separados del resto por una línea fina. */
+    yy += 24; y.globalAlpha = .35; y.fillStyle = m[1]; y.fillRect(cx - 150, yy, 300, 2); y.globalAlpha = 1;
+    const web = 'retocreativofest.com', L = 44, hayLogo = LOGO.complete && LOGO.naturalWidth > 0;
+    y.font = '700 22px Quicksand, sans-serif';
+    const wt = y.measureText(web).width, total = (hayLogo ? L + 12 : 0) + wt, x0 = cx - total / 2, yl = yy + 18;
+    if (hayLogo) {
+      y.save(); y.beginPath();
+      if (y.roundRect) y.roundRect(x0, yl, L, L, 11); else y.rect(x0, yl, L, L);
+      y.clip(); y.drawImage(LOGO, x0, yl, L, L); y.restore();
     }
-    y.font = '700 22px Quicksand, sans-serif'; y.fillText('Reto Creativo Fest · retocreativofest.com', o.width / 2, fy);
+    y.textAlign = 'left'; y.fillStyle = m[1]; y.fillText(web, x0 + (hayLogo ? L + 12 : 0), yl + L / 2 + 8); y.textAlign = 'center';
     return o;
   }
-  function lienzoMarco() { const o = document.createElement('canvas'); o.width = ANCHO + 80; o.height = ALTO + (ctx.autor && (ctx.autor.usuario || ctx.autor.nombre) ? 240 : 200); return o; }
+  function lienzoMarco() { const o = document.createElement('canvas'); o.width = ANCHO + 80; o.height = ALTO + (ctx.autor && (ctx.autor.usuario || ctx.autor.nombre) ? 284 : 242); return o; }
   function conMarco() { return pintarMarco(lienzoMarco()); }
   function descargar(href, nombre) { const a = document.createElement('a'); a.href = href; a.download = nombre; document.body.appendChild(a); a.click(); a.remove(); }
   /* 8 nov 2026: en Android, «Compartir» abría la lista de apps y no había forma de guardar en el teléfono.
@@ -432,8 +460,9 @@ export function abrirChispa(ctx) {
   function pintarAbajo() {
     const ab = $('#ch-abajo');
     if (S.fase !== 'hecha') {
-      ab.innerHTML = `<button type="button" class="btn blanco" id="ch-fin" ${S.ops > 0 ? '' : 'disabled'}>${S.ops > 0 ? 'TERMINÉ ANTES' : 'Dibuja algo para terminar'}</button>
+      ab.innerHTML = `<button type="button" class="btn blanco" id="ch-fin"></button>
         ${S.fase === 'lista' ? `<button type="button" class="btn blanco chico" id="ch-cambiar" ${S.cambiada ? 'disabled' : ''}>${S.cambiada ? 'Ya cambiaste tu chispa de hoy' : '🔄 Cambiar mi chispa · 1 al día' + candado}</button>` : ''}`;
+      pintarFin();
       const f = $('#ch-fin'); if (f) f.addEventListener('click', terminar);
       const ca = $('#ch-cambiar');
       if (ca) ca.addEventListener('click', () => {
@@ -446,8 +475,8 @@ export function abrirChispa(ctx) {
       });
       return;
     }
-    if (S.ops <= 0) {
-      ab.innerHTML = `<div class="caja">El lienzo quedó en blanco. ¡Inténtalo otra vez!</div><button type="button" class="btn amarillo" id="ch-otra">VOLVER A INTENTAR</button>`;
+    if (!S.vale) {
+      ab.innerHTML = `<div class="caja">${S.ops <= 0 ? 'El lienzo quedó en blanco. ¡Inténtalo otra vez!' : 'Para que tu chispa cuente hay que dibujar al menos ' + MIN_DIBUJO + ' segundos. ¡Inténtalo otra vez!'}</div><button type="button" class="btn amarillo" id="ch-otra">VOLVER A INTENTAR</button>`;
       $('#ch-otra').addEventListener('click', () => abrirChispa(ctx));
       return;
     }
@@ -455,15 +484,24 @@ export function abrirChispa(ctx) {
     ab.innerHTML = `
       ${S.video ? '<div class="caja agua" style="text-align:center">🎬 Grabando el video acelerado…</div>' : ''}
       ${adv && navidadGanada() ? '<div class="caja crema ch-insignia">🎄 <b>Insignia del Adviento ganada.</b> Tu marco ahora es verde navideño.</div>' : ''}
-      <button type="button" class="btn turquesa chico" id="ch-video" ${S.video ? 'disabled' : ''}>🎬 Video acelerado${candado}</button>
-      <button type="button" class="btn amarillo" id="ch-desc">⬇ GUARDAR EN MI TELÉFONO</button>
-      ${puedeCompartir ? '<button type="button" class="btn blanco" id="ch-comp">COMPARTIR</button>' : ''}
+      <div class="compartir">
+        <button type="button" class="btn amarillo cp-grande" id="ch-desc">${ICO_GUARDAR}<span>GUARDAR EN MI TELÉFONO</span></button>
+        ${puedeCompartir ? `<button type="button" class="btn blanco chico cp-chico" id="ch-comp">${ICO_COMPARTIR}<span>Compartir</span></button>` : ''}
+        <button type="button" class="btn blanco chico cp-chico${puedeCompartir ? '' : ' cp-solo'}" id="ch-video" ${S.video ? 'disabled' : ''}>${ICO_VIDEO}<span>Video acelerado</span>${club ? '' : CANDADO}</button>
+      </div>
       <p class="nota" id="ch-nota" role="status" style="margin:0;text-align:center"></p>
       <button type="button" class="enlace" id="ch-salir">Volver a Hoy · mañana hay otra chispa</button>`;
     $('#ch-desc').addEventListener('click', guardarImagen);
     if ($('#ch-comp')) $('#ch-comp').addEventListener('click', compartir);
     $('#ch-video').addEventListener('click', video);
     $('#ch-salir').addEventListener('click', () => ctx.volver());
+  }
+  /* Botón de terminar: se activa cuando ya hay 10 segundos de dibujo; mientras tanto dice cuánto falta. */
+  function pintarFin() {
+    const f = $('#ch-fin'); if (!f || S.fase === 'hecha') return;
+    const n = faltan(), listo = S.ops > 0 && n === 0;
+    const t = listo ? 'TERMINÉ ANTES' : S.ms < 1000 ? 'Dibuja al menos ' + MIN_DIBUJO + ' segundos para terminar' : n > 0 ? 'Dibuja ' + n + (n === 1 ? ' segundo' : ' segundos') + ' más para terminar' : 'Dibuja algo para terminar';
+    f.disabled = !listo; if (f.textContent !== t) f.textContent = t;
   }
   pintarReloj(); sortear(S.chispa);
   return () => parar();

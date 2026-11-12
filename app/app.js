@@ -1,6 +1,6 @@
 /* #RetoMenteMilenial · app: entrar, registro, Hoy, subir al Padlet, rachas, ranking, amigos, Chispa del día y Club Estrella */
 import * as PJ from './personaje.js?v=1';
-import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe, rachaChispas, chispasDelAnio, ajustarHora, mostrarPromoClub, bannerClub } from './chispa.js?v=22';
+import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe, rachaChispas, chispasDelAnio, ajustarHora, mostrarPromoClub, bannerClub, CANDADO } from './chispa.js?v=23';
 const CONFIG = {
   api: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
@@ -50,7 +50,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '96 · 11 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '97 · 12 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -571,7 +571,7 @@ function vistaEdad(error) {
       ${menor && !(p.completo && p.bloqueado === false) ? `<div class="caja crema"><strong class="t">Tu representante tiene que autorizarte</strong>
           <span style="display:block;font-weight:600;margin-bottom:8px">Mándale este formulario. Hasta que lo llene y confirme el correo que le llega, puedes ver el reto y hacer la Chispa del día, pero todavía no subir dibujos ni agregar amigos.</span>
           <span style="display:block;font-weight:600;margin-bottom:8px">📬 El correo llega de retocreativofest@gmail.com. Si no lo ve, que revise spam y Promociones.</span>
-          ${previo ? '<span style="display:block;font-weight:600;margin-bottom:8px">🔒 Por ahora solo guardamos tu usuario. Cuando tu representante confirme, te pedimos tu nombre, tu estado o país y tu cumpleaños.</span>' : ''}
+          ${previo ? '<span style="display:block;font-weight:600;margin-bottom:8px">${CANDADO} Por ahora solo guardamos tu usuario. Cuando tu representante confirme, te pedimos tu nombre, tu estado o país y tu cumpleaños.</span>' : ''}
           <a class="btn turquesa chico" href="https://wa.me/?text=${msj}" target="_blank" rel="noopener">📲 MANDAR EL FORMULARIO POR WHATSAPP</a></div>` : ''}
       ${mayor ? `
         <label class="campo" for="tel">WhatsApp <span class="ayuda">(opcional)</span>
@@ -769,7 +769,7 @@ function ventanaPersonaje(alGuardar) {
     velo.addEventListener('click', e => {
       const b = e.target.closest('[data-k]');
       if (b) {
-        if (!club && PJ.esDelClub(b.dataset.k, b.dataset.v)) { aviso('🔒 Solo para el Club Estrella ★'); return; }
+        if (!club && PJ.esDelClub(b.dataset.k, b.dataset.v)) { aviso('Solo para el Club Estrella ★'); return; }
         sel[b.dataset.k] = b.dataset.v; pintarEd(); return;
       }
       if (e.target.closest('#pj-azar')) { sel = PJ.nuevo(); pintarEd(); }
@@ -943,7 +943,7 @@ function calendarioAdviento(adv) {
 /* Menores de 18 sin autorización confirmada (LOPNNA): ven el reto y la Chispa, pero no publican ni tienen amigos. */
 const bloqueado = () => !!(E.perfil && E.perfil.bloqueado);
 const MSJ_AUTORIZACION = () => encodeURIComponent('Hola. Quiero participar en el #RetoMenteMilenial, un reto semanal de dibujo, y como soy menor de edad necesito tu autorización. Es este formulario: ' + CONFIG.autorizacion + '\n\nAl enviarlo te llega un correo de retocreativofest@gmail.com con el botón «Confirmar la autorización». Si no lo ves, revisa spam y Promociones.');
-const cajaAutorizacion = () => `<div class="caja crema"><strong class="t">🔒 Falta la autorización de tu representante</strong>
+const cajaAutorizacion = () => `<div class="caja crema"><strong class="t">${CANDADO} Falta la autorización de tu representante</strong>
   <div data-aut-estado></div>
   <span style="display:block;font-weight:600;margin-bottom:8px">Mientras tanto puedes ver el reto y hacer la Chispa del día. Cuando tu representante llene el formulario y confirme el correo que le llega, se desbloquea solo: podrás subir tus dibujos y agregar amigos.</span>
   <a class="btn turquesa chico" href="https://wa.me/?text=${MSJ_AUTORIZACION()}" target="_blank" rel="noopener">📲 MANDARLE EL FORMULARIO POR WHATSAPP</a></div>`;
