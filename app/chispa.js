@@ -17,7 +17,12 @@ const GAMAS = [['Rojo', '#FF5A5A', '#B30000'], ['Naranja', '#FFB04D', '#E06A00']
 const PALETA = GAMAS.map(g => [g[0] === 'Negro' ? 'Blanco' : g[0] + ' claro', g[1]]).concat(GAMAS.map(g => [g[0] === 'Negro' ? 'Negro' : g[0] + ' oscuro', g[2]]));
 const SIZES = [['Fino', 6, 20], ['Mediano', 12, 36], ['Grueso', 26, 64]];
 /* [fondo, texto, título]. El verde es el premio del Adviento (15 de 22 chispas): queda para siempre en ese teléfono. */
-const MARCO = { clasico: ['#6B3FA0', '#FFFFFF', '#FFD60A'], navidad: ['#1E7A3A', '#FFFFFF', '#FFD60A'] };
+/* 12 nov 2026: marcos especiales del Club Estrella («estrellas» y «rayo»), con los colores y las formas del reto. Se cambian al terminar la chispa. */
+const MARCO = {
+  clasico: { nombre: 'Clásico', fondo: '#6B3FA0', texto: '#FFFFFF', titulo: '#FFD60A' },
+  navidad: { nombre: 'Navidad', fondo: '#1E7A3A', texto: '#FFFFFF', titulo: '#FFD60A' },
+  estrellas: { nombre: 'Estrellas', fondo: '#F0479B', texto: '#FFFFFF', titulo: '#FFD60A', club: true },
+  rayo: { nombre: 'Rayo', fondo: '#84D7DF', texto: '#0B0B0F', titulo: '#6B3FA0', club: true } };
 
 /* Adviento de Chispas: del 1 al 22 de diciembre, una chispa navideña por día (mientras llega la 3.ª temporada).
    Misma regla del banco: cantidad + cosa + color. Con 15 de 22 se gana la insignia del Adviento y el marco verde (para siempre, en ese teléfono). */
@@ -64,6 +69,13 @@ const MIN_DIBUJO = 10;
 /* Candado dibujado con el mismo trazo negro y relleno amarillo que la estrella de la chispa y el fuego de la racha (reemplaza al emoji). */
 export const CANDADO = '<svg class="ico-candado" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.6 10.5V7.4a4.4 4.4 0 0 1 8.8 0v3.1" fill="none" stroke="#0B0B0F" stroke-width="2.4" stroke-linecap="round"/><rect x="4.4" y="10.3" width="15.2" height="11.2" rx="3.2" fill="#FFD60A" stroke="#0B0B0F" stroke-width="2.2" stroke-linejoin="round"/><circle cx="12" cy="15.9" r="1.7" fill="#0B0B0F"/></svg>';
 const trazo = d => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
+/* Herramientas dibujadas (12 nov 2026): mismo trazo negro y rellenos del reto, en vez de emojis. */
+const herr = d => '<svg class="ico-herr" width="22" height="22" viewBox="0 0 24 24" stroke="#0B0B0F" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">' + d + '</svg>';
+const ICO_PINCEL = herr('<path d="M19.6 3.3l1.1 1.1c.6.6.6 1.5.1 2.1l-7.4 8.4-4.3-4.3 8.4-7.4c.6-.5 1.5-.5 2.1.1z" fill="#84D7DF"/><path d="M9.1 10.6l4.3 4.3c.5 2.7-1 5.1-3.7 5.7-2.2.5-4.5 0-6.4-1.3 1.7-.6 2.4-1.7 2.7-3.4.4-2.3 1.4-4.300 3.100-5.300z" fill="#F0479B"/>');
+const ICO_BORRADOR = herr('<path d="M14.3 3.700l6 6c.8.8.8 2 0 2.800L12.500 20.300H7.300l-3.600-3.600c-.8-.8-.8-2 0-2.800L11.500 3.700c.8-.8 2-.8 2.800 0z" fill="#F0479B"/><path d="M8.100 7.100l8.800 8.800-4.400 4.400H7.300l-3.600-3.600c-.8-.8-.8-2 0-2.800z" fill="#FFFFFF"/><path d="M12.500 20.300H21" fill="none"/>');
+const ICO_CUBETA = herr('<path d="M4.800 9.200h14.400l-1.500 9.800c-.2 1.100-1.100 1.900-2.200 1.900H8.500c-1.100 0-2-.8-2.200-1.900z" fill="#84D7DF"/><ellipse cx="12" cy="9.200" rx="7.200" ry="2.500" fill="#FFD60A"/><path d="M5.600 8.300C6 4.600 8.700 2.900 12 2.900s6 1.700 6.400 5.400" fill="none"/>');
+const ICO_DESHACER = '<svg class="ico-herr" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B0B0F" stroke-width="2.600" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.500 4.500L3.500 9.500l5 5"/><path d="M3.500 9.500H14a5.500 5.500 0 0 1 0 11h-3"/></svg>';
+const ICO_MARCO = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.400" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.500" y="3" width="17" height="18" rx="2.500"/><rect x="7" y="6.500" width="10" height="8"/></svg>';
 const ICO_GUARDAR = trazo('<path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/>');
 const ICO_COMPARTIR = trazo('<path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>');
 const ICO_VIDEO = trazo('<rect x="3" y="6" width="12" height="12" rx="2.5"/><path d="M15 10.5l6-3.5v10l-6-3.5z"/>');
@@ -146,8 +158,11 @@ export function abrirChispa(ctx) {
   const { root, esc } = ctx, club = !!ctx.club;
   const hoy = chispaDeHoy();
   const S = { fase: 'lista', quedan: LIMITE, herramienta: 'pincel', color: '#000000', tam: 1, opac: 1, ops: 0, ms: 0, vale: false, video: false, chispa: hoy.chispa, cambiada: hoy.cambiada };
-  let hist = [], cuadros = [], foto = null, lapiz = null, reloj = null, dibujando = false, ultimo = null, medio = null, bloqueoT = null, tMov = 0;
+  let hist = [], cuadros = [], foto = null, lapiz = null, reloj = null, dibujando = false, ultimo = null, medio = null, tMov = 0;
   const candado = club ? '' : ' ' + CANDADO;
+  /* Marcos: el de siempre (o el verde del Adviento) y, para el Club, los especiales. Se recuerda el último elegido. */
+  const marcos = [navidadGanada() ? 'navidad' : 'clasico'].concat(club ? ['estrellas', 'rayo'] : []);
+  S.marco = marcos.indexOf(leerLS('marco')) >= 0 ? leerLS('marco') : marcos[0];
   const faltan = () => Math.max(0, Math.ceil(MIN_DIBUJO - S.ms / 1000));
 
   root.innerHTML = `
@@ -158,18 +173,18 @@ export function abrirChispa(ctx) {
       <span class="reloj-ch" id="ch-reloj" role="timer" aria-live="off">3:00</span>
     </header>
     <main class="cont ch">
-      <div class="ch-tit"><span class="pill-ch">${adviento() ? '🎄 ADVIENTO · DÍA ' + adviento().dia + ' DE ' + adviento().total + ' · TU CHISPA ES…' : hoy.fiesta ? esc(hoy.fiesta.aviso) : 'TU CHISPA DE HOY ES…'}</span><h2 id="ch-t">${esc(sinViuda('Dibuja ' + S.chispa))}</h2></div>
+      <div class="ch-tit"><span class="pill-ch">${adviento() ? '🎄 ADVIENTO · DÍA ' + adviento().dia + ' DE ' + adviento().total + ' · TU CHISPA ES…' : hoy.fiesta ? esc(hoy.fiesta.aviso) : 'TU CHISPA DE HOY ES…'}</span><h2 id="ch-t">${esc(sinViuda('Dibuja ' + S.chispa))}</h2><p class="ch-falta" id="ch-falta" role="status"></p></div>
       <div class="lienzo"><canvas id="ch-c" width="${ANCHO}" height="${ALTO}" aria-label="Lienzo para dibujar"></canvas><canvas id="ch-capa" class="ch-capa" width="${ANCHO}" height="${ALTO}" aria-hidden="true"></canvas><div class="ch-empezar" id="ch-emp">Toca el lienzo para empezar ✏️</div></div>
+      <img class="ch-prev" id="ch-prev" alt="Tu chispa con el marco" hidden>
       <div class="ch-tools" id="ch-tools">
-        <button type="button" class="tool" data-tool="pincel" aria-pressed="true" aria-label="Pincel" title="Pincel">🖌️<span class="tt"> Pincel</span></button>
-        <button type="button" class="tool" data-tool="borrador" aria-pressed="false" aria-label="Borrar" title="Borrar">🧽<span class="tt"> Borrar</span></button>
-        <button type="button" class="tool" data-tool="cubeta" aria-pressed="false" aria-label="Cubeta${candado ? ' (Club Estrella)' : ''}" title="Cubeta">🪣<span class="tt"> Cubeta</span>${candado}</button>
-        <button type="button" class="tool" id="ch-undo" aria-label="Deshacer">↩︎</button>
+        <button type="button" class="tool" data-tool="pincel" aria-pressed="true" aria-label="Pincel" title="Pincel">${ICO_PINCEL}<span class="tt"> Pincel</span></button>
+        <button type="button" class="tool" data-tool="borrador" aria-pressed="false" aria-label="Borrar" title="Borrar">${ICO_BORRADOR}<span class="tt"> Borrar</span></button>
+        <button type="button" class="tool" data-tool="cubeta" aria-pressed="false" aria-label="Cubeta${candado ? ' (Club Estrella)' : ''}" title="Cubeta">${ICO_CUBETA}<span class="tt"> Cubeta</span>${candado}</button>
+        <button type="button" class="tool" id="ch-undo" aria-label="Deshacer" title="Deshacer">${ICO_DESHACER}</button>
         <span class="tams">${SIZES.map((z, i) => `<button type="button" class="tam" data-tam="${i}" aria-pressed="${i === 1}" aria-label="Tamaño ${z[0].toLowerCase()}${club || i === 1 ? '' : ' (Club Estrella)'}"><i style="width:${[6, 10, 15][i]}px;height:${[6, 10, 15][i]}px;${club || i === 1 ? '' : 'background:#B9AECB'}"></i></button>`).join('')}</span>
       </div>
       <label class="ch-opac" for="ch-op"><span>Opacidad</span><input type="range" id="ch-op" min="10" max="100" step="5" value="100"><b id="ch-opv">100 %</b></label>
       <div class="paleta" role="group" aria-label="Colores">${PALETA.map(c => `<button type="button" class="col" data-col="${c[1]}" aria-label="${esc(c[0])}" aria-pressed="${c[1] === S.color}" style="background:${c[1]}"></button>`).join('')}</div>
-      <div id="ch-lock" class="ch-lock" hidden></div>
       <div id="ch-abajo"></div>
     </main>`;
   const c = root.querySelector('#ch-c'), x = c.getContext('2d');
@@ -178,12 +193,23 @@ export function abrirChispa(ctx) {
   blanco();
   const $ = s => root.querySelector(s);
 
-  function bloqueado(que) {
-    const l = $('#ch-lock');
-    l.innerHTML = `${CANDADO} <b>${esc(que)}</b> es del Club Estrella. <button type="button" class="enlace" id="ch-club" style="min-height:0;padding:0 4px;font-size:13px">Conocer el Club</button>`;
-    l.hidden = false;
-    $('#ch-club').addEventListener('click', () => { parar(); ctx.irClub(); });
-    clearTimeout(bloqueoT); bloqueoT = setTimeout(() => { l.hidden = true; }, 3500);
+  /* 12 nov 2026 (pedido de Stefany): lo que es del Club se explica solo al tocarlo, en una burbuja pegada al botón (ya no hay recuadro fijo). */
+  function bloqueado(el, que) {
+    document.querySelectorAll('.ch-burbuja').forEach(n => n.remove());
+    const b = document.createElement('div');
+    b.className = 'ch-burbuja'; b.setAttribute('role', 'status');
+    b.innerHTML = `<span>${CANDADO} <b>${esc(que)}</b> del Club&nbsp;Estrella.</span> <button type="button" class="enlace">Conocer el&nbsp;Club</button><i></i>`;
+    document.body.appendChild(b);
+    const r = el.getBoundingClientRect(), w = b.offsetWidth, h = b.offsetHeight;
+    const izq = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2)), arriba = r.top - h - 12 >= 8;
+    b.style.left = izq + 'px'; b.style.top = (arriba ? r.top - h - 12 : r.bottom + 12) + 'px';
+    if (!arriba) b.classList.add('abajo');
+    b.querySelector('i').style.left = Math.max(14, Math.min(w - 30, r.left + r.width / 2 - izq - 8)) + 'px';
+    const quitar = () => { b.remove(); window.removeEventListener('scroll', quitar, true); document.removeEventListener('pointerdown', fuera, true); };
+    const fuera = e => { if (!b.contains(e.target)) quitar(); };
+    b.querySelector('button').addEventListener('click', () => { quitar(); parar(); ctx.irClub(); });
+    setTimeout(() => { window.addEventListener('scroll', quitar, true); document.addEventListener('pointerdown', fuera, true); }, 0);
+    setTimeout(quitar, 4000);
   }
   function pintarReloj() {
     const m = Math.floor(S.quedan / 60), s = S.quedan % 60, r = $('#ch-reloj');
@@ -332,12 +358,12 @@ export function abrirChispa(ctx) {
   c.addEventListener('pointerup', arriba); c.addEventListener('pointercancel', arriba); c.addEventListener('pointerleave', arriba);
 
   root.querySelectorAll('[data-tool]').forEach(b => b.addEventListener('click', () => {
-    if (b.dataset.tool === 'cubeta' && !club) return bloqueado('La cubeta');
+    if (b.dataset.tool === 'cubeta' && !club) return bloqueado(b, 'La cubeta es');
     S.herramienta = b.dataset.tool;
     root.querySelectorAll('[data-tool]').forEach(t => t.setAttribute('aria-pressed', String(t === b)));
   }));
   root.querySelectorAll('[data-tam]').forEach(b => b.addEventListener('click', () => {
-    if (!club && b.dataset.tam !== '1') return bloqueado('Cambiar el tamaño');
+    if (!club && b.dataset.tam !== '1') return bloqueado(b, 'Cambiar el tamaño es');
     S.tam = +b.dataset.tam; root.querySelectorAll('[data-tam]').forEach(t => t.setAttribute('aria-pressed', String(t === b)));
   }));
   root.querySelectorAll('[data-col]').forEach(b => b.addEventListener('click', () => {
@@ -359,16 +385,37 @@ export function abrirChispa(ctx) {
     if (on) { audio(); tic(true, false); }
   });
 
-  /* Marco con la marca de agua del reto. Se dibuja sobre «o» (canvas de ANCHO+80 × ALTO+200). */
+  /* Marco con la marca de agua del reto. Se dibuja sobre «o» (lo crea lienzoMarco). Los marcos del Club llevan una franja
+     arriba y adornos (destellos, estrellas, sello, corazones, rayo) que nunca tapan el dibujo ni los textos. */
   function pintarMarco(o, src) {
-    const m = navidadGanada() ? MARCO.navidad : MARCO.clasico, y = o.getContext('2d');
-    y.fillStyle = m[0]; y.fillRect(0, 0, o.width, o.height);
-    y.fillStyle = '#0B0B0F'; y.fillRect(34, 34, ANCHO + 12, ALTO + 12);
-    y.drawImage(src || c, 40, 40);
+    const m = MARCO[S.marco] || MARCO.clasico, y = o.getContext('2d'), W = o.width, H = o.height, oy = m.club ? 86 : 40;
+    y.fillStyle = m.fondo; y.fillRect(0, 0, W, H);
+    const forma = (color, camino) => { y.beginPath(); camino(); y.closePath(); y.fillStyle = color; y.fill(); y.lineWidth = 5; y.lineJoin = 'round'; y.strokeStyle = '#0B0B0F'; y.stroke(); };
+    const puntas = (cx, cy, r, n, dentro, color, giro) => forma(color, () => { for (let i = 0; i < n * 2; i++) { const a = i * Math.PI / n - Math.PI / 2 + (giro || 0), rr = i % 2 ? r * dentro : r; y[i ? 'lineTo' : 'moveTo'](cx + rr * Math.cos(a), cy + rr * Math.sin(a)); } });
+    const destello = (cx, cy, r, color) => puntas(cx, cy, r, 4, .34, color);
+    const estrella = (cx, cy, r, color, giro) => puntas(cx, cy, r, 5, .5, color, giro);
+    const sello = (cx, cy, r, color) => forma(color, () => { for (let i = 0; i < 96; i++) { const a = i / 96 * Math.PI * 2, rr = r * (1 + .1 * Math.cos(12 * a)); y[i ? 'lineTo' : 'moveTo'](cx + rr * Math.cos(a), cy + rr * Math.sin(a)); } });
+    const corazon = (cx, cy, t, color) => forma(color, () => { y.moveTo(cx, cy + t * .9); y.bezierCurveTo(cx - t * 1.5, cy - t * .1, cx - t * .7, cy - t * 1.2, cx, cy - t * .4); y.bezierCurveTo(cx + t * .7, cy - t * 1.2, cx + t * 1.5, cy - t * .1, cx, cy + t * .9); });
+    const rayo = (cx, cy, t, color) => forma(color, () => { [[.25, -1], [-.6, .12], [-.08, .12], [-.35, 1], [.6, -.22], [.08, -.22], [.5, -1]].forEach((p, i) => y[i ? 'lineTo' : 'moveTo'](cx + p[0] * t, cy + p[1] * t)); });
+    if (S.marco === 'estrellas') {
+      forma('#FFD60A', () => y.arc(52, H + 6, 92, 0, Math.PI * 2));                                  // medio círculo abajo a la izquierda
+      y.fillStyle = '#0B0B0F'; for (let i = 0; i < 5; i++) for (let j = 0; j < 4; j++) { y.beginPath(); y.arc(W - 118 + i * 20, H - 86 + j * 20, 3.6, 0, Math.PI * 2); y.fill(); }   // puntos abajo a la derecha
+      estrella(56, 44, 34, '#FFD60A', -.2); estrella(118, 56, 17, '#FFFFFF', .25);
+      sello(W - 62, 44, 30, '#84D7DF'); destello(W - 132, 34, 17, '#FFFFFF');
+      destello(W - 52, H - 150, 24, '#FFD60A');
+    } else if (S.marco === 'rayo') {
+      forma('#AA57F7', () => { y.moveTo(W - 150, -6); y.lineTo(W + 6, -6); y.lineTo(W + 6, 150); y.quadraticCurveTo(W - 40, 60, W - 150, -6); });   // esquina morada
+      forma('#C5A6D9', () => { y.moveTo(-6, H - 64); y.bezierCurveTo(60, H - 100, 110, H - 30, 190, H + 6); y.lineTo(-6, H + 6); });                 // ola abajo a la izquierda
+      corazon(52, 46, 15, '#F0479B'); corazon(92, 46, 15, '#FFD60A'); corazon(132, 46, 15, '#FFFFFF');
+      destello(50, H - 150, 26, '#FFD60A'); destello(84, H - 104, 14, '#F0479B');
+      rayo(W - 62, H - 96, 62, '#FFD60A');
+    }
+    y.fillStyle = '#0B0B0F'; y.fillRect(34, oy - 6, ANCHO + 12, ALTO + 12);
+    y.drawImage(src || c, 40, oy);
     y.textAlign = 'center';
     /* 12 nov 2026 (pedido de Stefany): orden de lectura de arriba a abajo, cada línea un poco más pequeña que la anterior:
        1) quién lo dibujó · 2) #RetoMenteMilenial · 3) la chispa del día · 4) logo de la app + retocreativofest.com. */
-    const cx = o.width / 2, max = o.width - 56;
+    const cx = W / 2, max = W - (m.club ? 230 : 56);
     const texto = (t, peso, fam, tamano, color, yy) => {
       let f = tamano; y.font = peso + ' ' + f + 'px ' + fam;
       while (y.measureText(t).width > max && f > 16) { f -= 2; y.font = peso + ' ' + f + 'px ' + fam; }
@@ -379,12 +426,12 @@ export function abrirChispa(ctx) {
     const adv = adviento();
     const fi = !S.cambiada && hoy.fiesta;
     const linea = (adv ? 'Adviento de Chispas · día ' + adv.dia + ': ' : fi ? fi.nombre + ': ' : 'Chispa del día: ') + S.chispa;
-    let yy = ALTO + 52;
-    if (firma) { yy += 50; texto(firma, '800', 'Poppins, sans-serif', 38, m[2], yy); yy += 42; texto('#RetoMenteMilenial', '700', 'Poppins, sans-serif', 28, m[1], yy); }
-    else { yy += 50; texto('#RetoMenteMilenial', '800', 'Poppins, sans-serif', 38, m[2], yy); }
-    yy += 38; texto(linea, '700', 'Quicksand, sans-serif', 25, m[1], yy);
+    let yy = oy + ALTO + 12;
+    if (firma) { yy += 50; texto(firma, '800', 'Poppins, sans-serif', 38, m.titulo, yy); yy += 42; texto('#RetoMenteMilenial', '700', 'Poppins, sans-serif', 28, m.texto, yy); }
+    else { yy += 50; texto('#RetoMenteMilenial', '800', 'Poppins, sans-serif', 38, m.titulo, yy); }
+    yy += 38; texto(linea, '700', 'Quicksand, sans-serif', 25, m.texto, yy);
     /* Cierre: el logo de la app y la web, juntos y centrados, separados del resto por una línea fina. */
-    yy += 24; y.globalAlpha = .35; y.fillStyle = m[1]; y.fillRect(cx - 150, yy, 300, 2); y.globalAlpha = 1;
+    yy += 24; y.globalAlpha = .35; y.fillStyle = m.texto; y.fillRect(cx - 150, yy, 300, 2); y.globalAlpha = 1;
     const web = 'retocreativofest.com', L = 44, hayLogo = LOGO.complete && LOGO.naturalWidth > 0;
     y.font = '700 22px Quicksand, sans-serif';
     const wt = y.measureText(web).width, total = (hayLogo ? L + 12 : 0) + wt, x0 = cx - total / 2, yl = yy + 18;
@@ -393,10 +440,21 @@ export function abrirChispa(ctx) {
       if (y.roundRect) y.roundRect(x0, yl, L, L, 11); else y.rect(x0, yl, L, L);
       y.clip(); y.drawImage(LOGO, x0, yl, L, L); y.restore();
     }
-    y.textAlign = 'left'; y.fillStyle = m[1]; y.fillText(web, x0 + (hayLogo ? L + 12 : 0), yl + L / 2 + 8); y.textAlign = 'center';
+    y.textAlign = 'left'; y.fillStyle = m.texto; y.fillText(web, x0 + (hayLogo ? L + 12 : 0), yl + L / 2 + 8); y.textAlign = 'center';
     return o;
   }
-  function lienzoMarco() { const o = document.createElement('canvas'); o.width = ANCHO + 80; o.height = ALTO + (ctx.autor && (ctx.autor.usuario || ctx.autor.nombre) ? 284 : 242); return o; }
+  function lienzoMarco() {
+    const o = document.createElement('canvas'), m = MARCO[S.marco] || MARCO.clasico;
+    o.width = ANCHO + 80; o.height = ALTO + (ctx.autor && (ctx.autor.usuario || ctx.autor.nombre) ? 284 : 242) + (m.club ? 46 : 0); return o;
+  }
+  /* Vista previa con el marco (al terminar): reemplaza al lienzo y a las herramientas para que se vea cómo queda la imagen. */
+  function pintarPrevia() {
+    const ver = S.fase === 'hecha' && S.vale && !S.video, pv = $('#ch-prev');
+    root.querySelector('.lienzo').hidden = ver; pv.hidden = !ver;
+    ['#ch-tools', '.ch-opac', '.paleta'].forEach(q => { const n = root.querySelector(q); if (n) n.hidden = S.fase === 'hecha'; });
+    if (ver) { try { pv.src = conMarco().toDataURL('image/png'); } catch (e) {} }
+  }
+  if (!LOGO.complete) LOGO.addEventListener('load', () => { if (root.contains(c)) pintarPrevia(); });
   function conMarco() { return pintarMarco(lienzoMarco()); }
   function descargar(href, nombre) { const a = document.createElement('a'); a.href = href; a.download = nombre; document.body.appendChild(a); a.click(); a.remove(); }
   /* 8 nov 2026: en Android, «Compartir» abría la lista de apps y no había forma de guardar en el teléfono.
@@ -435,7 +493,7 @@ export function abrirChispa(ctx) {
      Quién la ve lo decide app.js: solo mayores, nunca miembros, nunca en Google Play, 1 vez al día. */
   function ventanaClub() { mostrarPromoClub({ promoClub: ctx.promoClub, irClub: () => { parar(); ctx.irClub(); } }); }
   function video() {
-    if (!club) return bloqueado('El video acelerado');
+    if (!club) return bloqueado($('#ch-video'), 'El video acelerado es');
     if (!cuadros.length || S.video) return;
     S.video = true; pintarAbajo();
     let rec = null; const trozos = [], o = lienzoMarco();   // el video también lleva el marco y la marca de agua
@@ -460,14 +518,14 @@ export function abrirChispa(ctx) {
   function pintarAbajo() {
     const ab = $('#ch-abajo');
     if (S.fase !== 'hecha') {
-      ab.innerHTML = `<button type="button" class="btn blanco" id="ch-fin"></button>
+      ab.innerHTML = `<button type="button" class="btn blanco" id="ch-fin" hidden>TERMINÉ ANTES</button>
         ${S.fase === 'lista' ? `<button type="button" class="btn blanco chico" id="ch-cambiar" ${S.cambiada ? 'disabled' : ''}>${S.cambiada ? 'Ya cambiaste tu chispa de hoy' : '🔄 Cambiar mi chispa · 1 al día' + candado}</button>` : ''}`;
       pintarFin();
       const f = $('#ch-fin'); if (f) f.addEventListener('click', terminar);
       const ca = $('#ch-cambiar');
       if (ca) ca.addEventListener('click', () => {
         if (S.cambiada) return;
-        if (!club) return bloqueado('Cambiar la chispa');
+        if (!club) return bloqueado(ca, 'Cambiar la chispa es');
         const banco = adviento() ? ADVIENTO.lista : BANCO;
         let n = Math.floor(Math.random() * banco.length); if (banco[n] === S.chispa) n = (n + 1) % banco.length;
         S.chispa = banco[n]; S.cambiada = true; guardarLS('chispa.' + diaCaracas(), { chispa: S.chispa, cambiada: true });
@@ -475,6 +533,7 @@ export function abrirChispa(ctx) {
       });
       return;
     }
+    pintarPrevia(); pintarFin();
     if (!S.vale) {
       ab.innerHTML = `<div class="caja">${S.ops <= 0 ? 'El lienzo quedó en blanco. ¡Inténtalo otra vez!' : 'Para que tu chispa cuente hay que dibujar al menos ' + MIN_DIBUJO + ' segundos. ¡Inténtalo otra vez!'}</div><button type="button" class="btn amarillo" id="ch-otra">VOLVER A INTENTAR</button>`;
       $('#ch-otra').addEventListener('click', () => abrirChispa(ctx));
@@ -484,24 +543,30 @@ export function abrirChispa(ctx) {
     ab.innerHTML = `
       ${S.video ? '<div class="caja agua" style="text-align:center">🎬 Grabando el video acelerado…</div>' : ''}
       ${adv && navidadGanada() ? '<div class="caja crema ch-insignia">🎄 <b>Insignia del Adviento ganada.</b> Tu marco ahora es verde navideño.</div>' : ''}
-      <div class="compartir">
+      <div class="compartir ch-fila">
+        <button type="button" class="btn blanco chico cp-chico" id="ch-video" ${S.video ? 'disabled' : ''}>${ICO_VIDEO}<span>Video acelerado</span>${club ? '' : CANDADO}</button>
+        <button type="button" class="btn blanco chico cp-chico" id="ch-marco" ${S.video ? 'disabled' : ''}>${ICO_MARCO}<span>Cambiar marco</span>${club ? '' : CANDADO}</button>
+        ${puedeCompartir ? `<button type="button" class="btn blanco chico cp-chico ch-ico" id="ch-comp" aria-label="Compartir" title="Compartir">${ICO_COMPARTIR}</button>` : ''}
         <button type="button" class="btn amarillo cp-grande" id="ch-desc">${ICO_GUARDAR}<span>GUARDAR EN MI TELÉFONO</span></button>
-        ${puedeCompartir ? `<button type="button" class="btn blanco chico cp-chico" id="ch-comp">${ICO_COMPARTIR}<span>Compartir</span></button>` : ''}
-        <button type="button" class="btn blanco chico cp-chico${puedeCompartir ? '' : ' cp-solo'}" id="ch-video" ${S.video ? 'disabled' : ''}>${ICO_VIDEO}<span>Video acelerado</span>${club ? '' : CANDADO}</button>
       </div>
       <p class="nota" id="ch-nota" role="status" style="margin:0;text-align:center"></p>
       <button type="button" class="enlace" id="ch-salir">Volver a Hoy · mañana hay otra chispa</button>`;
     $('#ch-desc').addEventListener('click', guardarImagen);
     if ($('#ch-comp')) $('#ch-comp').addEventListener('click', compartir);
     $('#ch-video').addEventListener('click', video);
+    $('#ch-marco').addEventListener('click', () => {
+      if (!club) return bloqueado($('#ch-marco'), 'Los marcos especiales son');
+      S.marco = marcos[(marcos.indexOf(S.marco) + 1) % marcos.length]; guardarLS('marco', S.marco); pintarAbajo();
+    });
     $('#ch-salir').addEventListener('click', () => ctx.volver());
   }
-  /* Botón de terminar: se activa cuando ya hay 10 segundos de dibujo; mientras tanto dice cuánto falta. */
+  /* Debajo del texto de la chispa (sin recuadro) dice cuánto falta; el botón «TERMINÉ ANTES» aparece cuando ya hay 10 segundos de dibujo. */
   function pintarFin() {
-    const f = $('#ch-fin'); if (!f || S.fase === 'hecha') return;
-    const n = faltan(), listo = S.ops > 0 && n === 0;
-    const t = listo ? 'TERMINÉ ANTES' : S.ms < 1000 ? 'Dibuja al menos ' + MIN_DIBUJO + ' segundos para terminar' : n > 0 ? 'Dibuja ' + n + (n === 1 ? ' segundo' : ' segundos') + ' más para terminar' : 'Dibuja algo para terminar';
-    f.disabled = !listo; if (f.textContent !== t) f.textContent = t;
+    const f = $('#ch-fin'), p = $('#ch-falta'), n = faltan(), listo = S.ops > 0 && n === 0;
+    const t = S.fase === 'hecha' || S.fase === 'sorteo' ? '' : listo ? '¡Listo! Termina cuando quieras' : S.ms < 1000 ? 'Dibuja al menos ' + MIN_DIBUJO + ' segundos para terminar' : n > 0 ? 'Dibuja ' + n + (n === 1 ? ' segundo' : ' segundos') + ' más para terminar' : 'Dibuja algo para terminar';
+    if (p && p.textContent !== t) p.textContent = t;
+    if (p) p.hidden = S.fase === 'hecha';   // al terminar no deja un hueco entre el título y la imagen
+    if (f) f.hidden = !listo;
   }
   pintarReloj(); sortear(S.chispa);
   return () => parar();

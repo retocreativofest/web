@@ -271,7 +271,6 @@ legend{font-weight:700;font-size:14px;padding:0;margin-bottom:6px}
 .paleta{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:4px}
 .col{aspect-ratio:1;border:2px solid var(--ink);border-radius:6px;cursor:pointer;padding:0;min-width:0}
 .col[aria-pressed="true"]{border:3px solid #F0479B;transform:scale(1.12)}
-.ch-lock{background:var(--crema);border:3px solid var(--ink);border-radius:12px;padding:8px 10px;font-size:13px;font-weight:700}
 .marcos{display:flex;gap:6px;flex-wrap:wrap}
 .marco{font-size:13px;font-weight:800;border:2px solid var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer;min-height:36px}
 .marco[aria-pressed="true"]{outline:3px solid var(--ink);outline-offset:2px}
@@ -622,6 +621,25 @@ p,li,.caja,.nota,.club-ban p,.sub,small,.sem-ch{text-wrap:pretty}
 /* 12 nov 2026: candado dibujado (reemplaza al emoji) y botones del final de la Chispa con el mismo orden que «Compartir en redes». */
 .ico-candado{display:inline-block;vertical-align:-2px;flex:none}
 .tool .ico-candado{width:15px;height:15px;margin-left:2px}
-.ch-lock .ico-candado{vertical-align:-3px}
 .compartir .cp-solo{grid-column:1/-1}
 .compartir .cp-chico .ico-candado{width:15px;height:15px}
+/* 12 nov 2026 (2): herramientas dibujadas, aviso de los 10 segundos bajo el título, burbuja del Club y vista previa con marco. */
+.tool{display:inline-flex;align-items:center;justify-content:center;gap:3px}
+.ico-herr{display:block;flex:none}
+.ch-falta{margin:0;min-height:1.35em;font-size:13px;font-weight:700;line-height:1.35;color:var(--morado);text-align:center;text-wrap:balance}
+.ch-prev{display:block;width:min(100%,340px);height:auto;margin-inline:auto;border:3px solid var(--ink);border-radius:14px;box-shadow:4px 4px 0 var(--ink)}
+.ch-burbuja{position:fixed;z-index:60;max-width:min(270px,calc(100vw - 16px));background:var(--crema);border:3px solid var(--ink);border-radius:14px;box-shadow:3px 3px 0 var(--ink);padding:8px 12px;font-size:13px;font-weight:700;line-height:1.35;text-align:center;text-wrap:balance;animation:chBurb .18s ease-out}
+@keyframes chBurb{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.ch-tools[hidden],.ch-opac[hidden],.paleta[hidden],.lienzo[hidden],.ch-prev[hidden],.ch .btn[hidden]{display:none}
+.ch-burbuja .enlace{min-height:0;padding:0;font-size:13px}
+.ch-burbuja .ico-candado{vertical-align:-3px}
+.ch-burbuja i{position:absolute;bottom:-9px;width:14px;height:14px;background:var(--crema);border-right:3px solid var(--ink);border-bottom:3px solid var(--ink);transform:rotate(45deg)}
+.ch-burbuja.abajo i{bottom:auto;top:-9px;transform:rotate(225deg)}
+.compartir.ch-fila{grid-template-columns:1fr 1fr auto}
+.compartir.ch-fila .ch-ico{width:48px;padding:9px 0}
+.compartir.ch-fila .ch-ico svg{width:20px;height:20px}
+@media (max-width:340px){.compartir.ch-fila{grid-template-columns:1fr 1fr auto}}
+.compartir.ch-fila .btn span{flex:0 1 auto}
+@media (max-width:360px){.compartir.ch-fila .cp-chico{font-size:12px;padding:9px 4px;gap:4px}.compartir.ch-fila .cp-chico:not(.ch-ico)>svg:first-child{display:none}.compartir.ch-fila .ch-ico{width:44px}.compartir.ch-fila .cp-grande{font-size:15px}}
+.compartir.ch-fila .cp-chico span{flex:0 0 auto;width:min-content}
+.ch-falta[hidden]{display:none}
