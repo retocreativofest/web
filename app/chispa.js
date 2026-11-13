@@ -80,7 +80,7 @@ const ICO_GUARDAR = trazo('<path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 15v4a2 2
 const ICO_COMPARTIR = trazo('<path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>');
 const ICO_VIDEO = trazo('<rect x="3" y="6" width="12" height="12" rx="2.5"/><path d="M15 10.5l6-3.5v10l-6-3.5z"/>');
 /* Logo de la app para la imagen guardada (ya está en la caché de la app). */
-const LOGO = new Image(); LOGO.src = 'img/icon-192.png';
+const LOGO = new Image(); LOGO.src = 'img/icon-lila-192.png';   // 12 nov 2026: ícono nuevo con fondo lila
 
 const leerLS = k => { try { return JSON.parse(localStorage.getItem('rcf.' + k)); } catch (e) { return null; } };
 const guardarLS = (k, v) => { try { localStorage.setItem('rcf.' + k, JSON.stringify(v)); } catch (e) {} };
@@ -439,6 +439,7 @@ export function abrirChispa(ctx) {
       y.save(); y.beginPath();
       if (y.roundRect) y.roundRect(x0, yl, L, L, 11); else y.rect(x0, yl, L, L);
       y.clip(); y.drawImage(LOGO, x0, yl, L, L); y.restore();
+      y.beginPath(); if (y.roundRect) y.roundRect(x0, yl, L, L, 11); else y.rect(x0, yl, L, L); y.lineWidth = 3; y.strokeStyle = '#0B0B0F'; y.stroke();
     }
     y.textAlign = 'left'; y.fillStyle = m.texto; y.fillText(web, x0 + (hayLogo ? L + 12 : 0), yl + L / 2 + 8); y.textAlign = 'center';
     return o;

@@ -1,6 +1,7 @@
 /* #RetoMenteMilenial · app: entrar, registro, Hoy, subir al Padlet, rachas, ranking, amigos, Chispa del día y Club Estrella */
 import * as PJ from './personaje.js?v=1';
-import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe, rachaChispas, chispasDelAnio, ajustarHora, mostrarPromoClub, bannerClub, CANDADO } from './chispa.js?v=24';
+import { abrirRecorrido, festival } from './recorrido.js?v=1';
+import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe, rachaChispas, chispasDelAnio, ajustarHora, mostrarPromoClub, bannerClub, CANDADO } from './chispa.js?v=25';
 const CONFIG = {
   api: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
@@ -50,7 +51,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '98 · 12 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '99 · 12 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -63,7 +64,7 @@ function aviso(texto) {
 
 /* Pedidos al servidor. Si Google está saturado (mucha gente a la vez), reintenta solo hasta 3 veces
    esperando cada vez más. Las acciones que solo leen también se reintentan si falla la conexión. */
-const API_LEER = ['inicio', 'hoy', 'perfil', 'mi_semana', 'ranking', 'amigos', 'club', 'votacion'];
+const API_LEER = ['inicio', 'hoy', 'perfil', 'mi_semana', 'ranking', 'amigos', 'club', 'votacion', 'recorrido'];
 const espera = ms => new Promise(ok => setTimeout(ok, ms));
 async function apiUnaVez(accion, datos, intento) {
   const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), accion === 'subir' ? 60000 : 25000);
@@ -823,6 +824,7 @@ async function vistaHoy() {
   if (!r.ok) { if (!E.hoy) dibujarHoy(null, textoError(r.error)); return; }
   E.hoy = r; guardar('hoy', r);   // la próxima vez se muestra al instante
   cargarPatrocinio();
+  cargarRecorrido();
   /* 8 nov 2026: en MODO PRUEBA el servidor fingía la hora (siempre «miércoles 4 nov 9 p. m.») y la cuenta regresiva
      marcaba 4 días aunque faltara 1. La cuenta y la Chispa usan la hora REAL: «real» si el servidor la manda; si no,
      en modo prueba la del teléfono. */
@@ -1014,10 +1016,13 @@ function dibujarHoy(h, error) {
   /* 8 nov 2026: recordatorio en Hoy de las solicitudes de amistad sin responder (además del aviso al teléfono). */
   const nSol = E.novedades && E.novedades.solicitudes;
   const solHtml = nSol ? `<div class="caja crema sol-rec"><span>👋 Tienes <b>${nSol} ${nSol === 1 ? 'solicitud' : 'solicitudes'} de amistad</b> sin responder.</span><button type="button" class="btn blanco chico mini" data-ir="amigos">VER</button></div>` : '';
-  conNav('hoy', cabecera('Hoy') + `<main class="cont con-nav">${solHtml}${cuerpo}
+  /* 12 nov 2026: «Mi recorrido creativo» también en Hoy cuando se abre (pedido de Stefany). */
+  const recHtml = E.recorrido && E.recorrido.abierto && !recorridoVisto() ? recorridoHtml().replace('id="rc-abrir"', 'id="rc-hoy"') : '';
+  conNav('hoy', cabecera('Hoy') + `<main class="cont con-nav">${solHtml}${recHtml}${cuerpo}
       ${chispaAbajo ? tarjetaChispa() : ''}
     </main>`, root => {
     on('#re', 'click', vistaHoy);
+    on('#rc-hoy', 'click', abrirMiRecorrido);
     on('#subir', 'click', () => ir('subir'));
     on('#proteger', 'click', async ev => {
       ev.currentTarget.disabled = true;
@@ -1757,6 +1762,32 @@ function activarAvisosEn(root, despues) {
   }));
 }
 
+/* ---------- Mi recorrido creativo (12 nov 2026) ----------
+   Resumen de la fase. El servidor dice si ya se abrió (al cerrar la última semana de la fase) o cuándo se abre. */
+function recorridoHtml() {
+  const r = E.recorrido;
+  if (!r || !r.ok) return '';
+  if (r.abierto) return `<button type="button" class="rc-yo" id="rc-abrir"><span class="rc-yo-t">Mi recorrido creativo</span><span>${esc(r.fase)} · tu temporada en 6 pantallas</span><b>VER MI RECORRIDO</b></button>`;
+  if (!r.abre) return '';
+  const f = new Date(r.abre);
+  return `<div class="caja agua rc-pronto"><strong class="t">✦ Mi recorrido creativo</strong>Tu resumen de la ${esc(r.fase)} se abre el ${f.getDate()} de ${MESES[f.getMonth()]}, al cerrar la última semana. Te esperamos en el festival de&nbsp;${esc(festival(r.fase).split(' ')[0])}.</div>`;
+}
+async function cargarRecorrido() {
+  if (E.recorridoPedido || !E.sesion) return;
+  E.recorridoPedido = true;
+  const r = await api('recorrido', { sesion: E.sesion });
+  if (!r.ok) { E.recorridoPedido = false; return; }   // si el servidor todavía no tiene la ruta («accion»), no se muestra nada
+  E.recorrido = r;
+  if (estaEn === 'yo') vistaYo();
+  else if (estaEn === 'hoy' && r.abierto && E.hoy) dibujarHoy(E.hoy);
+}
+/* En «Hoy» sale hasta que la persona lo abre una vez (después sigue en «Yo»). */
+const recorridoVisto = () => !!(E.recorrido && leer('recorrido_visto') === E.recorrido.fase);
+function abrirMiRecorrido() {
+  guardar('recorrido_visto', E.recorrido.fase);
+  abrirRecorrido({ r: E.recorrido, esc, alCerrar: () => { if (estaEn === 'hoy' && E.hoy) dibujarHoy(E.hoy); } });
+}
+
 /* ---------- Yo ---------- */
 function progresoHtml() {
   const pr = E.progreso;
@@ -1775,6 +1806,7 @@ function vistaYo() {
   conNav('yo', cabecera('Yo') + `<main class="cont con-nav">
       <div class="perfil"><span class="avatar${pjListo() ? ' pj' : ''}">${pjListo() ? PJ.svg(E.pj) : ini}</span><div style="min-width:0;flex:1"><h2>${esc(p.nombre || '')}</h2><span>@${esc(p.usuario || '')}</span></div><button type="button" class="btn blanco chico mini" id="pj-editar">✏️ Mi personaje</button></div>
       ${progresoHtml()}
+      ${recorridoHtml()}
       <div class="lista">
         ${p.correo ? `<div><span>Correo</span><span>${esc(p.correo)}</span></div>` : ''}
         <div><span>Edad</span><span>${p.mayor === 'Sí' ? '18 años o más' : 'Menor de edad'}</span></div>
@@ -1829,7 +1861,7 @@ function vistaYo() {
             if (!r.ok) throw new Error(r.error || 'servidor');
             cerrarV();
             const A = leer('avisos'); if (A && A.token) desactivarAvisos(true);
-            E.sesion = E.correo = E.perfil = E.hoy = E.semana = E.progreso = E.ranking = E.amigos = E.novedades = E.club = null; E.borrador = {}; E.subida = {};
+            E.sesion = E.correo = E.perfil = E.hoy = E.semana = E.progreso = E.ranking = E.amigos = E.novedades = E.club = E.recorrido = null; E.recorridoPedido = false; E.borrador = {}; E.subida = {};
             ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso', 'club', 'autorizacion', 'personaje'].forEach(k => guardar(k, null)); E.pj = null; E.pjs = {}; E.pjBuscado = false; E.pjSync = false;
             vistaBienvenida('Tu cuenta se borró. ¡Gracias por dibujar con nosotros! 💛');
           } catch (e) {
@@ -1840,6 +1872,8 @@ function vistaYo() {
       });
     });
     on('#tuto', 'click', () => { guardar('tuto', null); ir('hoy'); });
+    on('#rc-abrir', 'click', abrirMiRecorrido);
+    cargarRecorrido();
     activarAvisosEn(root, vistaYo);
     on('#instalar', 'click', async () => {
       if (E.instalar) { E.instalar.prompt(); await E.instalar.userChoice; E.instalar = null; return vistaYo(); }
@@ -1852,7 +1886,7 @@ function vistaYo() {
 
 async function cerrarSesion(vencida) {
   const s = E.sesion;
-  E.sesion = E.correo = E.perfil = E.hoy = E.semana = E.progreso = E.ranking = E.amigos = E.novedades = E.club = null; E.borrador = {}; E.subida = {};
+  E.sesion = E.correo = E.perfil = E.hoy = E.semana = E.progreso = E.ranking = E.amigos = E.novedades = E.club = E.recorrido = null; E.recorridoPedido = false; E.borrador = {}; E.subida = {};
   ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso', 'club', 'personaje'].forEach(k => guardar(k, null)); E.pj = null; E.pjs = {}; E.pjBuscado = false; E.pjSync = false;
   const A = leer('avisos');
   if (A && A.token) { if (s && vencida !== true) api('avisos', { sesion: s, token: A.token, quitar: true }); desactivarAvisos(true); }

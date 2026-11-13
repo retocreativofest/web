@@ -1,8 +1,8 @@
 /* #RetoMenteMilenial · funciona sin conexión para la parte visual. Los datos siempre se piden en línea. */
-const VERSION = 'rmm-app-v103';
-const BASE = ['./', 'index.html', 'app.css?v=55', 'app.js?v=98', 'splash.js?v=1', 'personaje.js?v=1', 'manifest.webmanifest',
-  'img/digi.webp', 'img/tradi.webp', 'img/digi-cara.webp', 'img/tradi-cara.webp', 'img/icon-192.png',
-  'img/sticker-1.webp', 'img/sticker-2.webp', 'img/sticker-3.webp', 'chispa.js?v=24', 'img/badge-96.png',
+const VERSION = 'rmm-app-v104';
+const BASE = ['./', 'index.html', 'app.css?v=56', 'app.js?v=99', 'splash.js?v=1', 'personaje.js?v=1', 'manifest.webmanifest',
+  'img/digi.webp', 'img/tradi.webp', 'img/digi-cara.webp', 'img/tradi-cara.webp', 'img/icon-lila-192.png', 'recorrido.js?v=1',
+  'img/sticker-1.webp', 'img/sticker-2.webp', 'img/sticker-3.webp', 'chispa.js?v=25', 'img/badge-96.png',
   'img/estrella-1.webp', 'img/estrella-3.webp', 'img/estrella-6.webp',
   '../assets/fonts/poppins-600.woff', '../assets/fonts/poppins-700.woff', '../assets/fonts/poppins-800.woff', '../assets/fonts/quicksand.woff'];
 
@@ -35,7 +35,7 @@ self.addEventListener('push', e => {
   try { j = e.data ? e.data.json() : {}; } catch (x) {}
   const d = j.data || j.notification || {};
   e.waitUntil(self.registration.showNotification(d.titulo || d.title || '#RetoMenteMilenial', {
-    body: d.cuerpo || d.body || '', icon: 'img/icon-192.png', badge: 'img/badge-96.png', lang: 'es',   // badge = el ícono de la M y la estrella junto a la hora
+    body: d.cuerpo || d.body || '', icon: 'img/icon-lila-192.png', badge: 'img/badge-96.png', lang: 'es',   // badge = el ícono de la M y la estrella junto a la hora
     tag: d.tag || undefined, renotify: !!d.tag, data: { ir: d.ir || 'hoy' }
   }));
 });
