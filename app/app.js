@@ -1,5 +1,5 @@
 /* #RetoMenteMilenial · app: entrar, registro, Hoy, subir al Padlet, rachas, ranking, amigos, Chispa del día y Club Estrella */
-import * as PJ from './personaje.js?v=1';
+import * as PJ from './personaje.js?v=2';
 import { abrirRecorrido, festival } from './recorrido.js?v=1';
 import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe, rachaChispas, chispasDelAnio, ajustarHora, mostrarPromoClub, bannerClub, CANDADO } from './chispa.js?v=25';
 const CONFIG = {
@@ -51,7 +51,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '99 · 12 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '100 · 13 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -166,7 +166,7 @@ const textoError = e => ERRORES[e] || ERRORES.servidor;
 
 /* ---------- estado ---------- */
 const E = {
-  pj: leer('personaje'), pjs: {},
+  pj: (p => p && p.forma ? PJ.limpiar(p, true) : null)(leer('personaje')), pjs: {},   // limpiar: pasa los ojos de antes del 13 nov a los nuevos
   sesion: leer('sesion'), correo: leer('correo'), perfil: leer('perfil'),
   guia: leer('guia') || 'digi', borrador: {}, hoy: leer('hoy'), semana: leer('semana'), progreso: leer('progreso'), novedades: null, amigos: null, ranking: null, club: leer('club'), subida: {}, instalar: null
 };
@@ -696,8 +696,8 @@ function conNav(activa, cuerpo, alPintar) {
    Se guarda en el teléfono («rcf.personaje») y en «Reto de la semana · web» (pestaña «personajes»).
    Los de los demás se piden por usuario y se guardan en E.pjs. Nunca fotos. */
 const pjClub = () => !!(E.club && E.club.activo);
-const pjTexto = x => [x.forma, x.ojos, x.pelo, x.acc, x.color].join('|');
-const pjDeTexto = t => { const [forma, ojos, pelo, acc, color] = String(t || '').split('|'); return forma ? PJ.limpiar({ forma, ojos, pelo, acc, color }, true) : null; };
+const pjTexto = x => [x.forma, x.ojos, x.pelo, x.acc, x.color, x.boca || 'nada'].join('|');   // la boca va al final (13 nov 2026): los textos viejos no la traen
+const pjDeTexto = t => { const [forma, ojos, pelo, acc, color, boca] = String(t || '').split('|'); return forma ? PJ.limpiar({ forma, ojos, pelo, acc, color, boca }, true) : null; };
 const pjUsuario = u => String(u || '').trim().toLowerCase().replace(/^@+/, '').replace(/\s+/g, '');
 async function extra(accion, datos) {
   if (!CONFIG.extra) return { ok: false, error: 'red' };
@@ -709,7 +709,9 @@ async function extra(accion, datos) {
 function pjGuardar(x) {
   E.pj = x; guardar('personaje', x);
   if (E.perfil && E.perfil.usuario) E.pjs[pjUsuario(E.perfil.usuario)] = x;
-  return extra('personaje_guardar', { p: x });
+  /* 13 nov 2026: si el servidor no lo recibe (sin conexión, o todavía no conoce los ojos y bocas nuevos), queda pendiente y se reintenta al abrir la app */
+  guardar('pjPendiente', true);
+  return extra('personaje_guardar', { p: x }).then(r => { if (r.ok) guardar('pjPendiente', null); return r; });
 }
 /* Pide los personajes que faltan (una vez por usuario) y vuelve a pintar la pantalla si llegan. */
 async function pjPedir(usuarios, repintar) {
@@ -744,6 +746,7 @@ function pjRevisar() {
     E.pjSync = true;
     extra('personajes', { usuarios: [yo] }).then(r => { if (r.ok && r.p && !r.p[yo] && E.pj) pjGuardar(E.pj); });
   }
+  if (E.pj && !E.pjTemporal && !E.pjReintento && leer('pjPendiente')) { E.pjReintento = true; pjGuardar(E.pj); }
   if (E.pj && E.club && !E.club.activo) {
     const libre = PJ.limpiar(E.pj, false);
     if (pjTexto(libre) !== pjTexto(E.pj)) pjGuardar(libre);
@@ -753,7 +756,7 @@ const pjAvatar = (u, nombre) => { const x = E.pjs[pjUsuario(u)]; return x ? `<sp
 function ventanaPersonaje(alGuardar) {
   const club = pjClub();
   let sel = PJ.limpiar(E.pj || PJ.nuevo(), club);
-  const pasos = [['forma', '1 · Forma'], ['ojos', '2 · Ojos'], ['pelo', '3 · Cabello'], ['acc', '4 · Accesorios <span style="color:var(--morado)">★ Club Estrella</span>']];
+  const pasos = [['forma', '1 · Forma'], ['ojos', '2 · Ojos'], ['boca', '3 · Boca'], ['pelo', '4 · Cabello'], ['acc', '5 · Accesorios <span style="color:var(--morado)">★ Club Estrella</span>']];
   ventana(`<h2 id="v-h" tabindex="-1">Tu personaje</h2>
     <div class="pj-prev"><span class="avatar pj grande" id="pj-prev"></span><span class="nota" style="margin:0;text-align:left">Así te ven tus amigos y el Ranking.${club ? '' : ' Lo marcado con ★ es del Club Estrella.'}</span></div>
     <div id="pj-ed"></div>
@@ -764,7 +767,7 @@ function ventanaPersonaje(alGuardar) {
       velo.querySelector('#pj-ed').innerHTML = pasos.map(([k, t]) => `<span class="pj-lbl">${t}</span><div class="pj-grid">${PJ.OPCIONES[k].map(v => {
         const delClub = PJ.esDelClub(k, v), bloq = delClub && !club;
         return `<button type="button" class="pj-op${delClub ? ' club' : ''}${bloq ? ' bloq' : ''}" data-k="${k}" data-v="${v}" aria-pressed="${sel[k] === v}" aria-label="${v}${bloq ? ' (Club Estrella)' : ''}">${PJ.muestra(k, v, sel.color)}</button>`; }).join('')}</div>`).join('')
-        + `<span class="pj-lbl">5 · Color</span><div class="pj-grid colores">${PJ.OPCIONES.color.map(c => `<button type="button" class="pj-col" data-k="color" data-v="${c}" aria-pressed="${sel.color === c}" aria-label="Color" style="background:${c}"></button>`).join('')}</div>`;
+        + `<span class="pj-lbl">6 · Color</span><div class="pj-grid colores">${PJ.OPCIONES.color.map(c => `<button type="button" class="pj-col" data-k="color" data-v="${c}" aria-pressed="${sel.color === c}" aria-label="Color" style="background:${c}"></button>`).join('')}</div>`;
     };
     pintarEd();
     velo.addEventListener('click', e => {
@@ -1862,7 +1865,7 @@ function vistaYo() {
             cerrarV();
             const A = leer('avisos'); if (A && A.token) desactivarAvisos(true);
             E.sesion = E.correo = E.perfil = E.hoy = E.semana = E.progreso = E.ranking = E.amigos = E.novedades = E.club = E.recorrido = null; E.recorridoPedido = false; E.borrador = {}; E.subida = {};
-            ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso', 'club', 'autorizacion', 'personaje'].forEach(k => guardar(k, null)); E.pj = null; E.pjs = {}; E.pjBuscado = false; E.pjSync = false;
+            ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso', 'club', 'autorizacion', 'personaje', 'pjPendiente'].forEach(k => guardar(k, null)); E.pj = null; E.pjs = {}; E.pjBuscado = false; E.pjSync = false;
             vistaBienvenida('Tu cuenta se borró. ¡Gracias por dibujar con nosotros! 💛');
           } catch (e) {
             ok.disabled = false;
@@ -1887,7 +1890,7 @@ function vistaYo() {
 async function cerrarSesion(vencida) {
   const s = E.sesion;
   E.sesion = E.correo = E.perfil = E.hoy = E.semana = E.progreso = E.ranking = E.amigos = E.novedades = E.club = E.recorrido = null; E.recorridoPedido = false; E.borrador = {}; E.subida = {};
-  ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso', 'club', 'personaje'].forEach(k => guardar(k, null)); E.pj = null; E.pjs = {}; E.pjBuscado = false; E.pjSync = false;
+  ['sesion', 'correo', 'perfil', 'hoy', 'semana', 'progreso', 'club', 'personaje', 'pjPendiente'].forEach(k => guardar(k, null)); E.pj = null; E.pjs = {}; E.pjBuscado = false; E.pjSync = false;
   const A = leer('avisos');
   if (A && A.token) { if (s && vencida !== true) api('avisos', { sesion: s, token: A.token, quitar: true }); desactivarAvisos(true); }
   if (s && vencida !== true) api('salir', { sesion: s });
