@@ -1,4 +1,4 @@
-/* Personaje de la app (avatar armable), 6 nov 2026. v3 (13 nov tarde): ojos de estrella y 4 bocas nuevas.
+/* Personaje de la app (avatar armable), 6 nov 2026. v4 (13 nov tarde): ojos de estrella y 4 bocas nuevas.
    Forma, ojos, boca, cabello, accesorio y color. Nadie sube fotos (hay menores y la app es para todo público en Google Play).
    Las opciones de CLUB son solo para el Club Estrella; a quien no es del Club nunca le tocan al azar. */
 const FORMAS={
@@ -27,7 +27,7 @@ const OJOS={
  bizcos:EJ(DOS(14.5,s=>'<circle r="14" fill="#fff"/><ellipse cx="'+(-s*6)+'" cy="1" rx="7.5" ry="10.3"/>')),
  uno:'<circle cx="50" cy="50" r="12" fill="#fff"/><circle cx="51" cy="51" r="6"/><circle cx="53" cy="48.5" r="1.8" fill="#fff"/>',
  /* 13 nov 2026 (tarde): ojos de estrella, Club Estrella */
- estrella:EJ(DOS(18,()=>'<path d="'+(()=>{let p='';for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2,r=i%2?6.4:15;p+=(i?'L':'M')+(r*Math.cos(a)).toFixed(2)+' '+(1.5+r*Math.sin(a)).toFixed(2)}return p+'z'})()+'" stroke="#0B0B0F" stroke-width="2.6" stroke-linejoin="round"/><circle cx="-2.6" cy="-1.8" r="2.3" fill="#fff"/>'))
+ estrella:EJ(DOS(18,()=>'<path d="'+(()=>{let p='';for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2,r=i%2?6.4:15;p+=(i?'L':'M')+(r*Math.cos(a)).toFixed(2)+' '+(1.5+r*Math.sin(a)).toFixed(2)}return p+'z'})()+'" stroke="#0B0B0F" stroke-width="2.6" stroke-linejoin="round"/>'))
 };
 /* ojos que ya no existen: cada uno pasa al nuevo más parecido (los personajes guardados no se quedan sin ojos) */
 const VIEJOS={grandes:'redondos',felices:'domo',lado:'arriba',flor:'gato',timidos:'bizcos',tres:'uno'};
