@@ -1,4 +1,4 @@
-/* Personaje de la app (avatar armable), 6 nov 2026.
+/* Personaje de la app (avatar armable), 6 nov 2026. v3 (13 nov tarde): ojos de estrella y 4 bocas nuevas.
    Forma, ojos, boca, cabello, accesorio y color. Nadie sube fotos (hay menores y la app es para todo público en Google Play).
    Las opciones de CLUB son solo para el Club Estrella; a quien no es del Club nunca le tocan al azar. */
 const FORMAS={
@@ -25,16 +25,22 @@ const OJOS={
  domo:EJ(DOS(18,()=>'<path d="M-13.5 6a13.5 13.5 0 0 1 27 0z" fill="#fff"/><path d="M-10.5 6a10.5 10.5 0 0 1 21 0z"/>')),
  gato:EJ(DOS(18,()=>'<path d="M-14 0q14 -15 28 0q-14 15 -28 0z" fill="#fff"/><path d="M-0.39 7.49Q-5.61 7.34 -10.84 3.01A7 7 0 1 1 -0.39 7.49z"/><path '+LIN+' stroke-width="3.2" d="M-6 -7l-3 -9M0 -8.5v-10M6 -7l3 -9"/>')),
  bizcos:EJ(DOS(14.5,s=>'<circle r="14" fill="#fff"/><ellipse cx="'+(-s*6)+'" cy="1" rx="7.5" ry="10.3"/>')),
- uno:'<circle cx="50" cy="50" r="12" fill="#fff"/><circle cx="51" cy="51" r="6"/><circle cx="53" cy="48.5" r="1.8" fill="#fff"/>'
+ uno:'<circle cx="50" cy="50" r="12" fill="#fff"/><circle cx="51" cy="51" r="6"/><circle cx="53" cy="48.5" r="1.8" fill="#fff"/>',
+ /* 13 nov 2026 (tarde): ojos de estrella, Club Estrella */
+ estrella:EJ(DOS(18,()=>'<path d="'+(()=>{let p='';for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2,r=i%2?6.4:15;p+=(i?'L':'M')+(r*Math.cos(a)).toFixed(2)+' '+(1.5+r*Math.sin(a)).toFixed(2)}return p+'z'})()+'" stroke="#0B0B0F" stroke-width="2.6" stroke-linejoin="round"/><circle cx="-2.6" cy="-1.8" r="2.3" fill="#fff"/>'))
 };
 /* ojos que ya no existen: cada uno pasa al nuevo más parecido (los personajes guardados no se quedan sin ojos) */
 const VIEJOS={grandes:'redondos',felices:'domo',lado:'arriba',flor:'gato',timidos:'bizcos',tres:'uno'};
-/* bocas: siempre debajo de los ojos; todas libres */
+/* bocas: siempre debajo de los ojos. 13 nov 2026 (tarde): sorpresa (libre) y tres del Club Estrella (dientes, colmillo, zigzag) */
 const BOCA={
  nada:'',
  linea:EJ('<path '+LIN+' stroke-width="3.8" d="M-4.5 22h9"/>'),
  sonrisa:EJ('<path '+LIN+' stroke-width="3.8" d="M-4.5 20q4.5 6 9 0"/>'),
- abierta:EJ('<path d="M-8.5 17q8.5 3 17 0q0 11 -8.5 11q-8.5 0 -8.5 -11z"/><path fill="#FF8FB8" d="M-5.9 25.8L-6.4 25.2L-6.6 24.9L-5.9 24.5L-5.1 24.1L-4.3 23.8L-3.4 23.6L-2.5 23.5L-1.5 23.5L-0.6 23.6L0.3 23.8L1.1 24.1L1.9 24.5L2.6 24.9L3.1 25.4L3.5 26.0L3.8 26.6L4.0 27.2L3.4 27.4L2.7 27.7L2.0 27.8L1.2 27.9L0.4 28.0L-0.4 28.0L-1.2 27.9L-2.0 27.8L-2.7 27.7L-3.4 27.4L-4.0 27.2L-4.6 26.8L-5.2 26.5L-5.7 26.0z"/>')
+ abierta:EJ('<path d="M-8.5 17q8.5 3 17 0q0 11 -8.5 11q-8.5 0 -8.5 -11z"/><path fill="#FF8FB8" d="M-5.9 25.8L-6.4 25.2L-6.6 24.9L-5.9 24.5L-5.1 24.1L-4.3 23.8L-3.4 23.6L-2.5 23.5L-1.5 23.5L-0.6 23.6L0.3 23.8L1.1 24.1L1.9 24.5L2.6 24.9L3.1 25.4L3.5 26.0L3.8 26.6L4.0 27.2L3.4 27.4L2.7 27.7L2.0 27.8L1.2 27.9L0.4 28.0L-0.4 28.0L-1.2 27.9L-2.0 27.8L-2.7 27.7L-3.4 27.4L-4.0 27.2L-4.6 26.8L-5.2 26.5L-5.7 26.0z"/>'),
+ sorpresa:EJ('<ellipse cx="0" cy="23" rx="4.6" ry="5.8"/>'),
+ dientes:EJ('<rect x="-13" y="16.5" width="26" height="12" rx="6"/><rect x="-10.4" y="19" width="20.8" height="7" rx="2.6" fill="#fff"/><path '+LIN+' stroke-width="1.6" d="M-3.5 19v7M3.5 19v7M-10.4 22.5h20.8"/>'),
+ colmillo:EJ('<path d="M-11 18.5q11 4 22 0q-3 9.5 -11 9.5q-8 0 -11 -9.5z"/><path d="M-7.2 19.8L-3.4 20.6L-5 25.6zM7.2 19.8L3.4 20.6L5 25.6z" fill="#fff" stroke="#fff" stroke-width=".8" stroke-linejoin="round"/>'),
+ zigzag:EJ('<path '+LIN+' stroke-width="3.8" stroke-linejoin="round" d="M-10.5 23l3.5-3.5l3.5 3.5l3.5-3.5l3.5 3.5l3.5-3.5l3.5 3.5"/>')
 };
 const P='fill="none" stroke="#0B0B0F" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"';
 /* cabello dibujado con la base en y = 0 y centrado en x = 50; se sube hasta el tope de cada forma */
@@ -48,7 +54,7 @@ const PELO={
  antenas:'<path '+P+' d="M45 2l-6-12M55 2l6-12"/><circle cx="38" cy="-12" r="3.5"/><circle cx="62" cy="-12" r="3.5"/>',
  corazon:'<path d=\"M50 1L41-8c-4-4 0-10 5-8l4 3 4-3c5-2 9 4 5 8z\" fill=\"#0B0B0F\" stroke="#0B0B0F" stroke-width="2.4" stroke-linejoin="round"/>'
 };
-const CLUB={acc:['corbata','pajarita','bigote','lazo','lentes','mejillas','mono'],forma:['flor','corazon','sol'],ojos:['bizcos','uno'],pelo:['corona','antenas','corazon']};
+const CLUB={acc:['corbata','pajarita','bigote','lazo','lentes','mejillas','mono'],forma:['flor','corazon','sol'],ojos:['bizcos','uno','estrella'],boca:['dientes','colmillo','zigzag'],pelo:['corona','antenas','corazon']};
 const S2='stroke="#0B0B0F" stroke-width="2.2" stroke-linejoin="round"';
 /* accesorios: solo Club Estrella. t = tope de la forma (para el lazo) */
 const ACC={
@@ -67,7 +73,7 @@ const K = o => Object.keys(o);
 const libres = (o, k) => K(o).filter(x => !(CLUB[k] || []).includes(x) && x !== 'nada');
 export const OPCIONES = { forma: K(FORMAS), ojos: K(OJOS), boca: K(BOCA), pelo: K(PELO), acc: K(ACC), color: COL };
 export const esDelClub = (k, v) => (CLUB[k] || []).includes(v);
-export function nuevo() { return { forma: r(libres(FORMAS, 'forma')), ojos: r(libres(OJOS, 'ojos')), boca: r(K(BOCA)), pelo: r(['nada', ...libres(PELO, 'pelo')]), acc: 'nada', color: r(COL) }; }
+export function nuevo() { return { forma: r(libres(FORMAS, 'forma')), ojos: r(libres(OJOS, 'ojos')), boca: r(['nada', ...libres(BOCA, 'boca')]), pelo: r(['nada', ...libres(PELO, 'pelo')]), acc: 'nada', color: r(COL) }; }
 /* Deja solo valores que existen; si no es del Club, cambia lo exclusivo por algo libre. */
 export function limpiar(x, club) {
   const b = nuevo(), y = Object.assign({}, b, x || {});
@@ -75,7 +81,7 @@ export function limpiar(x, club) {
   if (!(x && x.boca in BOCA)) y.boca = x ? (x.ojos === 'felices' ? 'sonrisa' : 'nada') : b.boca;
   if (VIEJOS[y.ojos]) y.ojos = VIEJOS[y.ojos];
   if (!FORMAS[y.forma]) y.forma = b.forma; if (!OJOS[y.ojos]) y.ojos = b.ojos; if (!(y.pelo in PELO)) y.pelo = 'nada'; if (!(y.acc in ACC)) y.acc = 'nada'; if (COL.indexOf(y.color) < 0) y.color = b.color;
-  if (!club) { if (esDelClub('forma', y.forma)) y.forma = b.forma; if (esDelClub('ojos', y.ojos)) y.ojos = b.ojos; if (esDelClub('pelo', y.pelo)) y.pelo = 'nada'; if (esDelClub('acc', y.acc)) y.acc = 'nada'; }
+  if (!club) { if (esDelClub('forma', y.forma)) y.forma = b.forma; if (esDelClub('ojos', y.ojos)) y.ojos = b.ojos; if (esDelClub('boca', y.boca)) y.boca = b.boca; if (esDelClub('pelo', y.pelo)) y.pelo = 'nada'; if (esDelClub('acc', y.acc)) y.acc = 'nada'; }
   return { forma: y.forma, ojos: y.ojos, boca: y.boca, pelo: y.pelo, acc: y.acc, color: y.color };
 }
 export function svg(x, box) {
