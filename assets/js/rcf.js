@@ -7,6 +7,7 @@ const CONFIG = {
   premiosCSV: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRoZ3sjeDuqzJDcDGxVUPK02-uyf00qhaPcX6RXMR8n_ZcGunndTPLGgq5SRBAPp3bQrXWn3fa0nwFd/pub?gid=1238618466&single=true&output=csv',                           // hoja «Así van los premios» publicada como CSV en Google Sheets
   inscripcion: 'https://forms.gle/i2NMCytXbv9Qxoen6',
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
+  padletCalentamiento: 'https://padlet.com/retocreativofest/retomentemilenial-calentamiento-de-la-app-diciembre-2026-s025gs38bxms3dtfy067',   // 14 nov 2026: retos de calentamiento (1–15 dic)
   autorizacion: 'https://docs.google.com/forms/d/e/1FAIpQLSeTf_vZNjg5LU_mMs1X9tqmrgBddUGMDKuzvqV9U7NuXeXW7A/viewform', // Google Forms «Autorización del representante»
   patreon: 'https://www.patreon.com/RetoMenteMilenial',
   app: '',                                  // enlace de la app (PWA). Vacío = «Llega en diciembre». Al lanzarla, pega aquí la URL y la web cambia sola a «Instálala».
@@ -44,7 +45,7 @@ function wireLinks(){
   $$('[data-link]').forEach(a => {
     const k = a.dataset.link;
     if (k === 'canal' && !CONFIG.canalWhatsApp){ a.href = waLink('¡Hola! Quiero unirme al canal de WhatsApp del #RetoMenteMilenial.'); }
-    else a.href = ({canal:CONFIG.canalWhatsApp, inscripcion:CONFIG.inscripcion, padlet:CONFIG.padlet, patreon:CONFIG.patreon, app:CONFIG.app, autorizacion:CONFIG.autorizacion})[k] || '#';
+    else a.href = ({canal:CONFIG.canalWhatsApp, inscripcion:CONFIG.inscripcion, padlet:CONFIG.padlet, padletCalentamiento:CONFIG.padletCalentamiento, patreon:CONFIG.patreon, app:CONFIG.app, autorizacion:CONFIG.autorizacion})[k] || '#';
     a.target = '_blank'; a.rel = 'noopener';
   });
 }
@@ -357,14 +358,15 @@ function wireRetoWeb(){
     if (!d || !d.ok) return;
     const ahora = Date.parse(d.ahora) || Date.now(), r = d.reto;
     let html = '';
+    const cal = r && r.temporada === 'Calentamiento';   // 14 nov 2026: retos de calentamiento (no suman puntos)
     if (r && ahora < Date.parse(r.cierre)){
       const m = r.marca;
-      html = `${m && m.logo ? `<img class="reto-logo" src="${esc(m.logo)}" alt="${esc(m.nombre || 'Marca aliada')}" width="110" height="110">` : ''}<span class="pill p-yellow">Reto de la semana ${esc(r.semana)}</span><h2>${esc(r.tema)}</h2><p class="reto-desc">${esc(r.descripcion)}</p>
-        ${m && m.nombre ? `<p class="reto-premio">🎁 Premio de <b>${esc(m.nombre)}</b>${m.premio ? ': ' + esc(m.premio) : ''} al dibujo que elija la marca</p>` : ''}
+      html = `${m && m.logo ? `<img class="reto-logo" src="${esc(m.logo)}" alt="${esc(m.nombre || 'Marca aliada')}" width="110" height="110">` : ''}<span class="pill p-yellow">${cal ? 'Reto de calentamiento ' + esc(r.semana) + ' · no suma puntos' : 'Reto de la semana ' + esc(r.semana)}</span><h2>${esc(r.tema)}</h2><p class="reto-desc">${esc(r.descripcion)}</p>
+        ${m && m.nombre ? `<p class="reto-premio">🎁 Premio de <b>${esc(m.nombre)}</b>${m.premio ? ': ' + esc(m.premio) : ''} al dibujo que elija la marca</p>` : cal ? '<p class="reto-premio">🎁 El 1.er lugar gana 1 mes del Club Estrella</p>' : ''}
         <p class="reto-cierre">Sube tu dibujo desde la app antes del <b>${cuandoW(r.cierre)}</b>.</p>
-        <div class="ctas">${appBtn}<a class="btn b-ghost" data-link="padlet" href="#">Ver los dibujos en el Padlet</a></div>`;
+        <div class="ctas">${appBtn}<a class="btn b-ghost" data-link="${cal ? 'padletCalentamiento' : 'padlet'}" href="#">Ver los dibujos en el Padlet</a></div>`;
     } else if (r && d.proximo){
-      html = `<span class="pill p-yellow">Semana ${esc(r.semana)} cerrada</span><h2>El próximo reto sale el ${cuandoW(d.proximo)}</h2>
+      html = `<span class="pill p-yellow">${cal ? 'Calentamiento ' : 'Semana '}${esc(r.semana)} cerrada</span><h2>El próximo reto sale el ${cuandoW(d.proximo)}</h2>
         <p class="reto-desc">Instala la app para enterarte primero. Los miembros del Club Estrella lo ven 24 horas antes.</p><div class="ctas">${appBtn}</div>`;
     } else if (!r && d.proximo){
       html = `<span class="pill p-yellow">#RetoMenteMilenial · Temporada 2027</span><h2>El primer reto sale el ${cuandoW(d.proximo)}</h2>

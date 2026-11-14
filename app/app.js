@@ -5,6 +5,7 @@ import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, 
 const CONFIG = {
   api: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
+  padletCalentamiento: 'https://padlet.com/retocreativofest/retomentemilenial-calentamiento-de-la-app-diciembre-2026-s025gs38bxms3dtfy067',   // 14 nov 2026: retos de calentamiento (1–15 dic)
   autorizacion: 'https://docs.google.com/forms/d/e/1FAIpQLSeTf_vZNjg5LU_mMs1X9tqmrgBddUGMDKuzvqV9U7NuXeXW7A/viewform',
   web: 'https://retocreativofest.com',
   whatsapp: '584120390423',   // pagos del Club por Pago Móvil, Binance o Zinli
@@ -51,7 +52,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '102 · 13 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '103 · 14 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -969,15 +970,16 @@ function dibujarHoy(h, error) {
       <div class="saludo"><img src="${imgGuia(E.guia)}" alt="" width="112" height="108"><div class="burbuja">${burbujaVoto(nom, h.votacion)}</div></div>
       ${tarjetaVoto(h.votacion)}`;
   } else if (h.actual) {
-    const a = h.actual, total = h.total || 1, pct = Math.max(4, Math.round((a.semana + 1) / total * 100));
+    const a = h.actual, total = h.total || 1, cal = a.temporada === 'Calentamiento';   // 14 nov 2026: retos de calentamiento (no suman)
+    const pct = Math.max(4, Math.round((cal ? a.semana : a.semana + 1) / total * 100));
     const premio = a.temporada === 'Fase II' ? 'diciembre' : 'julio';
     cuerpo = `
       ${h.prueba ? '<div class="prueba">MODO PRUEBA · las fechas son de ejemplo</div>' : ''}
-      <div class="progreso"><div class="t"><span>${esc(a.temporada)} · semana ${a.semana} de ${total - 1}</span><span>Premiación: ${premio}</span></div><div class="b"><i style="width:${pct}%"></i></div></div>
+      <div class="progreso"><div class="t">${cal ? `<span>Calentamiento · reto ${a.semana} de ${total}</span><span>No suma puntos</span>` : `<span>${esc(a.temporada)} · semana ${a.semana} de ${total - 1}</span><span>Premiación: ${premio}</span>`}</div><div class="b"><i style="width:${pct}%"></i></div></div>
       <div class="saludo">${toqueNuevo() ? imgToque(toqueNuevo(), 112) : `<img src="${imgGuia(E.guia)}" alt="${E.guia === 'tradi' ? 'Tradi' : 'Digi'} dibujando" width="112" height="108">`}<div class="burbuja">${burbujaHoy(nom, a)}</div></div>
       ${tarjetaVoto(h.votacion)}
       <section class="reto${marcaReto(a) && marcaReto(a).logo ? ' con-logo' : ''}" aria-labelledby="reto-h">
-        <span class="pill">Reto de la semana ${a.semana}</span>${h.clubAnticipado ? '<span class="pill-club">★ Club: lo ves 24 h antes que todos</span>' : ''}
+        <span class="pill">${cal ? 'Reto de calentamiento ' + a.semana : 'Reto de la semana ' + a.semana}</span>${h.clubAnticipado ? '<span class="pill-club">★ Club: lo ves 24 h antes que todos</span>' : ''}
         ${marcaReto(a) && marcaReto(a).logo ? `<img class="reto-logo" src="${esc(marcaReto(a).logo)}" alt="${esc(marcaReto(a).nombre || 'Marca aliada')}" width="64" height="64">` : ''}
         <h2 id="reto-h">${esc(a.tema || 'Reto de la semana')}</h2>
         ${a.descripcion ? `<p>${esc(a.descripcion)}</p>` : ''}
