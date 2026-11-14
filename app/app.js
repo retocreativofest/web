@@ -52,7 +52,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '103 · 14 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '104 · 14 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -359,6 +359,28 @@ function conectarAut(caja) {
 }
 const on = (sel, ev, fn) => { const el = $app.querySelector(sel); if (el) el.addEventListener(ev, fn); return el; };
 
+/* 14 nov 2026: el navegador interno de Instagram, TikTok o Facebook no deja «Continuar con Google» (Google lo bloquea).
+   Detectarlo y pedir que abran la app en Chrome o Safari ahorra correos con código (100 al día en la cuenta gratis). */
+function navInterno() {
+  const ua = navigator.userAgent || '';
+  if (/Instagram/i.test(ua)) return 'Instagram';
+  if (/musical_ly|TikTok|BytedanceWebview|Trill/i.test(ua)) return 'TikTok';
+  if (/FBAN|FBAV|FB_IAB|FB4A|FBIOS/i.test(ua)) return 'Facebook';
+  if (/Snapchat/i.test(ua)) return 'Snapchat';
+  if (/\bTwitter|LinkedInApp|Line\//i.test(ua)) return 'esa app';
+  return '';
+}
+function avisoNavInterno() {
+  const app = navInterno();
+  if (!app) return '';
+  const android = /android/i.test(navigator.userAgent);
+  const chrome = 'intent://' + location.host + location.pathname + '#Intent;scheme=https;package=com.android.chrome;end';
+  return `<div class="caja rosa" role="note"><strong class="t">Ábrela en ${android ? 'Chrome' : 'Safari'} para entrar con Google</strong>Estás dentro de ${esc(app)} y ahí Google no deja iniciar sesión. ${android
+    ? 'Toca «Abrir en Chrome».'
+    : 'Toca los tres puntos (⋯) de arriba y elige «Abrir en el navegador», o copia el enlace y pégalo en Safari.'} El enlace es <b>retocreativofest.com/app</b>.
+    <div class="par" style="margin-top:10px">${android ? `<a class="btn amarillo chico" href="${chrome}">ABRIR EN CHROME</a>` : ''}<button type="button" class="btn blanco chico" id="nav-copiar">COPIAR ENLACE</button></div></div>`;
+}
+
 /* ---------- bienvenida ---------- */
 function vistaBienvenida(error) {
   const d = E.guia !== 'tradi';
@@ -380,6 +402,7 @@ function vistaBienvenida(error) {
         <button type="button" class="guia-btn" data-guia="tradi" aria-pressed="${!d}"><strong>Tradi${d ? '' : ' ✓'}</strong> <span>tradicional</span></button>
       </div>
       ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}
+      ${avisoNavInterno()}
       <button type="button" class="btn google" id="g">${ICO.google} Continuar con Google</button>
       <button type="button" class="enlace" id="c">Entrar con mi correo (te mandamos un código)</button>
       <span class="nota">Usamos tu correo solo para tu cuenta del reto. Nunca vemos tu contraseña. <a href="${CONFIG.web}/privacidad.html" target="_blank" rel="noopener">Privacidad</a></span>
@@ -387,6 +410,10 @@ function vistaBienvenida(error) {
     root.querySelectorAll('[data-guia]').forEach(b => b.addEventListener('click', () => { E.guia = b.dataset.guia; guardar('guia', E.guia); vistaBienvenida(); }));
     on('#g', 'click', entrarGoogle);
     on('#c', 'click', () => vistaCorreo());
+    on('#nav-copiar', 'click', async () => {
+      try { await navigator.clipboard.writeText('https://' + location.host + location.pathname); aviso('Enlace copiado. Pégalo en Chrome o Safari.'); }
+      catch (e) { aviso('Escribe retocreativofest.com/app en Chrome o Safari.'); }
+    });
   });
 }
 
