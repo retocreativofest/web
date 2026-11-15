@@ -1300,6 +1300,7 @@ function vistaSubir(error) {
         <span class="ayuda" id="cnt">${(S.descripcion || '').length} / 500</span>
       </label>
       <label class="check" for="pro"><input id="pro" type="checkbox" ${S.propio ? 'checked' : ''}><span>Mi dibujo es 100 % mío y original: no es fan art, copia, calco ni plagio, y no usé IA para hacerlo ni para el boceto (como referencia sí se vale).</span></label>
+      <a class="nota izq" href="../bases.html#originalidad" target="_blank" rel="noopener">¿Qué cuenta como fan art, plagio, calco o IA?</a>
       ${p.mayor === 'No' ? '<span class="nota izq">Puedes participar. Para quedar entre las finalistas, tu representante tiene que haber confirmado la autorización.</span>' : ''}
       <div class="muestra" aria-hidden="true"><i></i><span><b>${esc(titulo)}</b><small>Así saldrá el título en el Padlet</small></span></div>
       ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}
