@@ -1172,7 +1172,7 @@ function ventana(html, alPintar, sinCerrar) {
 
 /* ---------- reportar un dibujo de la votación ----------
    Llega a la organización y lo revisan los Guardianes del arte. Nadie más sabe quién reportó. */
-const MOTIVOS_REPORTE = [['Copia o plagio', 'Es copia de otro artista o de otra publicación'], ['Hecho con IA', 'Lo generó una inteligencia artificial'], ['Contenido inapropiado', 'Violento, sexual, ofensivo o que no es para todo público'], ['Otro', 'Otra razón: cuéntanos abajo']];
+const MOTIVOS_REPORTE = [['Copia o plagio', 'Es copia, calco o fan art de otro artista o de otra publicación'], ['Hecho con IA', 'Lo generó una inteligencia artificial'], ['Contenido inapropiado', 'Violento, sexual, ofensivo o que no es para todo público'], ['Otro', 'Otra razón: cuéntanos abajo']];
 function ventanaReportar(f) {
   let motivo = '';
   ventana(`<h2 id="v-h" tabindex="-1" style="margin:0;font-family:var(--display)">Reportar el dibujo de ${nombreFin(f)}</h2>
@@ -1299,7 +1299,7 @@ function vistaSubir(error) {
         <textarea id="des" rows="3" maxlength="500" placeholder="Cuéntanos por qué lo dibujaste así. ¡Una buena descripción consigue más me gusta!">${esc(S.descripcion || '')}</textarea>
         <span class="ayuda" id="cnt">${(S.descripcion || '').length} / 500</span>
       </label>
-      <label class="check" for="pro"><input id="pro" type="checkbox" ${S.propio ? 'checked' : ''}><span>Mi dibujo es 100 % mío: sin inteligencia artificial, sin calcar y sin fanart.</span></label>
+      <label class="check" for="pro"><input id="pro" type="checkbox" ${S.propio ? 'checked' : ''}><span>Mi dibujo es 100 % mío y original: no es fan art, copia, calco ni plagio, y no usé IA para hacerlo ni para el boceto (como referencia sí se vale).</span></label>
       ${p.mayor === 'No' ? '<span class="nota izq">Puedes participar. Para quedar entre las finalistas, tu representante tiene que haber confirmado la autorización.</span>' : ''}
       <div class="muestra" aria-hidden="true"><i></i><span><b>${esc(titulo)}</b><small>Así saldrá el título en el Padlet</small></span></div>
       ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}
@@ -1938,7 +1938,7 @@ const TUTO = {
     ['Tu racha 🔥', 'Cada semana que subes tu dibujo, tu racha crece. ¡No dejes pasar una semana sin dibujar!'],
     ['Mientras esperas', 'Haz la <b>Chispa del día</b>, un ejercicio corto para calentar la mano. Abajo tienes también <b>Ranking</b>, <b>Amigos</b> y <b>Yo</b>.']
   ],
-  subir: [['Subir tu dibujo', 'Toma la foto de tu dibujo o elígela de tu galería, ponle título y una descripción corta, y marca si es tradicional o digital. Solo dibujos 100 % tuyos: sin IA, calcos ni copias.']],
+  subir: [['Subir tu dibujo', 'Toma la foto de tu dibujo o elígela de tu galería, ponle título y una descripción corta, y marca si es tradicional o digital. Solo dibujos 100 % tuyos y originales: sin fan art, copias, calcos, plagios ni IA (la IA solo vale como referencia).']],
   ranking: [['El ranking', 'Aquí ves cómo vas en cada categoría de premios y tus semanas para el Premio a la constancia. Compiten por los premios quienes viven en Venezuela.']],
   amigos: [
     ['Tus amigos', 'Busca a tus amigos por su usuario y mándales una solicitud.'],
