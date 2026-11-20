@@ -52,7 +52,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '104 · 14 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '107 · 20 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -111,6 +111,7 @@ const ERRORES = {
   limite: 'Hoy ya enviamos muchos códigos. Entra con Google o intenta mañana.',
   usuario_invalido: 'Tu usuario debe tener de 3 a 30 letras, números, puntos o guiones bajos.',
   usuario_ocupado: 'Ese usuario ya lo tiene otra persona en la app. Si es tuyo, escríbenos a retocreativofest@gmail.com.',
+  usuario_menor: 'Tu usuario está unido a la autorización de tu representante y no se puede cambiar desde la app. Si necesitas cambiarlo, escríbenos a retocreativofest@gmail.com.',   // 20 nov 2026
   nombre: 'Escribe tu nombre.',
   edad: 'Responde las dos preguntas.',
   cumple: 'Elige el día y el mes de tu cumpleaños, o deja los dos en blanco.',
