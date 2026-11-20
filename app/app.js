@@ -603,7 +603,7 @@ function vistaEdad(error) {
       ${menor && !(p.completo && p.bloqueado === false) ? `<div class="caja crema"><strong class="t">Tu representante tiene que autorizarte</strong>
           <span style="display:block;font-weight:600;margin-bottom:8px">Mándale este formulario. Hasta que lo llene y confirme el correo que le llega, puedes ver el reto y hacer la Chispa del día, pero todavía no subir dibujos ni agregar amigos.</span>
           <span style="display:block;font-weight:600;margin-bottom:8px">📬 El correo llega de retocreativofest@gmail.com. Si no lo ve, que revise spam y Promociones.</span>
-          ${previo ? '<span style="display:block;font-weight:600;margin-bottom:8px">${CANDADO} Por ahora solo guardamos tu usuario. Cuando tu representante confirme, te pedimos tu nombre, tu estado o país y tu cumpleaños.</span>' : ''}
+          ${previo ? '<span style="display:block;font-weight:600;margin-bottom:8px">' + CANDADO + ' Por ahora solo guardamos tu usuario. Cuando tu representante confirme, te pedimos tu nombre, tu estado o país y tu cumpleaños.</span>' : ''}
           <a class="btn turquesa chico" href="https://wa.me/?text=${msj}" target="_blank" rel="noopener">📲 MANDAR EL FORMULARIO POR WHATSAPP</a></div>` : ''}
       ${mayor ? `
         <label class="campo" for="tel">WhatsApp <span class="ayuda">(opcional)</span>
