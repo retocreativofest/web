@@ -52,7 +52,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '107 · 20 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '108 · 20 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -1029,9 +1029,30 @@ function dibujarHoy(h, error) {
   } else {
     // Sin reto abierto (por ejemplo, del 1 al 22 de diciembre): la Chispa del día es lo principal y el reto dice «Próximamente».
     const p = h.proximo, hecha = chispaHechaHoy(), adv = adviento();
+    /* 20 nov 2026: si lo próximo es el calentamiento, en vez del reto «Próximamente» sale arriba la cuenta regresiva
+       al calentamiento (pedido de Diego). Las fechas salen de la pestaña «Retos» (filas del calentamiento). */
+    const calProx = !!(p && p.temporada === 'Calentamiento');
+    const club = p && p.club ? `<p class="nota izq">★ El Club Estrella lo recibe el ${fecha(p.club)} a las ${hora(p.club)}</p>` : '';
+    const espera = calProx ? `
+      <section class="reto espera" aria-labelledby="reto-h">
+        <span class="pill">🔥 Reto de calentamiento ${esc(p.semana)}</span>
+        <h2 id="reto-h">Cuenta regresiva al calentamiento</h2>
+        <p>El primer reto sale el <b>${fecha(p.publica)}</b> a las <b>${hora(p.publica)}</b> y no suma puntos: es para estrenar la app y calentar la&nbsp;mano.</p>
+        <div class="tiempo"><span id="cd">${cuenta(p.publica)}</span><span>para el calentamiento</span></div>
+        ${club}
+      </section>` : `
+      <section class="reto espera" aria-labelledby="reto-h">
+        <span class="pill">Reto de la semana${p ? ' · ' + esc(p.temporada) : ''}</span>
+        <h2 id="reto-h">Próximamente</h2>
+        ${p ? `<p>Disponible a partir del <b>${fecha(p.publica)}</b> a las <b>${hora(p.publica)}</b></p>
+        <div class="tiempo"><span id="cd">${cuenta(p.publica)}</span><span>para el próximo reto</span></div>
+        ${club}` : '<p>Pronto anunciamos la fecha de la próxima temporada.</p>'}
+        <a class="enlace" href="${CONFIG.padlet}" target="_blank" rel="noopener" style="align-self:flex-start;font-size:13px">Mientras tanto, mira los dibujos de la comunidad en el Padlet ↗</a>
+      </section>`;
     cuerpo = `
-      <div class="saludo"><img src="${imgGuia(E.guia)}" alt="" width="112" height="108"><div class="burbuja">¡Hola${nom ? ', ' + nom : ''}! ✨ ${hecha ? '¡Ya hiciste la chispa de hoy! Mañana sale otra.' : (adv ? 'Mientras llega el reto, calienta la mano con el <b>Adviento de Chispas</b> 🎄' : 'Mientras llega el reto, calienta la mano con la <b>Chispa del día</b>.')}</div></div>
+      <div class="saludo"><img src="${imgGuia(E.guia)}" alt="" width="112" height="108"><div class="burbuja">¡Hola${nom ? ', ' + nom : ''}! ✨ ${calProx && !hecha ? '¡Falta poco para el <b>calentamiento</b>! Mientras, practica con ' + (adv ? 'el <b>Adviento de Chispas</b> 🎄' : 'la <b>Chispa del día</b>') + '.' : hecha ? '¡Ya hiciste la chispa de hoy! Mañana sale otra.' : (adv ? 'Mientras llega el reto, calienta la mano con el <b>Adviento de Chispas</b> 🎄' : 'Mientras llega el reto, calienta la mano con la <b>Chispa del día</b>.')}</div></div>
       ${tarjetaVoto(h.votacion)}
+      ${calProx ? espera : ''}
       <section class="reto chispa-hero${adv ? ' adviento' : ''}" aria-labelledby="chispa-h">
         <span class="pill">${adv ? '🎄 Adviento de Chispas' : '✨ Chispa del día'}</span>
         <h2 id="chispa-h">${hecha ? '¡Hecho!' : adv ? 'Día ' + adv.dia + ' de ' + adv.total : fiestaDe() ? esc(fiestaDe().aviso) : 'Un mini reto de 3 minutos'}</h2>
@@ -1039,14 +1060,7 @@ function dibujarHoy(h, error) {
         ${adv ? calendarioAdviento(adv) : circulosChispa()}
         <button type="button" class="btn ${hecha ? 'blanco' : 'turquesa'}" data-ir="chispa">${hecha ? 'REPETIR' : '¡HACER LA CHISPA DE HOY!'}</button>
       </section>
-      <section class="reto espera" aria-labelledby="reto-h">
-        <span class="pill">Reto de la semana${p ? ' · ' + esc(p.temporada) : ''}</span>
-        <h2 id="reto-h">Próximamente</h2>
-        ${p ? `<p>Disponible a partir del <b>${fecha(p.publica)}</b> a las <b>${hora(p.publica)}</b></p>
-        <div class="tiempo"><span id="cd">${cuenta(p.publica)}</span><span>para el próximo reto</span></div>
-        ${p.club ? `<p class="nota izq">★ El Club Estrella lo recibe el ${fecha(p.club)} a las ${hora(p.club)}</p>` : ''}` : '<p>Pronto anunciamos la fecha de la próxima temporada.</p>'}
-        <a class="enlace" href="${CONFIG.padlet}" target="_blank" rel="noopener" style="align-self:flex-start;font-size:13px">Mientras tanto, mira los dibujos de la comunidad en el Padlet ↗</a>
-      </section>`;
+      ${calProx ? '' : espera}`;
   }
   const chispaAbajo = !h || !!(h.actual || votando);
   /* 8 nov 2026: recordatorio en Hoy de las solicitudes de amistad sin responder (además del aviso al teléfono). */
