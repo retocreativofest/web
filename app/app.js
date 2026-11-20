@@ -52,7 +52,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '104 · 14 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '107 · 20 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -111,6 +111,7 @@ const ERRORES = {
   limite: 'Hoy ya enviamos muchos códigos. Entra con Google o intenta mañana.',
   usuario_invalido: 'Tu usuario debe tener de 3 a 30 letras, números, puntos o guiones bajos.',
   usuario_ocupado: 'Ese usuario ya lo tiene otra persona en la app. Si es tuyo, escríbenos a retocreativofest@gmail.com.',
+  usuario_menor: 'Tu usuario está unido a la autorización de tu representante y no se puede cambiar desde la app. Si necesitas cambiarlo, escríbenos a retocreativofest@gmail.com.',   // 20 nov 2026
   nombre: 'Escribe tu nombre.',
   edad: 'Responde las dos preguntas.',
   cumple: 'Elige el día y el mes de tu cumpleaños, o deja los dos en blanco.',
@@ -502,9 +503,9 @@ function vistaPerfil(error) {
         <input id="nom" type="text" autocomplete="name" maxlength="60" value="${esc(b.nombre || '')}" required>
         <span class="ayuda">Si eres menor de edad, solo mostraremos tu nombre de pila, y lo guardamos cuando tu representante te autorice.</span>
       </label>
-      <label class="campo" for="usr">Tu usuario en redes
+      <label class="campo" for="usr">Tu nombre de usuario
         <input id="usr" type="text" autocapitalize="none" autocomplete="username" spellcheck="false" maxlength="31" value="${b.usuario ? '@' + esc(b.usuario) : ''}" placeholder="@tu.usuario" required>
-        <span class="ayuda">El de Instagram o TikTok. Con él te encuentran tus amigos y se cuentan tus puntos.</span>
+        <span class="ayuda">Con él te encuentran tus amigos y se cuentan tus puntos.${E.perfil && E.perfil.mayor === 'No' ? ' Como eres menor de edad, usa uno inventado: no tu nombre completo ni el usuario de tus redes.' : ''}</span>
       </label>
       <div class="muestra" aria-hidden="true"><i></i><span><b id="prev">Nombre · @usuario</b><small>Así se verá el título en el Padlet</small></span></div>
       <div class="caja crema" id="cambio" role="note" hidden></div>
@@ -573,6 +574,8 @@ function vistaEdad(error) {
     <div class="cont">
       <fieldset><legend>¿Cuántos años tienes?</legend>
         <div class="par"><button type="button" class="opcion" data-k="mayor" data-v="Sí" aria-pressed="${mayor}" ${menorFijo ? 'disabled' : ''}>Tengo 18 o más</button><button type="button" class="opcion" data-k="mayor" data-v="No" aria-pressed="${menor}">Tengo menos de 18</button></div>
+        ${previo ? `<div class="caja rosa" role="note" style="margin-top:10px"><strong class="t">Usa un nombre de usuario inventado</strong>Como eres menor de edad, no uses tu nombre completo ni el usuario de tus redes: así nadie te puede buscar fuera del reto. Ahora pusiste <b>@${esc(pjUsuario(E.borrador.usuario || p.usuario || ''))}</b>.
+          <div class="par" style="margin-top:8px"><button type="button" class="btn blanco chico" id="cambiar-usr">CAMBIAR MI NOMBRE DE USUARIO</button></div></div>` : ''}
         ${menorFijo ? '<span class="ayuda">El día que cumplas 18, la app te cambia sola, con el año que dio tu representante. Si te equivocaste al registrarte, escríbenos a retocreativofest@gmail.com.</span>' : ''}
       </fieldset>
       ${mayor ? `<label class="campo" for="anio">¿En qué año naciste?
@@ -600,7 +603,7 @@ function vistaEdad(error) {
       ${menor && !(p.completo && p.bloqueado === false) ? `<div class="caja crema"><strong class="t">Tu representante tiene que autorizarte</strong>
           <span style="display:block;font-weight:600;margin-bottom:8px">Mándale este formulario. Hasta que lo llene y confirme el correo que le llega, puedes ver el reto y hacer la Chispa del día, pero todavía no subir dibujos ni agregar amigos.</span>
           <span style="display:block;font-weight:600;margin-bottom:8px">📬 El correo llega de retocreativofest@gmail.com. Si no lo ve, que revise spam y Promociones.</span>
-          ${previo ? '<span style="display:block;font-weight:600;margin-bottom:8px">${CANDADO} Por ahora solo guardamos tu usuario. Cuando tu representante confirme, te pedimos tu nombre, tu estado o país y tu cumpleaños.</span>' : ''}
+          ${previo ? '<span style="display:block;font-weight:600;margin-bottom:8px">' + CANDADO + ' Por ahora solo guardamos tu usuario. Cuando tu representante confirme, te pedimos tu nombre, tu estado o país y tu cumpleaños.</span>' : ''}
           <a class="btn turquesa chico" href="https://wa.me/?text=${msj}" target="_blank" rel="noopener">📲 MANDAR EL FORMULARIO POR WHATSAPP</a></div>` : ''}
       ${mayor ? `
         <label class="campo" for="tel">WhatsApp <span class="ayuda">(opcional)</span>
@@ -627,6 +630,7 @@ function vistaEdad(error) {
     };
     root.querySelectorAll('[data-k]').forEach(btn => btn.addEventListener('click', () => { leerCampos(); b[btn.dataset.k] = btn.dataset.v; vistaEdad(); }));
     on('#v', 'click', () => { leerCampos(); vistaPerfil(); });
+    on('#cambiar-usr', 'click', () => { leerCampos(); vistaPerfil(); });   // 20 nov 2026: los menores vuelven al paso 1 a inventar otro usuario
     on('#ok', 'click', async ev => {
       leerCampos();
       if (!b.mayor || !b.venezuela) return vistaEdad(ERRORES.edad);
@@ -1441,7 +1445,7 @@ function dibujarAmigos(d, mensaje, error) {
         <div class="info"><b>${esc(x.nombre)}</b><small>@${esc(x.usuario)}</small>
           <span class="chips"><span class="chip fuego">${ICO.fuego} ${x.rachaJuntos} ${x.rachaJuntos === 1 ? 'semana' : 'semanas'} juntos</span>${d.semanaAbierta ? `<span class="chip ${x.subio ? 'ok' : ''}">${x.subio ? '✓ Ya subió' : '⏳ Aún no sube'}</span>` : ''}</span></div>
         <button type="button" class="btn ${x.toqueHoy ? 'blanco' : 'amarillo'} chico mini" data-toque="${esc(x.usuario)}" data-nombre="${esc(x.nombre)}" ${x.toqueHoy ? 'disabled' : ''}>${x.toqueHoy ? 'Toque ✓' : '👆 Toque'}</button>${botonMas(x, true)}</div>`).join('')
-      : `<div class="caja">Todavía no tienes amigos en la app. Agrégalos con el usuario que usan en el reto (el de Instagram o TikTok). Cuando los dos suben su dibujo la misma semana, crece su racha juntos 🔥</div>`;
+      : `<div class="caja">Todavía no tienes amigos en la app. Agrégalos con el nombre de usuario que usan en el reto. Cuando los dos suben su dibujo la misma semana, crece su racha juntos 🔥</div>`;
     if (d.enviadas.length) cuerpo += `<p class="nota izq">Esperando respuesta: ${d.enviadas.map(x => '@' + esc(x.usuario)).join(', ')}</p>`;
     if (d.bloqueados && d.bloqueados.length) cuerpo += `<h2 class="sub-t">Bloqueados (${d.bloqueados.length})</h2>
       <p class="nota izq">No pueden mandarte solicitudes ni toques. No les avisamos que los bloqueaste.</p>` + d.bloqueados.map(x => `
