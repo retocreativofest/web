@@ -503,9 +503,9 @@ function vistaPerfil(error) {
         <input id="nom" type="text" autocomplete="name" maxlength="60" value="${esc(b.nombre || '')}" required>
         <span class="ayuda">Si eres menor de edad, solo mostraremos tu nombre de pila, y lo guardamos cuando tu representante te autorice.</span>
       </label>
-      <label class="campo" for="usr">Tu usuario en redes
+      <label class="campo" for="usr">Tu nombre de usuario
         <input id="usr" type="text" autocapitalize="none" autocomplete="username" spellcheck="false" maxlength="31" value="${b.usuario ? '@' + esc(b.usuario) : ''}" placeholder="@tu.usuario" required>
-        <span class="ayuda">El de Instagram o TikTok. Con él te encuentran tus amigos y se cuentan tus puntos.</span>
+        <span class="ayuda">Inventa uno para el reto: con él te encuentran tus amigos y se cuentan tus puntos. Si eres menor de edad, no uses tu nombre completo ni el usuario de tus redes.</span>
       </label>
       <div class="muestra" aria-hidden="true"><i></i><span><b id="prev">Nombre · @usuario</b><small>Así se verá el título en el Padlet</small></span></div>
       <div class="caja crema" id="cambio" role="note" hidden></div>
@@ -1442,7 +1442,7 @@ function dibujarAmigos(d, mensaje, error) {
         <div class="info"><b>${esc(x.nombre)}</b><small>@${esc(x.usuario)}</small>
           <span class="chips"><span class="chip fuego">${ICO.fuego} ${x.rachaJuntos} ${x.rachaJuntos === 1 ? 'semana' : 'semanas'} juntos</span>${d.semanaAbierta ? `<span class="chip ${x.subio ? 'ok' : ''}">${x.subio ? '✓ Ya subió' : '⏳ Aún no sube'}</span>` : ''}</span></div>
         <button type="button" class="btn ${x.toqueHoy ? 'blanco' : 'amarillo'} chico mini" data-toque="${esc(x.usuario)}" data-nombre="${esc(x.nombre)}" ${x.toqueHoy ? 'disabled' : ''}>${x.toqueHoy ? 'Toque ✓' : '👆 Toque'}</button>${botonMas(x, true)}</div>`).join('')
-      : `<div class="caja">Todavía no tienes amigos en la app. Agrégalos con el usuario que usan en el reto (el de Instagram o TikTok). Cuando los dos suben su dibujo la misma semana, crece su racha juntos 🔥</div>`;
+      : `<div class="caja">Todavía no tienes amigos en la app. Agrégalos con el nombre de usuario que usan en el reto. Cuando los dos suben su dibujo la misma semana, crece su racha juntos 🔥</div>`;
     if (d.enviadas.length) cuerpo += `<p class="nota izq">Esperando respuesta: ${d.enviadas.map(x => '@' + esc(x.usuario)).join(', ')}</p>`;
     if (d.bloqueados && d.bloqueados.length) cuerpo += `<h2 class="sub-t">Bloqueados (${d.bloqueados.length})</h2>
       <p class="nota izq">No pueden mandarte solicitudes ni toques. No les avisamos que los bloqueaste.</p>` + d.bloqueados.map(x => `
