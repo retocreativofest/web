@@ -505,7 +505,7 @@ function vistaPerfil(error) {
       </label>
       <label class="campo" for="usr">Tu nombre de usuario
         <input id="usr" type="text" autocapitalize="none" autocomplete="username" spellcheck="false" maxlength="31" value="${b.usuario ? '@' + esc(b.usuario) : ''}" placeholder="@tu.usuario" required>
-        <span class="ayuda">Inventa uno para el reto: con él te encuentran tus amigos y se cuentan tus puntos. Si eres menor de edad, no uses tu nombre completo ni el usuario de tus redes.</span>
+        <span class="ayuda">Con él te encuentran tus amigos y se cuentan tus puntos.${E.perfil && E.perfil.mayor === 'No' ? ' Como eres menor de edad, usa uno inventado: no tu nombre completo ni el usuario de tus redes.' : ''}</span>
       </label>
       <div class="muestra" aria-hidden="true"><i></i><span><b id="prev">Nombre · @usuario</b><small>Así se verá el título en el Padlet</small></span></div>
       <div class="caja crema" id="cambio" role="note" hidden></div>
@@ -574,6 +574,8 @@ function vistaEdad(error) {
     <div class="cont">
       <fieldset><legend>¿Cuántos años tienes?</legend>
         <div class="par"><button type="button" class="opcion" data-k="mayor" data-v="Sí" aria-pressed="${mayor}" ${menorFijo ? 'disabled' : ''}>Tengo 18 o más</button><button type="button" class="opcion" data-k="mayor" data-v="No" aria-pressed="${menor}">Tengo menos de 18</button></div>
+        ${previo ? `<div class="caja rosa" role="note" style="margin-top:10px"><strong class="t">Usa un nombre de usuario inventado</strong>Como eres menor de edad, no uses tu nombre completo ni el usuario de tus redes: así nadie te puede buscar fuera del reto. Ahora pusiste <b>@${esc(pjUsuario(E.borrador.usuario || p.usuario || ''))}</b>.
+          <div class="par" style="margin-top:8px"><button type="button" class="btn blanco chico" id="cambiar-usr">CAMBIAR MI NOMBRE DE USUARIO</button></div></div>` : ''}
         ${menorFijo ? '<span class="ayuda">El día que cumplas 18, la app te cambia sola, con el año que dio tu representante. Si te equivocaste al registrarte, escríbenos a retocreativofest@gmail.com.</span>' : ''}
       </fieldset>
       ${mayor ? `<label class="campo" for="anio">¿En qué año naciste?
@@ -628,6 +630,7 @@ function vistaEdad(error) {
     };
     root.querySelectorAll('[data-k]').forEach(btn => btn.addEventListener('click', () => { leerCampos(); b[btn.dataset.k] = btn.dataset.v; vistaEdad(); }));
     on('#v', 'click', () => { leerCampos(); vistaPerfil(); });
+    on('#cambiar-usr', 'click', () => { leerCampos(); vistaPerfil(); });   // 20 nov 2026: los menores vuelven al paso 1 a inventar otro usuario
     on('#ok', 'click', async ev => {
       leerCampos();
       if (!b.mayor || !b.venezuela) return vistaEdad(ERRORES.edad);
