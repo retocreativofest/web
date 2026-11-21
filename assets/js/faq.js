@@ -131,7 +131,14 @@ const FAQ_POST = [
   ['Soy periodista o medio, ¿cómo los contacto?', `<p>Escríbenos a <b>retocreativofest@gmail.com</b> y te respondemos lo antes posible.</p><a class="act" href="mailto:retocreativofest@gmail.com">Escribir un correo</a>`]
  ]}
 ];
-const FAQ = POST_EVENTO ? FAQ_POST : FAQ_EVENTO;
+/* 21 nov 2026: abiertas desde la app de Google Play (PLAY_WEB, en rcf.js) estas respuestas van sin precio, sin Patreon
+   y sin otros medios de pago del Club (política de pagos de Google). En la web normal salen completas. */
+const SIN_PAGOS = {
+  '¿Qué es el Club Estrella?': ['¿Qué es el Club Estrella?', `<p>Es la membresía del #RetoMenteMilenial: ves el reto 24 horas antes, tienes protectores para tu racha, la Chispa del día Pro y más. Participar en el reto sigue siendo gratis.</p><a class="act" href="la-app.html#club">Ver el Club Estrella</a>`],
+  '¿Cómo me uno y cómo pago?': ['Ya soy miembro, ¿cómo activo mis ventajas?', `<p>En la app, entra a <b>Club</b> y toca «Ya soy miembro: vincular mi Patreon». Tus ventajas se activan solas y se revisan cada día.</p>`],
+  '¿Cómo entro al Discord?': ['¿Cómo entro al Discord?', `<p>El Discord de Mente Milenial es exclusivo para los miembros del Club Estrella.</p>`]
+};
+const FAQ = (POST_EVENTO ? FAQ_POST : FAQ_EVENTO).map(g => typeof PLAY_WEB !== 'undefined' && PLAY_WEB ? {...g, q: g.q.map(x => SIN_PAGOS[x[0]] || x)} : g);
 
 /* Buscador con sinónimos: cada grupo reúne palabras que la gente usa para lo mismo. */
 const SINONIMOS = [
