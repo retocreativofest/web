@@ -60,7 +60,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '111 · 21 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '112 · 21 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -85,22 +85,36 @@ function anunciar(texto) {
    esperando cada vez más. Las acciones que solo leen también se reintentan si falla la conexión. */
 const API_LEER = ['inicio', 'hoy', 'perfil', 'mi_semana', 'ranking', 'amigos', 'club', 'votacion', 'recorrido'];
 const espera = ms => new Promise(ok => setTimeout(ok, ms));
-async function apiUnaVez(accion, datos, intento) {
-  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), accion === 'subir' ? 60000 : 25000);
-  let r;
+/* 21 nov 2026 (revisión externa): un solo camino para todos los pedidos a los Apps Script.
+   - El tiempo límite cubre todo: la conexión Y la lectura de la respuesta (antes se apagaba antes de leerla).
+   - Separa los errores: 'red' (sin conexión), 'lento' (pasó el tiempo límite: puede que el servidor sí lo haya hecho),
+     'saturado' (Google dice que hay demasiadas ejecuciones a la vez: el pedido no corrió) y
+     'servidor' (respondió algo que no es la respuesta esperada, por ejemplo una página de error del script). */
+const SATURADO_RE = /too many|simultaneous|simult[aá]ne|rate ?limit|quota|cuota|try again later|int[eé]ntalo (de nuevo )?m[aá]s tarde|service invoked|demasiad/i;
+async function pedirJSON(url, opciones, ms) {
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms || 25000);
   try {
-    r = await fetch(CONFIG.api, {
-      method: 'POST', credentials: 'omit', signal: ctl.signal,
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(Object.assign({ accion }, datos || {}, intento ? { reintento: intento } : {}))
-    });
-  } catch (e) {
-    return { ok: false, error: 'red' };
+    let r, txt;
+    try {
+      r = await fetch(url, Object.assign({ credentials: 'omit' }, opciones || {}, { signal: ctl.signal }));
+      txt = await r.text();
+    } catch (e) {
+      return { ok: false, error: ctl.signal.aborted ? 'lento' : 'red' };
+    }
+    try {
+      const j = JSON.parse(txt);
+      if (j && typeof j === 'object') return j;
+    } catch (e) {}
+    if (r.status === 429 || r.status === 503 || SATURADO_RE.test(txt.slice(0, 4000))) return { ok: false, error: 'saturado' };
+    return { ok: false, error: 'servidor' };
   } finally {
     clearTimeout(t);
   }
-  try { return await r.json(); }
-  catch (e) { return { ok: false, error: 'saturado' }; }   // Google respondió con una página de error: no llegó a correr
+}
+const pedirExtra = (cuerpo, ms) => pedirJSON(CONFIG.extra, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(cuerpo) }, ms);
+async function apiUnaVez(accion, datos, intento) {
+  return pedirJSON(CONFIG.api, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ accion }, datos || {}, intento ? { reintento: intento } : {})) },
+    accion === 'subir' ? 60000 : 25000);
 }
 async function api(accion, datos) {
   let r;
@@ -110,7 +124,10 @@ async function api(accion, datos) {
       await espera(1500 * Math.pow(2, i - 1) + Math.random() * 1000);
     }
     r = await apiUnaVez(accion, datos, i);
-    const reintentar = r.error === 'ocupado' || r.error === 'saturado' || (r.error === 'red' && API_LEER.indexOf(accion) >= 0 && navigator.onLine !== false);
+    /* «saturado» no llegó a correr: se reintenta siempre. «servidor», «lento» y «red» pueden haber corrido a medias:
+       solo se reintentan las acciones que solo leen. */
+    const leer = API_LEER.indexOf(accion) >= 0;
+    const reintentar = r.error === 'ocupado' || r.error === 'saturado' || (leer && (r.error === 'servidor' || r.error === 'lento' || (r.error === 'red' && navigator.onLine !== false)));
     if (r.ok || !reintentar) break;
   }
   if (r.error === 'saturado') r.error = 'ocupado';
@@ -119,6 +136,7 @@ async function api(accion, datos) {
 
 const ERRORES = {
   red: 'No hay conexión. Revisa tu internet e intenta otra vez.',
+  lento: 'El servidor está tardando demasiado. Espera un minuto y revisa si se guardó antes de intentarlo otra vez.',
   servidor: 'Algo falló de nuestro lado. Intenta en un minuto.',
   ocupado: 'Hay mucha gente entrando. Intenta en un minuto.',
   google: 'Google no confirmó tu cuenta. Intenta otra vez o entra con tu correo.',
@@ -235,11 +253,7 @@ function pintar(html, alPintar, vista) {
    Viene del Apps Script aparte (CONFIG.extra), pestañas «Retos» (columnas marca, logo, premio) y «aliados». */
 async function cargarPatrocinio() {
   if (!CONFIG.extra || (E.patro && Date.now() - E.patro.t < 6e5)) return;
-  let r;
-  try {
-    const res = await fetch(CONFIG.extra, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ accion: 'patrocinio' }) });
-    r = await res.json();
-  } catch (e) { return; }
+  const r = await pedirExtra({ accion: 'patrocinio' });
   if (!r || !r.ok) return;
   const antes = JSON.stringify(E.patro && E.patro.r);
   E.patro = { t: Date.now(), r };
@@ -259,8 +273,9 @@ function marcaReto(a) {
 async function cargarBanner(a) {
   if (PLAY || !CONFIG.banner || !E.perfil || E.perfil.mayor !== 'Sí') return;   // 21 nov 2026: nunca en Google Play
   if (!(E.banner && Date.now() - E.banner.t < 6e5)) {
-    try { const r = await (await fetch(CONFIG.banner, { credentials: 'omit' })).json(); E.banner = { t: Date.now(), b: r && r.ok ? r.banner : null }; }
-    catch (e) { return; }
+    const r = await pedirJSON(CONFIG.banner, {}, 15000);
+    if (!r.ok && ['red', 'lento', 'saturado', 'servidor'].indexOf(r.error) >= 0) return;
+    E.banner = { t: Date.now(), b: r && r.ok ? r.banner : null };
   }
   const b = E.banner.b;
   if (b && b.url && a && Number(b.semana) === Number(a.semana) && String(b.temporada) === String(a.temporada) && !E.banner.img) {
@@ -360,11 +375,7 @@ async function estadoAutorizacion(forzar) {
   caja.innerHTML = cajaAutTexto(autCache ? autCache.r : { estado: 'sin_extra' });
   if (autPidiendo) return;
   autPidiendo = true;
-  let r;
-  try {
-    const res = await fetch(CONFIG.extra, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ accion: 'autorizacion_estado', sesion: E.sesion }) });
-    r = await res.json();
-  } catch (e) { r = null; }
+  const r = await pedirExtra({ accion: 'autorizacion_estado', sesion: E.sesion });
   autPidiendo = false;
   if (!r || !r.ok) return;
   autCache = { t: Date.now(), r };
@@ -389,11 +400,7 @@ function conectarAut(caja) {
   if (!b) return;
   b.addEventListener('click', async () => {
     b.disabled = true; b.textContent = 'Reenviando…';
-    let r;
-    try {
-      const res = await fetch(CONFIG.extra, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ accion: 'autorizacion_reenviar', sesion: E.sesion }) });
-      r = await res.json();
-    } catch (e) { r = { ok: false, error: 'red' }; }
+    const r = await pedirExtra({ accion: 'autorizacion_reenviar', sesion: E.sesion });
     if (r.ok) { aviso('✉️ Listo: le reenviamos el correo a ' + r.correo + '.'); autCache = null; return estadoAutorizacion(true); }
     const msj = { limite_reenvio: 'Hoy ya reenviamos el correo 3 veces. Intenta mañana.', espera_reenvio: 'Acabamos de reenviarlo. Espera 10 minutos antes de pedirlo otra vez.', rebotado: 'Ese correo no recibe mensajes. Tu representante tiene que llenar el formulario con otro correo.', confirmada: '¡Tu representante ya confirmó!', limite: ERRORES.limite, sesion: ERRORES.sesion };
     aviso(msj[r.error] || textoError(r.error));
@@ -775,10 +782,7 @@ const pjDeTexto = t => { const [forma, ojos, pelo, acc, color, boca] = String(t 
 const pjUsuario = u => String(u || '').trim().toLowerCase().replace(/^@+/, '').replace(/\s+/g, '');
 async function extra(accion, datos) {
   if (!CONFIG.extra) return { ok: false, error: 'red' };
-  try {
-    const res = await fetch(CONFIG.extra, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ accion, sesion: E.sesion }, datos || {})) });
-    return await res.json();
-  } catch (e) { return { ok: false, error: 'red' }; }
+  return pedirExtra(Object.assign({ accion, sesion: E.sesion }, datos || {}));
 }
 function pjGuardar(x) {
   E.pj = x; guardar('personaje', x);
@@ -1948,9 +1952,8 @@ function vistaYo() {
           if (!CONFIG.extra) { msg.textContent = 'No se pudo conectar. Escríbenos a retocreativofest@gmail.com.'; return; }
           ok.disabled = true; msg.textContent = 'Borrando…';
           try {
-            const res = await fetch(CONFIG.extra, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              body: JSON.stringify({ accion: 'borrar_cuenta', sesion: E.sesion, dibujos: true }) });
-            const r = await res.json();
+            // 21 nov 2026: con tiempo límite (60 s: borra filas de varias pestañas y archivos de Drive)
+            const r = await pedirExtra({ accion: 'borrar_cuenta', sesion: E.sesion, dibujos: true }, 60000);
             if (!r.ok) throw new Error(r.error || 'servidor');
             cerrarV();
             const A = leer('avisos'); if (A && A.token) desactivarAvisos(true);
@@ -1959,7 +1962,8 @@ function vistaYo() {
             vistaBienvenida('Tu cuenta se borró. ¡Gracias por dibujar con nosotros! 💛');
           } catch (e) {
             ok.disabled = false;
-            msg.innerHTML = 'No se pudo borrar ahora. Intenta en unos minutos o escríbenos a <b>retocreativofest@gmail.com</b> con el asunto «Borrar mi cuenta de la app».';
+            msg.innerHTML = (e && e.message === 'lento' ? 'El servidor tardó demasiado y no sabemos si tu cuenta se borró. Cierra la app y vuelve a abrirla: si te pide entrar, ya se borró. Si no, ' : 'No se pudo borrar ahora. ')
+              + 'Intenta en unos minutos o escríbenos a <b>retocreativofest@gmail.com</b> con el asunto «Borrar mi cuenta de la app».';
           }
         });
       });
