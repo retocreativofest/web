@@ -61,7 +61,7 @@ const FAQ_EVENTO = [
  ]},
  {id:'bazar', t:'Bazar creativo', c:'#6B3FA0', q:[
   ['¿Cuánto cuesta un stand?', PREVENTA ? `<p>Estos son los precios de <b>preventa</b>, válidos hasta el 6 de noviembre de 2026:</p><ul><li>Stand para artistas (1 × 1 m): <b>$20</b></li><li>Stand básico (1 × 1 m): <b>$30</b></li><li>Stand pro (1,5 × 1,5 m): <b>$40</b></li></ul><p>Se pagan en 2 cuotas. Desde el 7 de noviembre aplica el precio regular ($30, $40 y $50).</p><a class="act" href="bazar-creativo.html">Reservar mi stand</a>`
-    : `<ul><li>Stand para artistas (1 × 1 m): <b>$30</b></li><li>Stand básico (1 × 1 m): <b>$40</b></li><li>Stand pro (1,5 × 1,5 m): <b>$50</b></li></ul><p>Puedes pagar completo o en 2 cuotas; la 2.ª vence el 1 de diciembre.</p><a class="act" href="bazar-creativo.html">Reservar mi stand</a>`],
+    : `<ul><li>Stand para artistas (1 × 1 m): <b>$30</b></li><li>Stand básico (1 × 1 m): <b>$40</b></li><li>Stand pro (1,5 × 1,5 m): <b>$50</b></li></ul><p><b>Los stands del 5 de diciembre están agotados.</b> Si ya tienes el tuyo, la 2.ª cuota vence el 1 de diciembre. Para la próxima edición, déjanos tus datos y te avisamos primero.</p><a class="act" href="bazar-creativo.html#marcas">Quiero un stand en la próxima edición</a>`],
   ['¿Cómo pago mi stand?', PREVENTA ? `<ul><li><b>Hasta el 6 de noviembre:</b> solo USD en efectivo, Binance, Zinli o PayPal (con comisión). No se aceptan bolívares.</li><li><b>Desde el 7 de noviembre:</b> también Pago Móvil. Si pagas completo, a tasa dólar BCV del día; si pagas en dos cuotas, a tasa euro BCV del día.</li></ul>`
     : `<p>USD en efectivo, Binance, Zinli, PayPal (con comisión) o Pago Móvil. Si pagas completo, a tasa dólar BCV del día; si pagas en dos cuotas, a tasa euro BCV del día. La 2.ª cuota vence el 1 de diciembre.</p>`],
   ['¿Qué incluye el stand?', `<p>Kit de bienvenida, promoción de tu marca en redes y fotos del evento. Cada marca debe donar 1 producto para el sorteo de la Ruta creativa.</p>`],
@@ -71,7 +71,7 @@ const FAQ_EVENTO = [
   ['¿Dónde veo los streams de @mentemilenial?', `<p>Lunes, miércoles y viernes a las <b>8:30 p. m. (hora de Venezuela)</b>, en TikTok, Twitch, YouTube y Kick.</p><a class="act" href="mente-milenial.html">Ver la semana en vivo</a>`],
   ['¿Cómo entro al Discord?', `<p>El Discord de Mente Milenial es exclusivo para miembros del Patreon de Reto Mente Milenial. Ahí puedes hablar con el equipo durante los streams, conocer el reto 24 horas antes y ver master class exclusivas.</p><a class="act" data-link="patreon" href="#">Ir a Patreon</a>`],
   ['Soy periodista o medio, ¿cómo me acredito?', `<p>Completa el formulario de <b>acreditación de prensa</b>. Revisamos cada solicitud y te confirmamos por correo y WhatsApp.</p><a class="act" href="index.html#prensa">Solicitar acreditación</a>`],
-  ['¿Cómo puedo patrocinar el evento?', `<p>Tenemos paquetes desde <b>$20</b>, que puedes combinar con productos o servicios de tu marca.</p><a class="act" data-wa="¡Hola! Quiero conocer los paquetes de patrocinio del Reto Creativo Fest." href="#">Ver paquetes de patrocinio</a>`]
+  ['¿Cómo puedo patrocinar el evento?', `<p>Tenemos planes para el <b>Reto Creativo Fest</b> y para el <b>#RetoMenteMilenial</b> (tu marca en el reto de la semana, el mes o la temporada). Pídenos la propuesta con precios por correo.</p><a class="act" href="bazar-creativo.html#planes">Ver los planes 2027</a>`]
  ]}
 ];
 

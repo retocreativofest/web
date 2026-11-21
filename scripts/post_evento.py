@@ -14,6 +14,9 @@ CAMBIOS = {
         ('Festival de ilustración en Caracas: concurso de dibujo en vivo, charlas, bazar creativo y premiación del #RetoMenteMilenial. Sábado 5 de diciembre en FACES-UCV. Entrada gratuita.',
          'Dibuja cada semana con el #RetoMenteMilenial: descarga gratis la app, mira el reto, sube tu dibujo y gana premios en el Reto Creativo Fest, el festival de ilustración de Caracas.'),
     ],
+    'bazar-creativo.html': [   # 21 nov 2026: los stands se agotaron antes del festival; después del 6 dic solo queda el patrocinio
+        (' Los stands del bazar del 5 de diciembre están agotados.', ''),
+    ],
     'sitemap.xml': [   # la página del concurso lleva al Inicio: sale del mapa del sitio para Google
         ('  <url><loc>https://retocreativofest.com/concurso.html</loc></url>\n', ''),
     ],
