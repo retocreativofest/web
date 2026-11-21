@@ -29,6 +29,24 @@ const PRODUCTOS = [
 const ENCARGO = 'Bajo pedido · ~1 semana';
 const vigente = p => !p.hasta || Date.now() < Date.parse(p.hasta);   // la Ruta creativa solo se vende hasta el evento
 
+/* Modo Play (21 nov 2026): si la página se abrió desde la app de Google Play (la app añade ?play=1), se esconden el precio
+   del Club Estrella, Patreon y los otros medios de pago del Club: Google no permite mandar a pagar fuera de su tienda.
+   Vale para toda la visita en esa pestaña. En la web normal no cambia nada. Marca lo que no va en Play con data-no-play
+   y lo que solo va en Play con data-solo-play hidden. */
+const PLAY_WEB = (() => {
+  const marca = /[?&]play=1(&|$)/.test(location.search);
+  try { if (marca) sessionStorage.setItem('rcf.play', '1'); return marca || sessionStorage.getItem('rcf.play') === '1'; } catch(e){ return marca; }
+})();
+if (PLAY_WEB) document.documentElement.classList.add('play');
+function wirePlay(){
+  if (!PLAY_WEB) return;
+  $$('[data-solo-play]').forEach(el => { el.hidden = false; });
+  $$('[data-no-play], [data-link="patreon"]').forEach(el => {
+    const padre = el.parentElement;
+    (padre && padre.tagName === 'LI' && padre.children.length === 1 ? padre : el).remove();
+  });
+}
+
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -44,6 +62,7 @@ function wireLinks(){
   $$('[data-wa]').forEach(a => { a.href = waLink(a.dataset.wa); a.target = '_blank'; a.rel = 'noopener'; });
   $$('[data-link]').forEach(a => {
     const k = a.dataset.link;
+    if (k === 'patreon' && PLAY_WEB){ a.remove(); return; }
     if (k === 'canal' && !CONFIG.canalWhatsApp){ a.href = waLink('¡Hola! Quiero unirme al canal de WhatsApp del #RetoMenteMilenial.'); }
     else a.href = ({canal:CONFIG.canalWhatsApp, inscripcion:CONFIG.inscripcion, padlet:CONFIG.padlet, padletCalentamiento:CONFIG.padletCalentamiento, patreon:CONFIG.patreon, app:CONFIG.app, autorizacion:CONFIG.autorizacion})[k] || '#';
     a.target = '_blank'; a.rel = 'noopener';
@@ -387,4 +406,4 @@ function wireRetoWeb(){
   }).catch(() => {});
 }
 
-wirePostEvento(); wireMenu(); wireLinks(); wireFechas(); wireRetoWeb(); wireCuenta(); wireClics(); wireApp(); wireForms(); wireCart(); wireFloat(); wireCanal(); wireRedes(); renderAll();
+wirePlay(); wirePostEvento(); wireMenu(); wireLinks(); wireFechas(); wireRetoWeb(); wireCuenta(); wireClics(); wireApp(); wireForms(); wireCart(); wireFloat(); wireCanal(); wireRedes(); renderAll();

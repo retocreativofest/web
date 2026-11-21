@@ -31,6 +31,14 @@ const PLAY = (() => {
   const modoApp = window.matchMedia && matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches;
   try { if (desdePlay) localStorage.setItem('rcf.play', '1'); return desdePlay || (modoApp && localStorage.getItem('rcf.play') === '1'); } catch (e) { return desdePlay; }
 })();
+/* 21 nov 2026: las páginas de la web que se abren desde la app de Play (preguntas frecuentes, bases, privacidad…)
+   llevan ?play=1 para que la web esconda el precio del Club, Patreon y los otros medios de pago (política de pagos de Google).
+   En el navegador normal los enlaces quedan igual y la web muestra todo. */
+const web = u => {
+  if (!PLAY) return u;
+  const i = u.indexOf('#'), base = i < 0 ? u : u.slice(0, i), ancla = i < 0 ? '' : u.slice(i);
+  return base + (base.indexOf('?') < 0 ? '?' : '&') + 'play=1' + ancla;
+};
 const fecha = iso => { const d = new Date(iso); return DIAS[d.getDay()] + ' ' + d.getDate() + ' de ' + MESES[d.getMonth()]; };
 const hora = iso => { const d = new Date(iso); let h = d.getHours(); const m = String(d.getMinutes()).padStart(2, '0'); const pm = h >= 12; h = h % 12 || 12; return h + ':' + m + (pm ? ' p. m.' : ' a. m.'); };
 const ICO = {
@@ -52,7 +60,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '109 · 20 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '110 · 21 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -436,7 +444,7 @@ function vistaBienvenida(error) {
       ${avisoNavInterno()}
       <button type="button" class="btn google" id="g">${ICO.google} Continuar con Google</button>
       <button type="button" class="enlace" id="c">Entrar con mi correo (te mandamos un código)</button>
-      <span class="nota">Usamos tu correo solo para tu cuenta del reto. Nunca vemos tu contraseña. <a href="${CONFIG.web}/privacidad.html" target="_blank" rel="noopener">Privacidad</a></span>
+      <span class="nota">Usamos tu correo solo para tu cuenta del reto. Nunca vemos tu contraseña. <a href="${web(CONFIG.web + '/privacidad.html')}" target="_blank" rel="noopener">Privacidad</a></span>
     </div>`, root => {
     root.querySelectorAll('[data-guia]').forEach(b => b.addEventListener('click', () => { E.guia = b.dataset.guia; guardar('guia', E.guia); vistaBienvenida(); }));
     on('#g', 'click', entrarGoogle);
@@ -856,7 +864,7 @@ function cabecera(titulo) {
      ✦ chispas = días seguidos haciendo la Chispa del día · 🔥 racha = semanas seguidas subiendo el dibujo del reto. */
   const chispas = `<button type="button" class="contador chispas" data-explica="chispas" aria-label="Chispas: ${ch} ${ch === 1 ? 'día seguido' : 'días seguidos'} haciendo la Chispa del día">${ICO.chispaMini}<b>${ch}</b></button>`;
   const fuego = `<button type="button" class="contador racha ${pr && pr.enRiesgo ? 'riesgo' : ''}" data-explica="racha" aria-label="Racha del reto: ${racha} ${racha === 1 ? 'semana seguida' : 'semanas seguidas'} subiendo tu dibujo">${ICO.fuego}<b>${racha}</b></button>`;
-  return `<header class="top"><button type="button" class="avatar${pjListo() ? ' pj' : ''}" data-ir="yo" aria-label="Mi perfil">${pjListo() ? PJ.svg(E.pj) : ini}</button><h1>${esc(titulo)}</h1><span class="top-der">${chispas}${fuego}<a class="redondo" href="${CONFIG.web}/preguntas-frecuentes.html" target="_blank" rel="noopener" aria-label="Preguntas frecuentes">?</a></span></header>`;
+  return `<header class="top"><button type="button" class="avatar${pjListo() ? ' pj' : ''}" data-ir="yo" aria-label="Mi perfil">${pjListo() ? PJ.svg(E.pj) : ini}</button><h1>${esc(titulo)}</h1><span class="top-der">${chispas}${fuego}<a class="redondo" href="${web(CONFIG.web + '/preguntas-frecuentes.html')}" target="_blank" rel="noopener" aria-label="Preguntas frecuentes">?</a></span></header>`;
 }
 
 let reloj, desfase = 0;   // diferencia entre la hora del servidor y la del teléfono
@@ -1348,7 +1356,7 @@ function vistaSubir(error) {
         <span class="ayuda" id="cnt">${(S.descripcion || '').length} / 500</span>
       </label>
       <label class="check" for="pro"><input id="pro" type="checkbox" ${S.propio ? 'checked' : ''}><span>Mi dibujo es 100 % mío y original: no es fan art, copia, calco ni plagio, y no usé IA para hacerlo ni para el boceto (como referencia sí se vale).</span></label>
-      <a class="nota izq" href="../bases.html#originalidad" target="_blank" rel="noopener">¿Qué cuenta como fan art, plagio, calco o IA?</a>
+      <a class="nota izq" href="${web('../bases.html#originalidad')}" target="_blank" rel="noopener">¿Qué cuenta como fan art, plagio, calco o IA?</a>
       ${p.mayor === 'No' ? '<span class="nota izq">Puedes participar. Para quedar entre las finalistas, tu representante tiene que haber confirmado la autorización.</span>' : ''}
       <div class="muestra" aria-hidden="true"><i></i><span><b>${esc(titulo)}</b><small>Así saldrá el título en el Padlet</small></span></div>
       ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}
@@ -1444,7 +1452,7 @@ function dibujarRanking(r, error) {
       ${r.cats.map(c => `<section class="cat-app"><h2>${esc(c.nombre)}</h2>${c.def ? `<p>${esc(c.def)}</p>` : ''}<ol>${c.items.map(it =>
         `<li class="rk-fila${it.yo ? ' yo' : ''}${it.estado === 'Va ganando' ? ' gana' : ''}">${rkAvatar(it)}<span class="rk-txt"><b class="rk-nom"><span>${esc(it.nombre)}</span>${it.estrella ? `<img class="estrella-mini" src="img/estrella-${it.estrella}.webp" alt="Club Estrella">` : ''}${it.yo ? '<i>(tú)</i>' : ''}</b>${rkRed(it) ? `<small>${esc(rkRed(it))}</small>` : ''}</span><em class="rk-pts">${esc(it.valor)}</em></li>`).join('')}</ol></section>`).join('')}
       ${r.legal ? `<p class="nota izq">${esc(r.legal)}</p>` : ''}
-      <a class="btn blanco chico" href="${CONFIG.web}/reto-semanal.html" target="_blank" rel="noopener">Ver la tabla completa en la web</a>`;
+      <a class="btn blanco chico" href="${web(CONFIG.web + '/reto-semanal.html')}" target="_blank" rel="noopener">Ver la tabla completa en la web</a>`;
   }
   conNav('ranking', cabecera('Ranking') + `<main class="cont con-nav">${cuerpo}</main>`);
   if (r && r.cats) pjPedir(r.cats.flatMap(c => c.items.map(rkUsuario)).filter(Boolean), () => { if (estaEn === 'ranking') dibujarRanking(E.ranking); });
@@ -1910,11 +1918,11 @@ function vistaYo() {
       ${avisosHtml()}
       ${instalada ? '' : `<button type="button" class="btn amarillo chico" id="instalar">📲 Instalar la app en mi teléfono</button>`}
       <button type="button" class="btn blanco chico" id="tuto">👋 Ver el tutorial otra vez</button>
-      <a class="btn blanco chico" href="${CONFIG.web}/preguntas-frecuentes.html" target="_blank" rel="noopener">Preguntas frecuentes</a>
+      <a class="btn blanco chico" href="${web(CONFIG.web + '/preguntas-frecuentes.html')}" target="_blank" rel="noopener">Preguntas frecuentes</a>
       <button type="button" class="enlace" id="salir">Cerrar sesión</button>
       <p class="nota" style="margin:0;text-align:center;font-size:12px">Versión de la app: ${VERSION_APP}</p>
       <button type="button" class="enlace" id="borrar" style="font-size:12px;color:var(--muted)">Borrar mi cuenta</button>
-      <span class="nota"><a href="${CONFIG.web}/bases.html#reto" target="_blank" rel="noopener">Bases del reto</a> · <a href="${CONFIG.web}/terminos.html" target="_blank" rel="noopener">Términos</a> · <a href="${CONFIG.web}/privacidad.html" target="_blank" rel="noopener">Privacidad</a></span>
+      <span class="nota"><a href="${web(CONFIG.web + '/bases.html#reto')}" target="_blank" rel="noopener">Bases del reto</a> · <a href="${web(CONFIG.web + '/terminos.html')}" target="_blank" rel="noopener">Términos</a> · <a href="${web(CONFIG.web + '/privacidad.html')}" target="_blank" rel="noopener">Privacidad</a></span>
     </main>`, root => {
     root.querySelectorAll('[data-guia]').forEach(b => b.addEventListener('click', () => { E.guia = b.dataset.guia; guardar('guia', E.guia); vistaYo(); }));
     on('#editar', 'click', () => { E.borrador = { nombre: p.nombre, usuario: p.usuario }; vistaPerfil(); });
