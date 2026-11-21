@@ -87,8 +87,8 @@ const FAQ_POST = [
   ['¿Puedo subir más de un dibujo por semana?', `<p>No. Es <b>un dibujo por persona y por semana</b>, y solo desde la app. Elige bien el que quieres mostrar.</p>`],
   ['¿Qué es la racha y para qué sirven los protectores?', `<p>Cada semana que participas tu fuego 🔥 crece. Si una semana no puedes dibujar, un <b>protector</b> cuida tu racha para que no se apague. Te regalamos uno en tu cumpleaños, y el Club Estrella recibe 2 cada mes. El protector salva la racha, pero esa semana no cuenta como participada para el Premio a la constancia.</p>`],
   ['¿Qué es la Chispa del día?', `<p>Un mini reto de 3 minutos para calentar la mano <b>todos los días</b>, con chispas especiales en fechas como Navidad. Puedes guardarla o compartirla con tu nombre.</p>`],
-  ['¿Cómo funcionan los amigos y los saludos?', `<p>Agrega a tus amigos por su usuario, mira sus rachas y salúdalos con un sticker para animarlos a dibujar. Puedes <b>bloquear o reportar</b> a cualquier persona en dos toques.</p>`],
-  ['¿Por qué no hay chat ni comentarios?', `<p>Porque en el reto participan niños, niñas y adolescentes. Para que sea un espacio seguro y sin bullying, solo hay «Me gusta» en el Padlet y toques entre amigos.</p>`],
+  ['¿Cómo funcionan los amigos y los saludos?', `<p>Agrega a tus amigos por su usuario, mira sus rachas y salúdalos con un sticker para animarlos a dibujar. Puedes <b>bloquear o reportar</b> a cualquier persona en un par de pasos.</p>`],
+  ['¿Por qué no hay chat ni comentarios?', `<p>Porque en el reto participan niños, niñas y adolescentes. Para que sea un espacio seguro y sin bullying, solo hay «Me gusta» en el Padlet y saludos entre amigos.</p>`],
   ['¿Cómo activo o apago los avisos?', `<p>En la app, entra a <b>Yo → Avisos</b> y elige cuáles quieres: el reto, tu racha, tus amigos y la Chispa del día. En iPhone, los avisos funcionan con la app instalada desde Safari (iOS 16.4 o más reciente).</p>`],
   ['¿Cómo borro mi cuenta?', `<p>En la app, entra a <b>Yo → Borrar mi cuenta</b> y escribe BORRAR. Se borran tus datos y tu cuenta de forma permanente.</p><a class="act" href="borrar-cuenta.html">Más sobre el borrado de cuenta</a>`]
  ]},

@@ -694,3 +694,5 @@ p,li,.caja,.nota,.club-ban p,.sub,small,.sem-ch{text-wrap:pretty}
 .btn[data-toque]{display:inline-flex;align-items:center;justify-content:center;gap:2px;min-width:52px;min-height:44px!important}
 .btn[data-toque] .ico{width:24px;height:24px;margin:0}
 .btn[data-toque] .ok-ico{font-weight:800;font-size:15px}
+.guia-btn.con-cara{display:flex;align-items:center;gap:10px}
+.guia-btn.con-cara img{width:36px;height:36px;border-radius:50%;border:2px solid var(--ink);background:var(--white);flex:none;object-fit:cover}
