@@ -11,6 +11,7 @@ const CONFIG = {
   autorizacion: 'https://docs.google.com/forms/d/e/1FAIpQLSeTf_vZNjg5LU_mMs1X9tqmrgBddUGMDKuzvqV9U7NuXeXW7A/viewform', // Google Forms «Autorización del representante»
   patreon: 'https://www.patreon.com/RetoMenteMilenial',
   app: '',                                  // enlace de la app (PWA). Vacío = «Llega en diciembre». Al lanzarla, pega aquí la URL y la web cambia sola a «Instálala».
+  preventaFin: '2026-11-30T00:00:00-04:00',   // 21 nov 2026 (Diego): desde el lunes 30 nov no se vende la Ruta creativa en línea ni hay inscripción en línea al concurso; se consulta la disponibilidad en el evento
   postEvento: '2026-12-06T00:00:00-04:00',  // desde esta fecha la web deja el festival atrás: sin concurso, «Bazar creativo» → «Planes de patrocinio» y todo apunta a la app
   premiosCSV2027: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6fo9pFeab6FLkjaZGivwzHtenKI-FiXMD8rLLoAvU1JlngyIN4aF5BHZ4wzpPy1HMJKQNyuzbA3Fp/pub?gid=1238618466&single=true&output=csv',   // «Así van los premios» del Tablero 2027 (3.ª temporada)
   premiosCSV2027Desde: '2026-12-29T21:30:00-04:00',   // desde aquí la web lee el Tablero 2027 (ya con el podio de la Semana 0). Antes mostraría los datos de 2026
@@ -22,12 +23,15 @@ if (POST_EVENTO && /(^|\/)concurso(\.html)?$/.test(location.pathname)) location.
 if (CONFIG.premiosCSV2027 && Date.now() >= Date.parse(CONFIG.premiosCSV2027Desde)) CONFIG.premiosCSV = CONFIG.premiosCSV2027;   // 11 nov: cambio automático al Tablero 2027
 
 const PRODUCTOS = [
-  {id:'ruta', hasta:CONFIG.postEvento, nombre:'Ruta creativa', desc:'Recorre el evento haciendo retos de dibujo y participa en un increíble sorteo con premios. Actividad apta para todo público.', precio:3, cat:'Actividades', modo:'disponible', color:'#FFFFFF', img:'assets/img/tienda-ruta-creativa-640.webp', imgStyle:'inset:auto;left:-4%;top:13%;width:92%;height:auto;object-fit:contain'},
-  {id:'guante', nombre:'Guante y lápiz de dibujo', desc:'El combo perfecto para artistas digitales y tradicionales: evita las manchas de grasa en tus dibujos. Diferentes colores y tallas.', precio:8, cat:'Para dibujar', modo:'disponible', color:'#FFFFFF', img:'assets/img/tienda-guante-640.webp',
+  {id:'ruta', hasta:CONFIG.preventaFin, nombre:'Ruta creativa', desc:'Recorre el evento haciendo retos de dibujo y participa en un increíble sorteo con premios. Actividad apta para todo público.', precio:3, cat:'Actividades', modo:'disponible', color:'#FFFFFF', img:'assets/img/tienda-ruta-creativa-640.webp', imgStyle:'inset:auto;left:-4%;top:13%;width:92%;height:auto;object-fit:contain'},
+  {id:'guante', hasta:CONFIG.preventaFin, nombre:'Guante y lápiz de dibujo', desc:'El combo perfecto para artistas digitales y tradicionales: evita las manchas de grasa en tus dibujos. Diferentes colores y tallas.', precio:8, cat:'Para dibujar', modo:'disponible', color:'#FFFFFF', img:'assets/img/tienda-guante-640.webp',
     opciones:{Color:['Lila','Verde menta','Negro'], Mano:['Diestro','Zurdo'], Talla:['Regular','Grande']}}
 ];
 const ENCARGO = 'Bajo pedido · ~1 semana';
 const vigente = p => !p.hasta || Date.now() < Date.parse(p.hasta);   // la Ruta creativa solo se vende hasta el evento
+/* 21 nov 2026 (Diego): desde el 30 nov la tienda se oculta hasta que haya productos nuevos. Basta con agregar a PRODUCTOS
+   un producto sin «hasta» (o con una fecha futura) para que vuelvan el menú, el pie, el carrito y la página tienda.html. */
+const TIENDA = PRODUCTOS.some(vigente);
 
 /* Modo Play (21 nov 2026): si la página se abrió desde la app de Google Play (la app añade ?play=1), se esconden el precio
    del Club Estrella, Patreon y los otros medios de pago del Club: Google no permite mandar a pagar fuera de su tienda.
@@ -406,4 +410,15 @@ function wireRetoWeb(){
   }).catch(() => {});
 }
 
-wirePlay(); wirePostEvento(); wireMenu(); wireLinks(); wireFechas(); wireRetoWeb(); wireCuenta(); wireClics(); wireApp(); wireForms(); wireCart(); wireFloat(); wireCanal(); wireRedes(); renderAll();
+/* ---------- tienda oculta y mapa de la Ruta (30 nov 2026) ---------- */
+function wireTienda(){
+  if (Date.now() >= Date.parse(CONFIG.preventaFin)){   // Diego: el mapa ocupa el lugar de la tienda, justo antes de las charlas
+    const mapa = $('#mapa-ruta'), charlas = $('#charlas');
+    if (mapa && charlas) charlas.before(mapa);
+  }
+  if (TIENDA) return;
+  if (/(^|\/)tienda(\.html)?$/.test(location.pathname)){ location.replace('index.html'); return; }
+  $$('.nav a[href="tienda.html"], .foot a[href="tienda.html"], .cartbtn, section[aria-label="Tienda"]').forEach(el => (el.closest('.foot li') || el).remove());
+}
+
+wirePlay(); wireTienda(); wirePostEvento(); wireMenu(); wireLinks(); wireFechas(); wireRetoWeb(); wireCuenta(); wireClics(); wireApp(); wireForms(); wireCart(); wireFloat(); wireCanal(); wireRedes(); renderAll();
