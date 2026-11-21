@@ -696,3 +696,7 @@ html,body{overflow-x:clip}
 .agotado-pill{font-size:16px;padding:8px 20px;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);text-transform:uppercase;letter-spacing:.04em}
 .btn.agotado{background:#E6E3EC;color:#4A4658;border-style:dashed;cursor:default;box-shadow:none;transform:none}
 @media (min-width:861px){.mapa-movil{display:none}}
+/* 21 nov 2026: reglas del sorteo de la Ruta creativa, junto al mapa */
+.mapa-reglas{max-width:760px;margin:24px auto 0;text-align:left;background:var(--yellow);border:3px solid var(--ink);border-radius:var(--r);box-shadow:6px 6px 0 var(--ink);padding:18px 24px}
+.mapa-reglas h3{font-size:20px;margin:0 0 8px;text-align:center}
+.mapa-reglas ul{margin:0;padding-left:20px;display:grid;gap:6px}
