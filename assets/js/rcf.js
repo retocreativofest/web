@@ -215,7 +215,7 @@ function wireFloat(){
   const a = document.createElement('a');
   a.className = 'digifloat'; a.href = CONFIG.digi; a.target = '_blank'; a.rel = 'noopener';
   a.setAttribute('aria-label', 'Hablar con Digi en Telegram (abre otra pestaña)');
-  a.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 3-6 18-4-8-8-4 18-6Z"/><path d="m11 13 10-10"/></svg><span>Hablar con Digi</span>';
+  a.innerHTML = '<span class="digifloat-bubble" aria-hidden="true">Soy <strong>Digi</strong><br>¿Te ayudo?</span><span class="digifloat-avatar"><img src="assets/img/digi-ayuda.webp" alt="" width="88" height="88" decoding="async"></span>';
   document.body.appendChild(a);
 }
 
