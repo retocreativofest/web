@@ -108,9 +108,11 @@ button,input,textarea,select{font:inherit;color:inherit}
 @media (max-width:820px){.fgrid{grid-template-columns:1fr 1fr}}
 @media (max-width:480px){.fgrid{grid-template-columns:1fr}}
 
-/* WhatsApp flotante */
-.wafloat{position:fixed;right:calc(18px + env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:25;display:grid;place-items:center;width:60px;height:60px;border-radius:50%;background:var(--wa);color:var(--white);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink)}
-.wafloat:hover{transform:translate(-1px,-1px)}
+/* Digi: ayuda en Telegram */
+.digifloat{position:fixed;right:calc(18px + env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:25;display:inline-flex;align-items:center;gap:9px;min-height:56px;padding:10px 16px;border-radius:999px;background:var(--cyan);color:var(--ink);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);font-family:var(--display);font-size:14px;font-weight:700;text-decoration:none}
+.digifloat:hover{transform:translate(-1px,-1px)}
+.digifloat:focus-visible{outline:3px solid var(--ink);outline-offset:4px}
+.b-digi{background:var(--cyan);color:var(--ink)}
 
 /* ---------- productos y carrito ---------- */
 .pgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px}
