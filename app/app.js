@@ -60,7 +60,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '110 · 21 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '111 · 21 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -245,7 +245,11 @@ async function cargarPatrocinio() {
   E.patro = { t: Date.now(), r };
   if (antes !== JSON.stringify(r) && estaEn === 'hoy' && E.hoy) dibujarHoy(E.hoy);
 }
+/* 21 nov 2026: en la app de Google Play no se muestran marcas (logo, nombre, banner ni códigos de descuento).
+   La app declara audiencia desde 9 años y Play no permite anuncios fuera de sus redes certificadas en esas apps.
+   Solo queda un aviso genérico de que hay premio especial. En el navegador todo sigue igual. */
 function marcaReto(a) {
+  if (PLAY) return null;
   const r = E.patro && E.patro.r && E.patro.r.reto;
   return r && a && r.marca && Number(r.semana) === Number(a.semana) && String(r.temporada) === String(a.temporada) ? r.marca : null;
 }
@@ -253,7 +257,7 @@ function marcaReto(a) {
    Va incluido en el Reto Aliado. Solo para mayores de edad, a pantalla completa, sin enlace.
    Se ve al menos 4 segundos; después aparece la X. La barra muestra que el dibujo se está subiendo. */
 async function cargarBanner(a) {
-  if (!CONFIG.banner || !E.perfil || E.perfil.mayor !== 'Sí') return;
+  if (PLAY || !CONFIG.banner || !E.perfil || E.perfil.mayor !== 'Sí') return;   // 21 nov 2026: nunca en Google Play
   if (!(E.banner && Date.now() - E.banner.t < 6e5)) {
     try { const r = await (await fetch(CONFIG.banner, { credentials: 'omit' })).json(); E.banner = { t: Date.now(), b: r && r.ok ? r.banner : null }; }
     catch (e) { return; }
@@ -323,7 +327,7 @@ function mostrarCarga() {
   });
 }
 function franjaAliados() {
-  if (!E.perfil || E.perfil.mayor !== 'Sí') return '';   // 9 nov 2026: los menores nunca reciben ofertas (tampoco códigos de descuento)
+  if (PLAY || !E.perfil || E.perfil.mayor !== 'Sí') return '';   // 21 nov 2026: nunca en Google Play   // 9 nov 2026: los menores nunca reciben ofertas (tampoco códigos de descuento)
   const al = ((E.patro && E.patro.r && E.patro.r.aliados) || []).filter(x => x.codigo);
   if (!al.length) return '';
   return `<div class="codigos-app"><strong>🏷️ Descuentos para la comunidad</strong>${al.map(x => `<div class="codigo-app">${x.logo ? `<img src="${esc(x.logo)}" alt="${esc(x.nombre)}" height="30">` : ''}<span><b>${esc(x.nombre)}</b>${x.descuento ? ': ' + esc(x.descuento) : ''}</span><button type="button" class="codigo-btn" data-codigo="${esc(x.codigo)}" aria-label="Copiar el código ${esc(x.codigo)}">${esc(x.codigo)} <small>Copiar</small></button></div>`).join('')}</div>`;
@@ -1052,7 +1056,7 @@ function dibujarHoy(h, error) {
         ${marcaReto(a) && marcaReto(a).logo ? `<img class="reto-logo" src="${esc(marcaReto(a).logo)}" alt="${esc(marcaReto(a).nombre || 'Marca aliada')}" width="64" height="64">` : ''}
         <h2 id="reto-h">${esc(a.tema || 'Reto de la semana')}</h2>
         ${a.descripcion ? `<p>${esc(a.descripcion)}</p>` : ''}
-        ${marcaReto(a) && marcaReto(a).nombre ? `<p class="reto-premio">🎁 Premio de <b>${esc(marcaReto(a).nombre)}</b>${marcaReto(a).premio ? ': ' + esc(marcaReto(a).premio) : ''} al dibujo que elija la marca</p>` : ''}
+        ${marcaReto(a) && marcaReto(a).nombre ? `<p class="reto-premio">🎁 Premio de <b>${esc(marcaReto(a).nombre)}</b>${marcaReto(a).premio ? ': ' + esc(marcaReto(a).premio) : ''} al dibujo que elija la marca</p>` : PLAY && E.patro && E.patro.r && E.patro.r.reto && E.patro.r.reto.marca && Number(E.patro.r.reto.semana) === Number(a.semana) && String(E.patro.r.reto.temporada) === String(a.temporada) ? '<p class="reto-premio">🎁 Esta semana hay un premio especial</p>' : ''}
         <div class="tiempo"><span id="cd">${cuenta(a.cierre)}</span><span>Cierra el ${fecha(a.cierre)}, ${hora(a.cierre)}</span></div>
         ${yaSubio()
           ? `<div class="caja" style="text-align:center;background:var(--white)">✓ Ya subiste tu dibujo de esta semana</div>${botonesCompartir(E.semana.padlet || CONFIG.padlet)}`
