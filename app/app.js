@@ -55,12 +55,21 @@ const ICO = {
   chispaMini: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z" fill="#FFD60A" stroke="#0B0B0F" stroke-width="2.2" stroke-linejoin="round"/></svg>',
   compartir: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>',
   copiar: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>',
-  externo: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>'
+  externo: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+  /* 21 nov 2026 (pedido de Diego): íconos dibujados en vez de los emojis del teléfono, con el mismo trazo negro y relleno
+     de color que la chispa y el fuego. Así se ven iguales en iPhone, Android y computadora. Siempre decorativos (aria-hidden):
+     el botón lleva su texto o su aria-label. */
+  lapiz: '<svg class="ico" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(45 12 12)"><path d="M9 6h6v10.6H9z" fill="#FFD60A" stroke="#0B0B0F" stroke-linejoin="round" stroke-linecap="round" stroke-width="2"/><path d="M9 6V3.8a3 3 0 0 1 6 0V6z" fill="#F0479B" stroke="#0B0B0F" stroke-linejoin="round" stroke-linecap="round" stroke-width="2"/><path d="M9 16.6l3 5.8 3-5.8z" fill="#FFF3C4" stroke="#0B0B0F" stroke-linejoin="round" stroke-linecap="round" stroke-width="2"/><path d="M11 20.5l1 1.9 1-1.9z" fill="#0B0B0F" stroke="#0B0B0F" stroke-linejoin="round" stroke-linecap="round" stroke-width="1"/></g></svg>',
+  tutorial: '<svg class="ico" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h10a4 4 0 0 1 4 4v5.5a4 4 0 0 1-4 4h-5.5L6.5 21v-4.1A4 4 0 0 1 3 13V7.5a4 4 0 0 1 4-4z" fill="#C5A6D9" stroke="#0B0B0F" stroke-linejoin="round" stroke-linecap="round" stroke-width="2.1"/><path d="M10 7.6v5.8l4.9-2.9z" fill="#0B0B0F" stroke="#0B0B0F" stroke-linejoin="round" stroke-linecap="round" stroke-width="1.4"/></svg>',
+  enlace: '<svg class="ico" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(-45 12 12)" fill="none" stroke-linecap="round"><rect x="1.8" y="8.4" width="11.4" height="7.2" rx="3.6" stroke="#0B0B0F" stroke-width="5.4"/><rect x="1.8" y="8.4" width="11.4" height="7.2" rx="3.6" stroke="#84D7DF" stroke-width="2"/><rect x="10.8" y="8.4" width="11.4" height="7.2" rx="3.6" stroke="#0B0B0F" stroke-width="5.4"/><rect x="10.8" y="8.4" width="11.4" height="7.2" rx="3.6" stroke="#84D7DF" stroke-width="2"/><path d="M12.6 8.4h-2" stroke="#84D7DF" stroke-width="2"/></g></svg>',
+  mano: '<svg class="ico" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.2 4.6l1.4 1.2M3.6 9h1.9M15.4 4.6L14 5.8" fill="none" stroke="#0B0B0F" stroke-linejoin="round" stroke-linecap="round" stroke-width="1.8"/><path d="M9 14.4V5.2a1.5 1.5 0 0 1 3 0v5.4a1.5 1.5 0 0 1 3 0v.6a1.5 1.5 0 0 1 3 0v1a1.4 1.4 0 0 1 2.8 0V16c0 3.1-2.3 5.6-5.6 5.6H13c-2.2 0-3.5-.9-4.7-2.5l-2.9-3.9a1.5 1.5 0 0 1 2.3-1.9z" fill="#FFD60A" stroke="#0B0B0F" stroke-linejoin="round" stroke-linecap="round" stroke-width="2"/><path d="M12 10.6v2.6M15 11.2v2.2M18 12.2v1.6" fill="none" stroke="#0B0B0F" stroke-linejoin="round" stroke-linecap="round" stroke-width="1.6"/></svg>',
+  chispaDia: '<svg class="ico" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 3l2.1 5.8 5.8 2.1-5.8 2.1-2.1 5.8-2.1-5.8-5.8-2.1 5.8-2.1z" fill="#FFD60A" stroke="#0B0B0F" stroke-linejoin="round" stroke-linecap="round" stroke-width="2"/><path d="M18.5 14.5l.9 2.4 2.4.9-2.4.9-.9 2.4-.9-2.4-2.4-.9 2.4-.9z" fill="#F0479B" stroke="#0B0B0F" stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5"/></svg>',
+  termometro: '<svg class="ico" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.6 13.6V5a2.4 2.4 0 0 1 4.8 0v8.6a4.6 4.6 0 1 1-4.8 0z" fill="#FFFFFF" stroke="#0B0B0F" stroke-linejoin="round" stroke-linecap="round" stroke-width="2"/><path d="M12 9.5v7" fill="none" stroke="#F0479B" stroke-width="2.6" stroke-linecap="round"/><circle cx="12" cy="17.4" r="2.3" fill="#F0479B" stroke="#0B0B0F" stroke-linejoin="round" stroke-linecap="round" stroke-width="1.4"/><path d="M16.8 6h2M16.8 9h2" fill="none" stroke="#0B0B0F" stroke-linejoin="round" stroke-linecap="round" stroke-width="1.8"/></svg>'
 };
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '112 · 21 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '113 · 21 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -174,8 +183,8 @@ const ERRORES = {
   ya_amigos: 'Ya son amigos.',
   ya_enviada: 'Ya le mandaste una solicitud. Espera a que la acepte.',
   max_amigos: 'Llegaste al máximo de 50 amigos.',
-  no_amigos: 'Solo puedes dar toques a tus amigos.',
-  toque_hoy: 'Ya le diste un toque hoy. Mañana puedes darle otro.',
+  no_amigos: 'Solo puedes saludar a tus amigos.',
+  toque_hoy: 'Ya lo saludaste hoy. Mañana puedes saludarlo otra vez.',
   sticker: 'Elige un sticker.',
   codigo_club: 'Ese código no es válido.',
   patreon: 'Patreon no confirmó tu cuenta. Intenta otra vez.',
@@ -738,7 +747,7 @@ function vistaListo() {
       <section class="listo-pj${listo ? '' : ' pendiente'}">
         <span class="avatar pj grande">${E.pj ? PJ.svg(E.pj) : '<span class="spin" aria-hidden="true"></span>'}</span>
         <div><strong>${listo ? '✓ Tu personaje está listo' : 'Arma tu personaje'}</strong><span>${listo ? 'Puedes cambiarlo cuando quieras en&nbsp;Yo.' : 'Es tu cara en la app: así te ven tus amigos y el Ranking. Nunca usamos&nbsp;fotos.'}</span></div>
-        <button type="button" class="btn ${listo ? 'blanco' : 'amarillo'} chico" id="pj-editar" ${E.pj ? '' : 'disabled'}>${listo ? '✏️ Cambiar mi personaje' : '✏️ ARMAR MI PERSONAJE'}</button>
+        <button type="button" class="btn ${listo ? 'blanco' : 'amarillo'} chico" id="pj-editar" ${E.pj ? '' : 'disabled'}>${listo ? ICO.lapiz + 'Cambiar mi personaje' : ICO.lapiz + 'ARMAR MI PERSONAJE'}</button>
       </section>
       ${avisosListo()}
       <button type="button" class="btn" id="ok" ${listo ? '' : 'disabled'}>CONTINUAR</button>
@@ -755,7 +764,7 @@ function avisosListo() {
   const est = estadoAvisos();
   const caja = c => `<section class="listo-av"><strong>🔔 Avisos</strong>${c}</section>`;
   if (est === 'activo') return caja('<span>✓ Activados. Te avisamos del reto nuevo, si tu racha está en riesgo y de tus amigos. Puedes elegir cuáles en&nbsp;«Yo».</span>');
-  if (est === 'pedir') return caja('<span>Te avisamos cuando sale el reto, si tu racha está en riesgo y cuando un amigo te da un toque. Nada de&nbsp;spam.</span><button type="button" class="btn turquesa chico" id="av-on">ACTIVAR AVISOS</button>');
+  if (est === 'pedir') return caja('<span>Te avisamos cuando sale el reto, si tu racha está en riesgo y cuando un amigo te saluda. Nada de&nbsp;spam.</span><button type="button" class="btn turquesa chico" id="av-on">ACTIVAR AVISOS</button>');
   if (est === 'instalar') return caja('<span>En iPhone los avisos funcionan con la app instalada: botón <b>Compartir</b> → <b>«Agregar a inicio»</b>. Luego actívalos en&nbsp;«Yo».</span>');
   if (est === 'bloqueado') return caja(`<span>${esc(ERRORES.avisos_bloqueados)}</span>`);
   return '';
@@ -978,14 +987,14 @@ function imgToque(tq, tam) {
       api('amigos', { sesion: E.sesion }).then(r => { E.amigosPidiendo = false; if (r.ok) { E.amigos = r; if (estaEn === 'hoy') dibujarHoy(E.hoy); } });
     }
     // Mientras llega (o si esa persona no armó su personaje): su inicial en el círculo, nunca la imagen vieja.
-    return `<span class="toque-pj toque-ini" style="width:${tam}px;height:${tam}px;font-size:${Math.round(tam * .45)}px" role="img" aria-label="Toque de ${esc(tq.nombre)}">${esc(String(tq.nombre || '?').charAt(0).toUpperCase())}</span>`;
+    return `<span class="toque-pj toque-ini" style="width:${tam}px;height:${tam}px;font-size:${Math.round(tam * .45)}px" role="img" aria-label="Saludo de ${esc(tq.nombre)}">${esc(String(tq.nombre || '?').charAt(0).toUpperCase())}</span>`;
   }
   return `<img src="${st[0]}" alt="Sticker de ${esc(tq.nombre)}" width="${tam}" height="${tam}">`;
 }
 const toqueNuevo = () => E.novedades && E.novedades.toques && E.novedades.toques.length ? E.novedades.toques[E.novedades.toques.length - 1] : null;
 function burbujaHoy(nom, a) {
   const pr = E.progreso, hola = '¡Hola' + (nom ? ', ' + nom : '') + '! ', tq = toqueNuevo();
-  if (tq) return hola + `👋 <b>${esc(tq.nombre)}</b> te dio un toque: «${esc((STICKERS[tq.sticker] || STICKERS[0])[1])}».${a ? ' El reto cierra en <b>' + cuantoFalta(a.cierre) + '</b>.' : ''}`;
+  if (tq) return hola + `${ICO.mano} <b>${esc(tq.nombre)}</b> te ha saludado: «${esc((STICKERS[tq.sticker] || STICKERS[0])[1])}».${a ? ' El reto cierra en <b>' + cuantoFalta(a.cierre) + '</b>.' : ''}`;
   if (yaSubio()) return hola + (pr && pr.racha > 1 ? `🔥 Tu racha va en <b>${pr.racha} semanas</b>. ¡Sigue así!` : '🎉 Ya subiste tu dibujo de esta semana.');
   if (pr && pr.enRiesgo) return hola + `😱 Tu racha de <b>${pr.racha} ${pr.racha === 1 ? 'semana' : 'semanas'}</b> está en riesgo. El reto cierra en <b>${cuantoFalta(a.cierre)}</b>.`;
   return hola + `👋 El reto cierra en <b>${cuantoFalta(a.cierre)}</b>.`;
@@ -1081,7 +1090,7 @@ function dibujarHoy(h, error) {
     const club = p && p.club ? `<p class="nota izq">★ El Club Estrella lo recibe el ${fecha(p.club)} a las ${hora(p.club)}</p>` : '';
     const espera = calProx ? `
       <section class="reto espera" aria-labelledby="reto-h">
-        <span class="pill">🔥 Reto de calentamiento ${esc(p.semana)}</span>
+        <span class="pill">${ICO.termometro}Reto de calentamiento ${esc(p.semana)}</span>
         <h2 id="reto-h">Cuenta regresiva al calentamiento</h2>
         <p>El primer reto sale el <b>${fecha(p.publica)}</b> a las <b>${hora(p.publica)}</b> y no suma puntos: es para estrenar la app y calentar la&nbsp;mano.</p>
         <div class="tiempo"><span id="cd">${cuenta(p.publica)}</span><span>para el calentamiento</span></div>
@@ -1100,7 +1109,7 @@ function dibujarHoy(h, error) {
       ${tarjetaVoto(h.votacion)}
       ${calProx ? espera : ''}
       <section class="reto chispa-hero${adv ? ' adviento' : ''}" aria-labelledby="chispa-h">
-        <span class="pill">${adv ? '🎄 Adviento de Chispas' : '✨ Chispa del día'}</span>
+        <span class="pill">${adv ? '🎄 Adviento de Chispas' : ICO.chispaDia + 'Chispa del día'}</span>
         <h2 id="chispa-h">${hecha ? '¡Hecho!' : adv ? 'Día ' + adv.dia + ' de ' + adv.total : fiestaDe() ? esc(fiestaDe().aviso) : 'Un mini reto de 3 minutos'}</h2>
         <p>${hecha ? 'Vuelve mañana por otra. Si quieres, puedes repetir la de&nbsp;hoy.' : adv ? 'Cada día hasta el ' + adv.total + ' de diciembre, un mini dibujo navideño de 3 minutos. Toca el botón y descubre el de hoy.' : 'Toca el botón y descubre qué te toca dibujar hoy. No suma puntos ni racha: es para practicar y divertirte.'}</p>
         ${adv ? calendarioAdviento(adv) : circulosChispa()}
@@ -1490,7 +1499,7 @@ function dibujarAmigos(d, mensaje, error) {
       <div class="sugeridas" id="sug" role="listbox" aria-label="Personas en la app" hidden></div>
       <span class="ayuda-sug">Escribe las primeras letras y elige a tu amigo de la lista: así no se escribe&nbsp;mal.</span>
     </form>
-    ${E.perfil && E.perfil.mayor === 'Sí' ? '<button type="button" class="btn turquesa chico" id="invitar">🔗 INVITAR AMIGOS CON MI ENLACE</button>' : ''}`;
+    ${E.perfil && E.perfil.mayor === 'Sí' ? '<button type="button" class="btn turquesa chico" id="invitar">' + ICO.enlace + 'INVITAR AMIGOS CON MI ENLACE</button>' : ''}`;
   cuerpo += `
     ${mensaje ? `<div class="caja agua" role="status">${esc(mensaje)}</div>` : ''}
     ${error ? `<div class="error" role="alert">${esc(error)}</div>` : ''}`;
@@ -1504,14 +1513,14 @@ function dibujarAmigos(d, mensaje, error) {
       <div class="amigo">${pjAvatar(x.usuario, x.nombre)}
         <div class="info"><b>${esc(x.nombre)}</b><small>@${esc(x.usuario)}</small>
           <span class="chips"><span class="chip fuego">${ICO.fuego} ${x.rachaJuntos} ${x.rachaJuntos === 1 ? 'semana' : 'semanas'} juntos</span>${d.semanaAbierta ? `<span class="chip ${x.subio ? 'ok' : ''}">${x.subio ? '✓ Ya subió' : '⏳ Aún no sube'}</span>` : ''}</span></div>
-        <button type="button" class="btn ${x.toqueHoy ? 'blanco' : 'amarillo'} chico mini" data-toque="${esc(x.usuario)}" data-nombre="${esc(x.nombre)}" ${x.toqueHoy ? 'disabled' : ''}>${x.toqueHoy ? 'Toque ✓' : '👆 Toque'}</button>${botonMas(x, true)}</div>`).join('')
+        <button type="button" class="btn ${x.toqueHoy ? 'blanco' : 'amarillo'} chico mini" data-toque="${esc(x.usuario)}" data-nombre="${esc(x.nombre)}" ${x.toqueHoy ? 'disabled' : ''} aria-label="${x.toqueHoy ? 'Ya saludaste hoy a ' + esc(x.nombre) : 'Saludar a ' + esc(x.nombre)}" title="${x.toqueHoy ? 'Ya lo saludaste hoy' : 'Saludar'}">${ICO.mano}${x.toqueHoy ? '<span class="ok-ico" aria-hidden="true">✓</span>' : ''}</button>${botonMas(x, true)}</div>`).join('')
       : `<div class="caja">Todavía no tienes amigos en la app. Agrégalos con el nombre de usuario que usan en el reto. Cuando los dos suben su dibujo la misma semana, crece su racha juntos 🔥</div>`;
     if (d.enviadas.length) cuerpo += `<p class="nota izq">Esperando respuesta: ${d.enviadas.map(x => '@' + esc(x.usuario)).join(', ')}</p>`;
     if (d.bloqueados && d.bloqueados.length) cuerpo += `<h2 class="sub-t">Bloqueados (${d.bloqueados.length})</h2>
-      <p class="nota izq">No pueden mandarte solicitudes ni toques. No les avisamos que los bloqueaste.</p>` + d.bloqueados.map(x => `
+      <p class="nota izq">No pueden mandarte solicitudes ni saludos. No les avisamos que los bloqueaste.</p>` + d.bloqueados.map(x => `
       <div class="amigo">${pjAvatar(x.usuario, x.nombre)}<div class="info"><b>${esc(x.nombre)}</b><small>@${esc(x.usuario)}</small></div>
         <button type="button" class="btn blanco chico mini" data-desbloquear="${esc(x.usuario)}">Desbloquear</button></div>`).join('');
-    cuerpo += `<p class="nota">Los toques son stickers dentro de la app: sin chat. Uno por amigo al día.</p>`;
+    cuerpo += `<p class="nota">Los saludos son stickers dentro de la app: sin chat. Uno por amigo al día.</p>`;
   }
   conNav('amigos', cabecera('Amigos') + `<main class="cont con-nav">${cuerpo}</main>`, root => {
     sugerencias(root, d);
@@ -1632,7 +1641,7 @@ function ventanaUsuario(usuario, nombre, esAmigo) {
   ventana(`<h2 id="v-h" tabindex="-1">${esc(nombre)} <small style="font-weight:600;font-size:14px">@${esc(usuario)}</small></h2>
     ${esAmigo ? '<button type="button" class="btn blanco chico" id="u-quitar">Quitar de mis amigos</button>' : ''}
     <button type="button" class="btn blanco chico" id="u-bloquear">🚫 Bloquear</button>
-    <p class="nota izq" style="margin:-4px 0 4px">No podrá mandarte solicitudes ni toques, y dejarán de ser amigos. No le avisamos.</p>
+    <p class="nota izq" style="margin:-4px 0 4px">No podrá mandarte solicitudes ni saludos, y dejarán de ser amigos. No le avisamos.</p>
     <button type="button" class="btn blanco chico" id="u-reportar">🚩 Reportar</button>
     <p class="nota izq" style="margin:-4px 0 4px">Si te molesta o te hace sentir mal, repórtalo: lo revisa el equipo del reto. Si eres menor de edad, cuéntale también a tu representante.</p>`, (v, cerrar) => {
     const q = v.querySelector('#u-quitar');
@@ -1647,7 +1656,7 @@ function ventanaUsuario(usuario, nombre, esAmigo) {
     v.querySelector('#u-reportar').addEventListener('click', () => { cerrar(); ventanaReportarUsuario(usuario, nombre); });
   });
 }
-const MOTIVOS_USUARIO = [['Me molesta o me hace sentir mal', 'Toques o solicitudes que no quieres, burlas o acoso'], ['Contenido inapropiado', 'Su nombre o usuario es ofensivo o no es para todo público'], ['Se hace pasar por otra persona', 'Usa el nombre o el usuario de otro artista'], ['Otro', 'Otra razón: cuéntanos abajo']];
+const MOTIVOS_USUARIO = [['Me molesta o me hace sentir mal', 'Saludos o solicitudes que no quieres, burlas o acoso'], ['Contenido inapropiado', 'Su nombre o usuario es ofensivo o no es para todo público'], ['Se hace pasar por otra persona', 'Usa el nombre o el usuario de otro artista'], ['Otro', 'Otra razón: cuéntanos abajo']];
 function ventanaReportarUsuario(usuario, nombre) {
   let motivo = '';
   ventana(`<h2 id="v-h" tabindex="-1" style="margin:0;font-family:var(--display)">Reportar a ${esc(nombre)} (@${esc(usuario)})</h2>
@@ -1676,17 +1685,17 @@ function ventanaReportarUsuario(usuario, nombre) {
 function ventanaToque(usuario, nombre) {
   let elegido = 2;
   ventana(`
-    <h2 id="v-h" tabindex="-1">Dale un toque a ${esc(nombre)}</h2>
+    <h2 id="v-h" tabindex="-1">Saluda a ${esc(nombre)}</h2>
     <p style="font-size:14px">Le aparecerá en su app con el sticker que elijas.</p>
     <div class="stickers">${STICKERS.map((st, i) => `<button type="button" class="sticker" data-st="${i}" aria-pressed="${i === elegido}">${i === TOQUE_PJ && pjListo() ? `<span class="toque-pj" style="width:80px;height:80px">${PJ.svg(E.pj)}</span>` : `<img src="${st[0]}" alt="" width="80" height="80">`}<span>${esc(st[1])}</span></button>`).join('')}</div>
-    <button type="button" class="btn amarillo" id="dar">DAR TOQUE</button>
+    <button type="button" class="btn amarillo" id="dar">SALUDAR</button>
     <button type="button" class="enlace" id="quitar" style="font-size:12px;color:var(--muted)">Quitar, bloquear o reportar a @${esc(usuario)}</button>`, (v, cerrar) => {
     v.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => { elegido = +b.dataset.st; v.querySelectorAll('[data-st]').forEach(x => x.setAttribute('aria-pressed', String(+x.dataset.st === elegido))); }));
     v.querySelector('#dar').addEventListener('click', async ev => {
       ev.currentTarget.disabled = true; ev.currentTarget.textContent = 'Enviando…';
       const r = await api('toque', { sesion: E.sesion, usuario, sticker: elegido });
       cerrar();
-      if (r.ok) { aviso('¡Toque enviado a ' + nombre + '!'); vistaAmigos(); } else aviso(textoError(r.error));
+      if (r.ok) { aviso('¡Saludo enviado a ' + nombre + '!'); vistaAmigos(); } else aviso(textoError(r.error));
     });
     v.querySelector('#quitar').addEventListener('click', () => { cerrar(); ventanaUsuario(usuario, nombre, true); });
   });
@@ -1779,13 +1788,13 @@ function vistaChispa() {
 function vistaPronto(cual) {
   const T = {
     ranking: ['Ranking', 'Tu posición en cada categoría, tus puntos y las estrellas del Club.'],
-    amigos: ['Amigos', 'Agrega a tus amigos por su usuario, cuiden su racha juntos y mándense toques con stickers.']
+    amigos: ['Amigos', 'Agrega a tus amigos por su usuario, cuiden su racha juntos y salúdense con stickers.']
   }[cual];
   conNav(cual, cabecera(T[0]) + `<main class="cont con-nav"><div class="pronto"><img src="${imgGuia(E.guia)}" alt="" width="150" height="145"><h2>Muy pronto</h2><p>${esc(T[1])}</p></div></main>`);
 }
 
 /* ---------- avisos ---------- */
-const TIPOS_AVISO = [['reto', 'Reto nuevo', 'cuando sale el reto de la semana'], ['racha', 'Racha en riesgo', 'domingo 6:00 p. m., si aún no subes'], ['amigos', 'Amigos', 'toques y solicitudes de amistad'], ['chispa', 'Chispa del día', 'todos los días a las 4:00 p. m.']];
+const TIPOS_AVISO = [['reto', 'Reto nuevo', 'cuando sale el reto de la semana'], ['racha', 'Racha en riesgo', 'domingo 6:00 p. m., si aún no subes'], ['amigos', 'Amigos', 'saludos y solicitudes de amistad'], ['chispa', 'Chispa del día', 'todos los días a las 4:00 p. m.']];
 const esIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const instalada = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 function estadoAvisos() {
@@ -1827,7 +1836,7 @@ async function refrescarAvisos() {   // una vez por semana: el token del teléfo
 function avisosHtml(enCelebracion) {
   const est = estadoAvisos(), A = leer('avisos') || {};
   if (enCelebracion) {
-    if (est === 'pedir') return `<div class="caja crema avisos-inv" style="text-align:left"><strong class="t">🔔 ¿Te avisamos del próximo reto?</strong>También si tu racha está en riesgo o un amigo te da un toque. Nada de spam.<button type="button" class="btn turquesa chico" id="av-on" style="margin-top:8px;width:100%">ACTIVAR AVISOS</button></div>`;
+    if (est === 'pedir') return `<div class="caja crema avisos-inv" style="text-align:left"><strong class="t">🔔 ¿Te avisamos del próximo reto?</strong>También si tu racha está en riesgo o un amigo te saluda. Nada de spam.<button type="button" class="btn turquesa chico" id="av-on" style="margin-top:8px;width:100%">ACTIVAR AVISOS</button></div>`;
     if (est === 'instalar') return '<div class="caja crema" style="text-align:left">🔔 En iPhone, para recibir el aviso del próximo reto, instala la app: botón <b>Compartir</b> → <b>«Agregar a inicio»</b>. Luego actívalos en <b>Yo</b>.</div>';
     return '';
   }
@@ -1901,7 +1910,7 @@ function vistaYo() {
   const p = E.perfil || {}, ini = esc((nombreCorto() || '?').charAt(0).toUpperCase());
   const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent), instalada = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
   conNav('yo', cabecera('Yo') + `<main class="cont con-nav">
-      <div class="perfil"><span class="avatar${pjListo() ? ' pj' : ''}">${pjListo() ? PJ.svg(E.pj) : ini}</span><div style="min-width:0;flex:1"><h2>${esc(p.nombre || '')}</h2><span>@${esc(p.usuario || '')}</span></div><button type="button" class="btn blanco chico mini" id="pj-editar">✏️ Mi personaje</button></div>
+      <div class="perfil"><span class="avatar${pjListo() ? ' pj' : ''}">${pjListo() ? PJ.svg(E.pj) : ini}</span><div style="min-width:0;flex:1"><h2>${esc(p.nombre || '')}</h2><span>@${esc(p.usuario || '')}</span></div><button type="button" class="btn blanco chico mini btn-ico" id="pj-editar" aria-label="Editar mi personaje" title="Editar mi personaje">${ICO.lapiz}</button></div>
       ${progresoHtml()}
       ${recorridoHtml()}
       <div class="lista">
@@ -1925,7 +1934,7 @@ function vistaYo() {
       ${E.club && E.club.cumple && E.club.cumple.disponible ? `<div class="caja crema"><strong class="t">🎂 Tu regalo de cumpleaños</strong>Tienes un protector de racha hasta el ${fechaCorta(E.club.cumple.hasta)}. Úsalo en «Hoy» si tu racha está en riesgo.</div>` : ''}
       ${avisosHtml()}
       ${instalada ? '' : `<button type="button" class="btn amarillo chico" id="instalar">📲 Instalar la app en mi teléfono</button>`}
-      <button type="button" class="btn blanco chico" id="tuto">👋 Ver el tutorial otra vez</button>
+      <button type="button" class="btn blanco chico" id="tuto">${ICO.tutorial}Ver el tutorial otra vez</button>
       <a class="btn blanco chico" href="${web(CONFIG.web + '/preguntas-frecuentes.html')}" target="_blank" rel="noopener">Preguntas frecuentes</a>
       <button type="button" class="enlace" id="salir">Cerrar sesión</button>
       <p class="nota" style="margin:0;text-align:center;font-size:12px">Versión de la app: ${VERSION_APP}</p>
@@ -2007,7 +2016,7 @@ const TUTO = {
   ranking: [['El ranking', 'Aquí ves cómo vas en cada categoría de premios y tus semanas para el Premio a la constancia. Compiten por los premios quienes viven en Venezuela.']],
   amigos: [
     ['Tus amigos', 'Busca a tus amigos por su usuario y mándales una solicitud.'],
-    ['Rachas con amigos', 'Cuando los dos suben su dibujo la misma semana, crece la racha de los dos. Puedes darles un toque con un sticker una vez al día para animarlos.'],
+    ['Rachas con amigos', 'Cuando los dos suben su dibujo la misma semana, crece la racha de los dos. Puedes saludarlos con un sticker una vez al día para animarlos.'],
     ['Tú decides', 'Con el botón ⋯ puedes quitar, bloquear o reportar a alguien. Si algo te hace sentir mal, cuéntaselo también a un adulto de confianza.']
   ],
   yo: [['Tu perfil', 'Aquí están tus datos, tu progreso y los avisos. Activa los avisos para que te recordemos antes del cierre. También puedes cambiar de guía o ver este tutorial otra vez.']],
