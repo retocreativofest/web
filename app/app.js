@@ -52,7 +52,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '108 · 20 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '109 · 20 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -61,6 +61,16 @@ function aviso(texto) {
   const t = document.getElementById('toast');
   t.textContent = texto; t.hidden = false;
   clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 3500);
+  anunciar(texto);
+}
+/* 20 nov 2026: región pequeña y siempre presente (#anuncio) para que el lector de pantalla lea solo el aviso.
+   Se vacía y se llena en el siguiente cuadro para que repita el mismo aviso si sale dos veces. */
+let anuncioT;
+function anunciar(texto) {
+  const a = document.getElementById('anuncio');
+  if (!a) return;
+  a.textContent = ''; clearTimeout(anuncioT);
+  anuncioT = setTimeout(() => { a.textContent = texto; }, 60);
 }
 
 /* Pedidos al servidor. Si Google está saturado (mucha gente a la vez), reintenta solo hasta 3 veces
@@ -179,17 +189,37 @@ const nombreCorto = () => (E.perfil && E.perfil.nombre ? E.perfil.nombre.split('
 /* 7 nov 2026: Hoy se vuelve a pintar varias veces mientras llegan los datos (reto, patrocinio, tu semana, votación).
    Antes cada vez subía al inicio y no dejaba bajar a la Chispa. Ahora, si es la MISMA pantalla, se queda donde estabas,
    y si no cambió nada, ni siquiera se vuelve a pintar. */
-let ultimaVista = '', ultimoHtml = '';
+/* 20 nov 2026 (accesibilidad): #app ya no es aria-live, porque el lector de pantalla volvía a leer la pantalla entera
+   en cada repintado de Hoy. Ahora, al cambiar de pantalla, el foco va al título (h1) y el lector dice dónde estás.
+   Si es la misma pantalla que se repinta, el foco se queda donde estaba (mismo id o mismo botón). */
+let ultimaVista = '', ultimoHtml = '', ultimoTitulo = '';
+const hayVentana = () => !!document.querySelector('.velo, .ban-ov, .club-modal');
 function pintar(html, alPintar, vista) {
   const misma = !!vista && vista === ultimaVista;
   if (misma && html === ultimoHtml) return;
   const y = window.scrollY, ya = $app.scrollTop;   // en tablets se desplaza la tarjeta (.app), no la página
+  const foco = document.activeElement, focoDentro = !!foco && foco !== $app && $app.contains(foco);
+  const focoId = focoDentro && foco.id, focoIr = focoDentro && foco.dataset && foco.dataset.ir;
+  const ENFOCABLES = 'button, a[href], input, select, textarea, [tabindex="0"]';
+  const focoN = focoDentro ? [...$app.querySelectorAll(ENFOCABLES)].indexOf(foco) : -1;
   ultimaVista = vista || ''; ultimoHtml = html;
   $app.innerHTML = html;
   window.scrollTo(0, misma ? y : 0); $app.scrollTop = misma ? ya : 0;
-  const h = $app.querySelector('h1, h2');
-  if (h) h.setAttribute('tabindex', '-1');
   if (alPintar) alPintar($app);
+  const h = $app.querySelector('h1') || $app.querySelector('h2');
+  if (h) h.setAttribute('tabindex', '-1');
+  const titulo = h ? h.textContent.trim() : '';
+  const nueva = !misma && titulo !== ultimoTitulo;
+  ultimoTitulo = titulo;
+  if (!hayVentana()) {
+    let destino = null;
+    if (nueva) destino = h;
+    else if (focoDentro && !$app.contains(foco)) {   // el elemento con foco se borró al repintar: se busca su reemplazo
+      destino = (focoId && document.getElementById(focoId)) || (focoIr && $app.querySelector('[data-ir="' + focoIr + '"]'))
+        || (focoN >= 0 && $app.querySelectorAll(ENFOCABLES)[focoN]) || h;
+    }
+    if (destino) { try { destino.focus({ preventScroll: true }); } catch (x) {} }
+  }
   estadoAutorizacion();
 }
 

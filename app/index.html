@@ -18,16 +18,17 @@
 <link rel="apple-touch-icon" href="img/apple-touch-icon-lila.png">
 <link rel="preload" href="../assets/fonts/quicksand.woff" as="font" type="font/woff" crossorigin>
 <link rel="preload" href="../assets/fonts/poppins-700.woff" as="font" type="font/woff" crossorigin>
-<link rel="stylesheet" href="app.css?v=56">
+<link rel="stylesheet" href="app.css?v=57">
 </head>
 <body>
 <div id="splash" class="splash" aria-hidden="true"><video muted playsinline preload="auto" disablepictureinpicture></video></div>
 <script src="splash.js?v=1"></script>
-<div id="app" class="app" aria-live="polite">
+<div id="app" class="app">
   <div class="cargando" role="status"><span class="spin" aria-hidden="true"></span>Cargando…</div>
 </div>
-<div id="toast" class="toast" role="status" hidden></div>
+<div id="toast" class="toast" aria-hidden="true" hidden></div>
+<div id="anuncio" class="solo-lector" role="status" aria-live="polite" aria-atomic="true"></div>
 <noscript><p class="noscript">Para usar la app del #RetoMenteMilenial necesitas activar JavaScript en tu navegador.</p></noscript>
-<script type="module" src="app.js?v=108"></script>
+<script type="module" src="app.js?v=109"></script>
 </body>
 </html>
