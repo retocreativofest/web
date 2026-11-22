@@ -704,3 +704,11 @@ html,body{overflow-x:clip}
 .preventa-aviso{background:var(--yellow);color:var(--ink);border:3px solid var(--ink);border-radius:var(--r);box-shadow:5px 5px 0 var(--ink);padding:14px 20px;margin:0 auto 28px;max-width:760px;text-align:center;text-wrap:balance}
 .preventa-aviso a{color:inherit;font-weight:700}
 .preventa-fin{white-space:normal;text-align:center;width:auto;max-width:100%;border:2px solid var(--ink)}
+
+/* 22 nov 2026: inventario limitado y recomendados de la Ruta creativa */
+.badge.agot,.add.agot{background:var(--lav,#C5A6D9);color:var(--ink)}
+.add.agot{display:inline-flex;align-items:center;cursor:default}
+.qty button:disabled{opacity:.35;cursor:not-allowed}
+.reco{display:grid;gap:10px;margin:18px 0 6px;padding:14px;border:3px solid var(--ink);border-radius:var(--r);background:var(--yellow);box-shadow:5px 5px 0 var(--ink)}
+.reco .reco-h{font-size:16px;text-align:center;text-wrap:balance}
+.reco .add{padding:8px 14px;min-height:40px}

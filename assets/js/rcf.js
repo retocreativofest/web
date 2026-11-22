@@ -24,11 +24,18 @@ if (CONFIG.premiosCSV2027 && Date.now() >= Date.parse(CONFIG.premiosCSV2027Desde
 
 const PRODUCTOS = [
   {id:'ruta', hasta:CONFIG.preventaFin, nombre:'Ruta creativa', desc:'Recorre el evento haciendo retos de dibujo y participa en un increíble sorteo con premios. Actividad apta para todo público.', precio:3, cat:'Actividades', modo:'disponible', color:'#FFFFFF', img:'assets/img/tienda-ruta-creativa-640.webp', imgStyle:'inset:auto;left:-4%;top:13%;width:92%;height:auto;object-fit:contain'},
-  {id:'guante', hasta:CONFIG.preventaFin, nombre:'Guante y lápiz de dibujo', desc:'El combo perfecto para artistas digitales y tradicionales: evita las manchas de grasa en tus dibujos. Diferentes colores y tallas.', precio:8, cat:'Para dibujar', modo:'disponible', color:'#FFFFFF', img:'assets/img/tienda-guante-640.webp',
+  /* 22 nov 2026 (Diego): kit de arte y stickers. «disponibles» es el inventario inicial: la web NO lo descuenta sola.
+     Cuando se vendan, baja el número a mano (o pon 0 y el producto sale como «Agotado»). */
+  {id:'kit', hasta:CONFIG.preventaFin, nombre:'Kit de arte', desc:'Block de 36 hojas de cartulina (29\u00a0×\u00a020,5\u00a0cm) y una totebag temática del evento del mismo tamaño. Además: un lápiz, una borra y 3 stickers aleatorios del\u00a0evento.', precio:8, cat:'Para dibujar', modo:'disponible', disponibles:15, color:'#FFFFFF', img:'assets/img/tienda-kit-de-arte-640.webp'},
+  {id:'stickers', hasta:CONFIG.preventaFin, nombre:'Pack de 5 stickers holográficos', desc:'Cinco stickers holográficos del Reto Creativo Fest en una plancha de 12\u00a0×\u00a011\u00a0cm.', precio:3, cat:'Stickers', modo:'disponible', disponibles:40, color:'#FFFFFF', img:'assets/img/tienda-stickers-holograficos-640.webp'},
+  /* 22 nov 2026 (Diego): guantes ocultos hasta nuevo aviso. Para que vuelvan, borra «oculto:true,». */
+  {id:'guante', oculto:true, hasta:CONFIG.preventaFin, nombre:'Guante y lápiz de dibujo', desc:'El combo perfecto para artistas digitales y tradicionales: evita las manchas de grasa en tus dibujos. Diferentes colores y tallas.', precio:8, cat:'Para dibujar', modo:'disponible', color:'#FFFFFF', img:'assets/img/tienda-guante-640.webp',
     opciones:{Color:['Lila','Verde menta','Negro'], Mano:['Diestro','Zurdo'], Talla:['Regular','Grande']}}
 ];
 const ENCARGO = 'Bajo pedido · ~1 semana';
-const vigente = p => !p.hasta || Date.now() < Date.parse(p.hasta);   // la Ruta creativa solo se vende hasta el evento
+/* 22 nov 2026 (Diego): al agregar la Ruta creativa se abre el pedido y se recomiendan estos productos (los que estén a la venta y no estén ya en el carrito). */
+const RECOMENDADOS = {ruta:['kit','stickers']};
+const vigente = p => !p.oculto && (!p.hasta || Date.now() < Date.parse(p.hasta));   // la Ruta creativa solo se vende hasta el evento
 /* 21 nov 2026 (Diego): desde el 30 nov la tienda se oculta hasta que haya productos nuevos. Basta con agregar a PRODUCTOS
    un producto sin «hasta» (o con una fecha futura) para que vuelvan el menú, el pie, el carrito y la página tienda.html. */
 const TIENDA = PRODUCTOS.some(vigente);
@@ -94,11 +101,15 @@ if (!Array.isArray(cart)) cart = [];
 cart = cart.filter(l => l && PRODUCTOS.some(p => p.id === l.id && vigente(p)) && Number.isInteger(l.q) && l.q > 0 && l.q <= 99)
   .map(l => { const p = PRODUCTOS.find(x => x.id === l.id), op = {};
     Object.entries(p.opciones || {}).forEach(([k, vals]) => { op[k] = vals.includes(l.op && l.op[k]) ? l.op[k] : vals[0]; });
-    return {id:l.id, q:l.q, op}; });
+    return {id:l.id, q:l.q, op}; })
+  .map(l => { const p = PRODUCTOS.find(x => x.id === l.id); return p.disponibles != null ? {...l, q:Math.min(l.q, p.disponibles)} : l; })
+  .filter(l => l.q > 0);
 const byId = id => PRODUCTOS.find(p => p.id === id);
 const defaults = p => Object.fromEntries(Object.entries(p.opciones || {}).map(([k, v]) => [k, v[0]]));
 const qtyOf = id => cart.filter(l => l.id === id).reduce((s, l) => s + l.q, 0);
 const save = () => store.set('rcf-cart2', cart);
+const tope = p => p.disponibles == null ? 99 : p.disponibles;   // no se pueden pedir más unidades de las disponibles
+const agotado = p => p.disponibles === 0;
 
 function drawerHTML(){
   return `<div class="scrim" id="scrim" hidden></div>
@@ -125,24 +136,37 @@ function drawerHTML(){
 const WA_ICON = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5 5 0 0 0 1.1 2.7 11.5 11.5 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.7a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>';
 
 function addOne(id){
-  const p = byId(id); if (!p) return;
+  const p = byId(id); if (!p || agotado(p)) return;
+  if (qtyOf(id) >= tope(p)){ toast(`Solo quedan ${p.disponibles}`); return; }
+  const nuevo = !qtyOf(id);
   const line = cart.find(l => l.id === id);
   if (line) line.q++; else cart.push({id, q:1, op:defaults(p)});
   save(); renderAll();
-  toast(`${p.nombre} agregado al carrito`);
+  if (nuevo && RECOMENDADOS[id] && recos().length && $('#drawer') && $('#drawer').hidden) openCart();   // Ruta creativa: abre el pedido con los recomendados
+  else toast(`${p.nombre} agregado al carrito`);
 }
 function removeOne(id){
   for (let i = cart.length - 1; i >= 0; i--) if (cart[i].id === id){ cart[i].q--; if (!cart[i].q) cart.splice(i, 1); break; }
   save(); renderAll();
 }
 
+/* Recomendados: los de RECOMENDADOS de lo que hay en el carrito, a la venta y que todavía no están en el carrito. */
+function recos(){
+  const ids = new Set(cart.flatMap(l => RECOMENDADOS[l.id] || []));
+  return [...ids].map(byId).filter(p => p && vigente(p) && !agotado(p) && !qtyOf(p.id));
+}
+function badge(p){
+  if (p.modo === 'encargo') return `<span class="badge enc">${ENCARGO}</span>`;
+  if (agotado(p)) return '<span class="badge agot">Agotado</span>';
+  return `<span class="badge">${p.disponibles != null ? `Quedan ${p.disponibles}` : 'Disponible'}</span>`;
+}
 function productCard(p){
   const q = qtyOf(p.id);
-  return `<article class="prod" data-cat="${esc(p.cat)}"><div class="pic" style="--pc:${p.color}"><img src="${p.img}" alt="${esc(p.nombre)}" loading="lazy" decoding="async" width="600" height="600"${p.imgStyle ? ` style="${p.imgStyle}"` : ''}><span class="badge ${p.modo==='encargo'?'enc':''}">${p.modo==='encargo'?ENCARGO:'Disponible'}</span></div>
+  return `<article class="prod" data-cat="${esc(p.cat)}"><div class="pic" style="--pc:${p.color}"><img src="${p.img}" alt="${esc(p.nombre)}" loading="lazy" decoding="async" width="600" height="600"${p.imgStyle ? ` style="${p.imgStyle}"` : ''}>${badge(p)}</div>
     <div class="b"><h3>${esc(p.nombre)}</h3><p>${esc(p.desc)}</p>
     <div class="row"><span class="price">${money(p.precio)}<small>USD BCV</small></span>${q
-      ? `<div class="qty" aria-label="Cantidad de ${esc(p.nombre)} en el carrito"><button type="button" data-a="-" data-id="${p.id}" aria-label="Quitar uno">−</button><span>${q}</span><button type="button" data-a="+" data-id="${p.id}" aria-label="Agregar uno">+</button></div>`
-      : `<button class="add" type="button" data-a="+" data-id="${p.id}">Agregar</button>`}</div></div></article>`;
+      ? `<div class="qty" aria-label="Cantidad de ${esc(p.nombre)} en el carrito"><button type="button" data-a="-" data-id="${p.id}" aria-label="Quitar uno">−</button><span>${q}</span><button type="button" data-a="+" data-id="${p.id}" aria-label="Agregar uno"${q >= tope(p) ? ' disabled' : ''}>+</button></div>`
+      : agotado(p) ? '<span class="add agot" aria-disabled="true">Agotado</span>' : `<button class="add" type="button" data-a="+" data-id="${p.id}">Agregar</button>`}</div></div></article>`;
 }
 let filtro = 'Todo';
 function renderProducts(){
@@ -175,13 +199,18 @@ function renderCart(){
   const n = cart.reduce((s, l) => s + l.q, 0);
   $$('.cartbtn .n').forEach(el => el.textContent = n);
   const box = $('#items'); if (!box) return;
-  box.innerHTML = cart.length ? cart.map((l, i) => { const p = byId(l.id); if (!p) return '';
+  const rs = recos();
+  const reco = rs.length ? `<div class="reco"><h3 class="reco-h">Recomendados para tu Ruta&nbsp;creativa</h3>${rs.map(p => `<div class="item"><img class="thumb" src="${p.img}" alt="" loading="lazy" width="56" height="56" style="background:${p.color}"><div><h3>${esc(p.nombre)}</h3><small>${money(p.precio)}${p.disponibles != null ? ` · quedan ${p.disponibles}` : ''}</small></div><div class="r"><button class="add" type="button" data-reco="${p.id}">Agregar</button></div></div>`).join('')}</div>` : '';
+  box.innerHTML = (cart.length ? cart.map((l, i) => { const p = byId(l.id); if (!p) return '';
     const opts = Object.entries(p.opciones || {}).map(([k, vals]) => `<label><span class="sr">${esc(k)} de ${esc(p.nombre)}</span><select data-i="${i}" data-k="${esc(k)}" aria-label="${esc(k)}">${vals.map(v => `<option${l.op && l.op[k]===v?' selected':''}>${esc(v)}</option>`).join('')}</select></label>`).join('');
     return `<div class="item"><img class="thumb" src="${p.img}" alt="" loading="lazy" width="56" height="56" style="background:${p.color}"><div><h3>${esc(p.nombre)}</h3><small>${money(p.precio)} c/u${p.modo==='encargo' ? ' · ' + ENCARGO : ''}</small></div>
       <div class="r"><div class="qty"><button type="button" data-c="-" data-i="${i}" aria-label="Quitar uno">−</button><span>${l.q}</span><button type="button" data-c="+" data-i="${i}" aria-label="Agregar uno">+</button></div><button class="rm" type="button" data-rm="${i}">Eliminar</button></div>
       ${opts ? `<div class="opts">${opts}${p.opciones ? `<button class="rm" type="button" data-dup="${i}">+ Agregar otro con distintas opciones</button>` : ''}</div>` : ''}</div>`; }).join('')
-    : '<p class="empty">Tu carrito está vacío.<br>Agrega productos para armar tu pedido.</p>';
-  $$('[data-c]', box).forEach(b => b.onclick = () => { const l = cart[+b.dataset.i]; l.q += b.dataset.c === '+' ? 1 : -1; if (!l.q) cart.splice(+b.dataset.i, 1); save(); renderAll(); });
+    : '<p class="empty">Tu carrito está vacío.<br>Agrega productos para armar tu pedido.</p>') + reco;
+  $$('[data-reco]', box).forEach(b => b.onclick = () => addOne(b.dataset.reco));
+  $$('[data-c]', box).forEach(b => b.onclick = () => { const l = cart[+b.dataset.i];
+    if (b.dataset.c === '+' && qtyOf(l.id) >= tope(byId(l.id))){ toast(`Solo quedan ${byId(l.id).disponibles}`); return; }
+    l.q += b.dataset.c === '+' ? 1 : -1; if (!l.q) cart.splice(+b.dataset.i, 1); save(); renderAll(); });
   $$('[data-rm]', box).forEach(b => b.onclick = () => { cart.splice(+b.dataset.rm, 1); save(); renderAll(); });
   $$('[data-dup]', box).forEach(b => b.onclick = () => { const l = cart[+b.dataset.dup]; cart.splice(+b.dataset.dup + 1, 0, {id:l.id, q:1, op:{...l.op}}); save(); renderAll(); });
   $$('select', box).forEach(s => s.onchange = () => { cart[+s.dataset.i].op[s.dataset.k] = s.value; save(); updateLink(); });
@@ -345,7 +374,7 @@ function wirePostEvento(){
   $$('.nav a[href="bazar-creativo.html"]').forEach(a => a.textContent = 'Patrocinio');
   $$('.foot a[href="bazar-creativo.html"]').forEach(a => a.textContent = 'Planes de patrocinio');
   /* 9 nov 2026 (Stefany): la Tienda sale del menú y en su lugar va la página de la app y el Club Estrella.
-     La tienda sigue abierta (pie de página) para vender el guante. */
+     La tienda sigue en el pie mientras haya productos a la venta (ver TIENDA). */
   $$('.nav a[href="tienda.html"]').forEach(a => a.remove());
   const enApp = /la-app/.test(location.pathname);
   const ini = $('.nav a[href="index.html"]');
