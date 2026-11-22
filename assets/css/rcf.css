@@ -712,3 +712,4 @@ html,body{overflow-x:clip}
 .reco{display:grid;gap:10px;margin:18px 0 6px;padding:14px;border:3px solid var(--ink);border-radius:var(--r);background:var(--yellow);box-shadow:5px 5px 0 var(--ink)}
 .reco .reco-h{font-size:16px;text-align:center;text-wrap:balance}
 .reco .add{padding:8px 14px;min-height:40px}
+.tot-bs{font-size:13px;color:var(--muted);margin:4px 0 0;text-wrap:balance}

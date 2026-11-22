@@ -129,6 +129,7 @@ function drawerHTML(){
     </div>
     <div class="df">
       <div class="tot"><span>Total <small>USD a tasa BCV</small></span><b id="total">$0</b></div>
+      <p class="tot-bs" id="totalBs" hidden></p>
       <a class="send" id="send" href="#" target="_blank" rel="noopener" aria-disabled="true">${WA_ICON}Enviar pedido por WhatsApp</a>
       <p class="fine">Se abrirá WhatsApp con tu pedido listo. Todavía no has pagado nada: confirmamos disponibilidad y pago por mensaje.</p>
     </div>
@@ -194,7 +195,7 @@ function message(){
   return ['¡Hola! Quiero hacer este pedido en la tienda del Reto Creativo Fest:', '',
     ...ls.map(l => { const p = byId(l.id); const op = Object.entries(l.op || {}).map(([k, v]) => `${k}: ${v}`).join(', ');
       return `• ${l.q} × ${p.nombre}${op ? ` (${op})` : ''} · ${money(p.precio)} c/u = ${money(p.precio * l.q)}${p.modo==='encargo' ? ' · bajo pedido' : ''}`; }),
-    '', `Total: ${money(tot)} USD (a tasa BCV)`, `Entrega: ${entrega}`, nombre && `Nombre: ${nombre}`, nota && `Nota: ${nota}`,
+    '', `Total: ${money(tot)} USD (a tasa BCV)`, bsLinea(tot), `Entrega: ${entrega}`, nombre && `Nombre: ${nombre}`, nota && `Nota: ${nota}`,
     enc && '\nEntiendo que los productos bajo pedido tardan aproximadamente 1 semana.'].filter(x => x !== '' && x !== false && x != null).join('\n');
 }
 function renderCart(){
@@ -216,7 +217,11 @@ function renderCart(){
   $$('[data-rm]', box).forEach(b => b.onclick = () => { cart.splice(+b.dataset.rm, 1); save(); renderAll(); });
   $$('[data-dup]', box).forEach(b => b.onclick = () => { const l = cart[+b.dataset.dup]; cart.splice(+b.dataset.dup + 1, 0, {id:l.id, q:1, op:{...l.op}}); save(); renderAll(); });
   $$('select', box).forEach(s => s.onchange = () => { cart[+s.dataset.i].op[s.dataset.k] = s.value; save(); updateLink(); });
-  $('#total').textContent = money(cart.reduce((s, l) => s + (byId(l.id)?.precio || 0) * l.q, 0));
+  const tot = cart.reduce((s, l) => s + (byId(l.id)?.precio || 0) * l.q, 0);
+  $('#total').textContent = money(tot);
+  const bs = $('#totalBs'), t = tasaVigente();
+  bs.hidden = !(t && tot);
+  if (t && tot) bs.textContent = `Equivale a ${bolivares(tot * t.tasa)} (tasa BCV del ${fechaCorta(t.fecha)}: ${bolivares(t.tasa)} por dólar). Monto referencial: se confirma al pagar.`;
   $('#ship').hidden = !cart.length;
   updateLink();
 }
@@ -242,6 +247,23 @@ function wireCart(){
   $$('input[name="entrega"]').forEach(r => r.addEventListener('change', updateLink));
   $('#send').addEventListener('click', e => { if ($('#send').getAttribute('aria-disabled') === 'true'){ e.preventDefault(); if (cart.length) $('#nerr').hidden = false; } });
   if (location.hash === '#carrito') openCart();
+}
+
+/* ---------- total en bolívares (22 nov 2026, Diego) ----------
+   data/bcv.json lo actualiza solo .github/workflows/bcv.yml cada 6 horas: {tasa, fecha}.
+   Si la tasa tiene más de 5 días (la fuente falló), no se muestra el monto en Bs para no dar uno viejo. */
+let BCV = null;
+const tasaVigente = () => BCV && BCV.tasa > 0 && (Date.now() - Date.parse(BCV.fecha + 'T00:00:00-04:00')) < 5 * 864e5 ? BCV : null;
+const bolivares = n => 'Bs. ' + n.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const fechaCorta = f => f.slice(8, 10) + '/' + f.slice(5, 7) + '/' + f.slice(0, 4);
+function bsLinea(tot){
+  const t = tasaVigente();
+  return t ? `Total en bolívares: ${bolivares(tot * t.tasa)} (tasa BCV del ${fechaCorta(t.fecha)}: ${bolivares(t.tasa)} por dólar; referencial)` : null;
+}
+function wireBcv(){
+  fetch('data/bcv.json', {cache:'no-store'}).then(r => r.ok ? r.json() : Promise.reject()).then(d => {
+    if (+d.tasa > 0 && /^\d{4}-\d{2}-\d{2}$/.test(d.fecha)){ BCV = {tasa:+d.tasa, fecha:d.fecha}; if ($('#items')) renderCart(); }
+  }).catch(() => {});
 }
 
 /* ---------- inventario desde el Sheet de pedidos (22 nov 2026) ----------
@@ -470,4 +492,4 @@ function wireTienda(){
   $$('.nav a[href="tienda.html"], .foot a[href="tienda.html"], .cartbtn, section[aria-label="Tienda"]').forEach(el => (el.closest('.foot li') || el).remove());
 }
 
-wirePlay(); wireTienda(); wirePostEvento(); wireMenu(); wireLinks(); wireFechas(); wireRetoWeb(); wireCuenta(); wireClics(); wireApp(); wireForms(); wireCart(); wireInventario(); wireFloat(); wireCanal(); wireRedes(); renderAll();
+wirePlay(); wireTienda(); wirePostEvento(); wireMenu(); wireLinks(); wireFechas(); wireRetoWeb(); wireCuenta(); wireClics(); wireApp(); wireForms(); wireCart(); wireInventario(); wireBcv(); wireFloat(); wireCanal(); wireRedes(); renderAll();
