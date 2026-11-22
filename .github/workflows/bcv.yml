@@ -1,0 +1,30 @@
+name: Tasa BCV
+on:
+  schedule:
+    - cron: '41 */6 * * *'
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency:
+  group: datos-publicos
+  cancel-in-progress: false
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/bcv.py
+      - name: Guardar si cambió
+        run: |
+          if ! git diff --quiet data/bcv.json; then
+            git config user.name "rcf-bot"
+            git config user.email "rcf-bot@users.noreply.github.com"
+            git add data/bcv.json
+            git commit -m "Actualiza la tasa BCV"
+            git pull --rebase
+            git push
+          fi

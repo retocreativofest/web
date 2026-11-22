@@ -1,6 +1,8 @@
 /* Preguntas frecuentes: para agregar o cambiar una pregunta, edita FAQ (hasta el festival) o FAQ_POST (desde el 6 dic, CONFIG.postEvento). */
 /* Precios de preventa de los stands hasta el 6 de noviembre; el 7 cambian solos al precio regular. */
 const PREVENTA = Date.now() < Date.parse('2026-11-07T00:00:00-04:00');
+/* 21 nov 2026 (Diego): desde el lunes 30 nov ya no hay Ruta creativa ni inscripción al concurso en línea (CONFIG.preventaFin en rcf.js). */
+const EN_LINEA = Date.now() < Date.parse(CONFIG.preventaFin);
 /* Originalidad (15 nov 2026): criterios de los Guardianes del arte. Van en la sección «Reto semanal», antes y después del festival. */
 const ORIGINALIDAD = [
   ['¿Cómo uso una referencia sin que cuente como copia?', `<p>Usar referencias (fotos, poses, anatomía, lugares) es parte del oficio y se vale. <b>Para que sea una referencia válida, tienes que cambiar la pose o la composición, o añadir elementos propios que la transformen en una obra nueva.</b></p><p>Si tu dibujo es una copia fiel de la referencia, no podemos aceptarlo en la galería, por respeto a los derechos del autor original y a los demás participantes que crearon sus diseños desde cero.</p><p>Si usaste una foto de otra persona como referencia, te recomendamos contarlo en la descripción.</p>`],
@@ -27,13 +29,14 @@ const FAQ_EVENTO = [
  ]},
  {id:'evento', t:'El evento', c:'#FFD60A', q:[
   ['¿Cuándo y dónde es el Reto Creativo Fest?', `<p>El <b>sábado 5 de diciembre</b>, de 10:00 a. m. a 4:00 p. m., en la Facultad de Ciencias Económicas y Sociales (FACES) de la Universidad Central de Venezuela, Caracas.</p><a class="act" href="index.html#programa">Ver el programa</a>`],
-  ['¿La entrada tiene costo?', `<p>No. La entrada al festival es <b>gratuita</b>.</p><p>Para entrar a las <b>charlas con propósito</b> necesitas donar al menos <b>2 insumos nuevos de primera necesidad</b> (juguetes, alimentos, higiene personal, medicinas o material de arte) o adquirir la <b>Ruta creativa</b>.</p><a class="act" href="tienda.html">Comprar la Ruta creativa</a>`],
-  ['¿Qué necesito para entrar a las charlas?', `<p>Tienes dos opciones:</p><ul><li>Donar al menos <b>2 insumos nuevos</b>: los de <b>primera necesidad</b> (juguetes, alimentos, higiene personal y medicinas) se entregan al <b>Centro de Acopio de la UCV</b>, y los <b>materiales de arte</b> nos ayudan a mantener la iniciativa premiando a artistas emergentes.</li><li>Adquirir la <b>Ruta creativa</b>.</li></ul><p>La donación es individual y solo se aceptan productos nuevos. Los <b>menores de 12 años</b> no requieren presentar donación.</p>`],
+  ['¿La entrada tiene costo?', `<p>No. La entrada al festival es <b>gratuita</b>.</p><p>Para entrar a las <b>charlas con propósito</b> necesitas donar al menos <b>2 insumos nuevos de primera necesidad</b> (juguetes, alimentos, higiene personal, medicinas o material de arte) o adquirir la <b>Ruta creativa</b>${EN_LINEA ? '' : ', que se compra en nuestro stand del evento'}.</p>${EN_LINEA ? '<a class="act" href="tienda.html">Comprar la Ruta creativa</a>' : ''}`],
+  ['¿Qué necesito para entrar a las charlas?', `<p>Tienes dos opciones:</p><ul><li>Donar al menos <b>2 insumos nuevos</b>: los de <b>primera necesidad</b> (juguetes, alimentos, higiene personal y medicinas) se entregan al <b>Centro de Acopio de la UCV</b>, y los <b>materiales de arte</b> nos ayudan a mantener la iniciativa premiando a artistas emergentes.</li><li>Adquirir la <b>Ruta creativa</b>${EN_LINEA ? '' : ' en nuestro stand del evento'}.</li></ul><p>La donación es individual y solo se aceptan productos nuevos. Los <b>menores de 12 años</b> no requieren presentar donación.</p>`],
   ['¿Hay estacionamiento?', `<p>Sí, hay estacionamiento. Tiene costo y no está incluido en la entrada.</p>`],
   ['¿Puedo ir con niños?', `<p>¡Claro! Los niños son bienvenidos, siempre que estén <b>supervisados por sus padres o representantes</b>. La Ruta creativa es una actividad apta para todo público.</p>`]
  ]},
  {id:'concurso', t:'Concurso en vivo', c:'#84D7DF', q:[
-  ['¿Quién puede participar?', `<p>Personas de <b>15 años o más</b> que se inscriban en el formulario. Los menores de 18 necesitan la autorización de su representante.</p><a class="act" data-link="inscripcion" href="#">Inscribirme al concurso</a>`],
+  ['¿Quién puede participar?', EN_LINEA ? `<p>Personas de <b>15 años o más</b> que se inscriban en el formulario. Los menores de 18 necesitan la autorización de su representante.</p><a class="act" data-link="inscripcion" href="#">Inscribirme al concurso</a>`
+    : `<p>Personas de <b>15 años o más</b>. <b>La inscripción en línea cerró:</b> ven al evento y consulta si quedan cupos. Los menores de 18 necesitan la autorización de su representante.</p>`],
   ['¿Cómo funciona el concurso?', `<ul><li>Tienes <b>45 minutos</b> para hacer tu dibujo.</li><li>El check-in es de <b>9:00 a 9:50 a. m.</b> y hay <b>3 lotes de 12 personas</b>: 10:00 a. m., 11:00 a. m. y 12:00 p. m.</li><li>El jurado elige <b>4 ganadores</b>, que se anuncian en la premiación a las 3:00 p. m. en el Auditorio naranja.</li></ul>`],
   ['¿Qué técnicas se permiten?', `<p>Solo <b>técnica tradicional</b>, sin acuarelas ni acrílicos. La obra debe ser original, sin copias ni calcos, y no puedes usar el celular mientras dibujas.</p>`],
   ['¿Puedo llevar mis propios materiales?', `<p>Sí, y es lo recomendado: con tus propios materiales te sentirás más cómodo durante los 45 minutos. Recuerda que no se permiten acuarelas ni acrílicos.</p>`],
@@ -138,7 +141,8 @@ const SIN_PAGOS = {
   '¿Cómo me uno y cómo pago?': ['Ya soy miembro, ¿cómo activo mis ventajas?', `<p>En la app, entra a <b>Club</b> y toca «Ya soy miembro: vincular mi Patreon». Tus ventajas se activan solas y se revisan cada día.</p>`],
   '¿Cómo entro al Discord?': ['¿Cómo entro al Discord?', `<p>El Discord de Mente Milenial es exclusivo para los miembros del Club Estrella.</p>`]
 };
-const FAQ = (POST_EVENTO ? FAQ_POST : FAQ_EVENTO).map(g => typeof PLAY_WEB !== 'undefined' && PLAY_WEB ? {...g, q: g.q.map(x => SIN_PAGOS[x[0]] || x)} : g);
+/* Sin tienda (TIENDA en rcf.js) no van su sección ni los botones que llevan a ella. */
+const FAQ = (POST_EVENTO ? FAQ_POST : FAQ_EVENTO).filter(g => TIENDA || g.id !== 'tienda').map(g => TIENDA ? g : {...g, q: g.q.map(x => [x[0], x[1].replace(/<a class="act" href="tienda\.html">[^<]*<\/a>/g, '')])}).map(g => typeof PLAY_WEB !== 'undefined' && PLAY_WEB ? {...g, q: g.q.map(x => SIN_PAGOS[x[0]] || x)} : g);
 
 /* Buscador con sinónimos: cada grupo reúne palabras que la gente usa para lo mismo. */
 const SINONIMOS = [
