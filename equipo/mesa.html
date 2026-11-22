@@ -12640,4 +12640,19 @@ const renderBeforeSync=render;let startedGoogleSync=false;render=function(){rend
   setInterval(()=>{if(!document.hidden)exchange();},20000);
   exchange();
 })();
-</script></body></html>
+</script><script>
+function mostrarSelectorDeMesas() {
+  const permisos = RCFEquipo.session()?.desks || [];
+  if (permisos.length < 2) return;
+  const nombres = {concurso:'Concurso de dibujo','ruta-a':'Ruta Creativa',donaciones:'Donaciones y prensa'};
+  const selector = document.createElement('select');
+  for (const mesa of permisos) {
+    if (nombres[mesa]) selector.add(new Option(nombres[mesa], mesa, false, mesa === window.RCF_DESK));
+  }
+  selector.onchange = () => location.assign('./mesa.html?mesa=' + encodeURIComponent(selector.value));
+  const etiqueta = document.createElement('label');
+  etiqueta.textContent = 'Cambiar de mesa';
+  etiqueta.append(selector);
+  const actual = document.getElementById('desk').closest('label'); actual.hidden = true; actual.after(etiqueta);
+}
+mostrarSelectorDeMesas();</script></body></html>
