@@ -23,7 +23,7 @@
   return {post,session};
 })();
 
-const names={concurso:'Concurso de dibujo','ruta-a':'Ruta Creativa',donaciones:'Donaciones y prensa'};
+const names={concurso:'Concurso de dibujo','ruta-a':'Ruta Creativa',donaciones:'Donaciones y Acceso VIP'};
 function render(){mesas.replaceChildren();for(const d of RCFEquipo.session()?.desks||[]){const a=document.createElement('a');a.href='./mesa.html?mesa='+encodeURIComponent(d);a.textContent=names[d];const p=document.createElement('p');p.append(a);mesas.append(p);}}
 login.onsubmit=async e=>{e.preventDefault();try{await RCFEquipo.post({action:'codigo',email:correo.value});verify.hidden=false;msg.textContent='Si tu correo está autorizado recibirás un código.';}catch(err){msg.textContent=err.message;}};
 verify.onsubmit=async e=>{e.preventDefault();try{const s=await RCFEquipo.post({action:'entrar',email:correo.value,code:codigo.value});localStorage.setItem('rcf-sesion',JSON.stringify(s));msg.textContent='Elige tu mesa';render();}catch(err){msg.textContent=err.message;}};
