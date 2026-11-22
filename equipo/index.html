@@ -10,7 +10,7 @@
   input, select, textarea { font-size: max(16px, 1em); }
   .stat { overflow-wrap:anywhere; }
 }
-</style><main><h1>Acceso del equipo</h1><form id="login"><label>Correo autorizado<input required type="email" id="correo"></label><button>Recibir código</button></form><form id="verify" hidden><label>Código del correo<input required id="codigo" autocomplete="one-time-code"></label><button>Entrar</button></form><p role="status" id="msg"></p><nav id="mesas"></nav></main><script>window.RCF_EQUIPO_URL="https://script.google.com/macros/s/AKfycbxzGGG9zjmedNolosK-6HKLlGvIBc_245aUUneb2eIPKGkdg-gP7PZApLe6SMWrFpZ2/exec";const RCFEquipo = (() => {
+</style><main><h1>Acceso del equipo</h1><form id="login"><label>Correo autorizado<input required type="email" id="correo"></label><button>Recibir código</button></form><form id="verify" hidden><label>Código del correo<input required id="codigo" autocomplete="one-time-code"></label><button>Entrar</button></form><p role="status" id="msg"></p><nav id="mesas"></nav><p><a href="https://script.google.com/macros/s/AKfycbx6SlH-AWB8JslskTadSdz98mqIM251NDsyOFEx7SzpBhf7IyHcSjy8hwJieUZofgd4/exec">Coordinación · Ver participantes y enviar QR</a></p></main><script>window.RCF_EQUIPO_URL="https://script.google.com/macros/s/AKfycbxzGGG9zjmedNolosK-6HKLlGvIBc_245aUUneb2eIPKGkdg-gP7PZApLe6SMWrFpZ2/exec";const RCFEquipo = (() => {
   const url=window.RCF_EQUIPO_URL;
   async function post(payload){
     const res=await fetch(url,{method:'POST',credentials:'omit',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(payload),signal:AbortSignal.timeout(30000)});
