@@ -12665,4 +12665,24 @@ function mostrarSelectorDeMesas() {
   etiqueta.append(selector);
   const actual = document.getElementById('desk').closest('label'); actual.hidden = true; actual.after(etiqueta);
 }
-mostrarSelectorDeMesas();</script></body></html>
+mostrarSelectorDeMesas();</script><script>
+(() => {
+  const draw = render;
+  render = function () {
+    draw();
+    if (tab !== 'desk' || state.type !== 'staff' || state.records.length || state.packageLoaded) return;
+    const box = el('article');
+    box.append(el('h2','Falta la lista de '+deskNames[state.desk]),el('p','Carga el archivo de esta mesa para poder buscar participantes y escanear sus tarjetas.'));
+    const pick = el('button','Cargar lista de esta mesa');
+    pick.onclick = () => $('import').click();
+    box.append(pick);
+    $('results').replaceChildren(box);
+  };
+  $('search').oninput = () => render();
+  $('deskTab').onclick = () => {
+    tab='desk'; render();
+    const target = !$('results').hidden ? $('results') : $('donationsPanel');
+    if(target) target.scrollIntoView({block:'start'});
+  };
+})();
+</script></body></html>
