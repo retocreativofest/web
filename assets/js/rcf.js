@@ -1,7 +1,8 @@
 /* Reto Creativo Fest · funciones compartidas por todas las páginas.
    Lo único que normalmente hay que editar está en CONFIG y PRODUCTOS. */
 const CONFIG = {
-  whatsapp: '584120390423',                 // número para pedidos y consultas (sin + ni espacios)
+  whatsapp: '584120390423',                 // pedidos y pagos (sin + ni espacios)
+  digi: 'https://t.me/RCFConsultasBot',        // consultas generales con Digi
   canalWhatsApp: 'https://whatsapp.com/channel/0029Vb0wgM92P59bPnVm2E2I',
   formularios: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',                          // URL de la Apps Script que guarda los formularios en Google Sheets
   premiosCSV: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRoZ3sjeDuqzJDcDGxVUPK02-uyf00qhaPcX6RXMR8n_ZcGunndTPLGgq5SRBAPp3bQrXWn3fa0nwFd/pub?gid=1238618466&single=true&output=csv',                           // hoja «Así van los premios» publicada como CSV en Google Sheets
@@ -77,7 +78,7 @@ function wireLinks(){
     const k = a.dataset.link;
     if (k === 'patreon' && PLAY_WEB){ a.remove(); return; }
     if (k === 'canal' && !CONFIG.canalWhatsApp){ a.href = waLink('¡Hola! Quiero unirme al canal de WhatsApp del #RetoMenteMilenial.'); }
-    else a.href = ({canal:CONFIG.canalWhatsApp, inscripcion:CONFIG.inscripcion, padlet:CONFIG.padlet, padletCalentamiento:CONFIG.padletCalentamiento, patreon:CONFIG.patreon, app:CONFIG.app, autorizacion:CONFIG.autorizacion})[k] || '#';
+    else a.href = ({digi:CONFIG.digi, canal:CONFIG.canalWhatsApp, inscripcion:CONFIG.inscripcion, padlet:CONFIG.padlet, padletCalentamiento:CONFIG.padletCalentamiento, patreon:CONFIG.patreon, app:CONFIG.app, autorizacion:CONFIG.autorizacion})[k] || '#';
     a.target = '_blank'; a.rel = 'noopener';
   });
 }
@@ -284,11 +285,12 @@ function wireInventario(){
   }).catch(() => {});   // si el Sheet no responde, quedan los números fijos de PRODUCTOS
 }
 
-/* ---------- botón flotante de WhatsApp ---------- */
+/* ---------- consultas generales con Digi en Telegram ---------- */
 function wireFloat(){
   const a = document.createElement('a');
-  a.className = 'wafloat'; a.href = waLink('¡Hola! Tengo una pregunta sobre el Reto Creativo Fest.'); a.target = '_blank'; a.rel = 'noopener';
-  a.setAttribute('aria-label', 'Escríbenos por WhatsApp'); a.innerHTML = WA_ICON.replace('width="22" height="22"', 'width="30" height="30"');
+  a.className = 'digifloat'; a.href = CONFIG.digi; a.target = '_blank'; a.rel = 'noopener';
+  a.setAttribute('aria-label', 'Hablar con Digi en Telegram (abre otra pestaña)');
+  a.innerHTML = '<span class="digifloat-bubble" aria-hidden="true">Soy <strong>Digi</strong><br>¿Te ayudo?</span><span class="digifloat-avatar"><img src="assets/img/digi-ayuda.webp" alt="" width="88" height="88" decoding="async"></span>';
   document.body.appendChild(a);
 }
 
