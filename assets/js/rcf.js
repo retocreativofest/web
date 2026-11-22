@@ -12,7 +12,7 @@ const CONFIG = {
   patreon: 'https://www.patreon.com/RetoMenteMilenial',
   app: '',                                  // enlace de la app (PWA). Vacío = «Llega en diciembre». Al lanzarla, pega aquí la URL y la web cambia sola a «Instálala».
   preventaFin: '2026-11-30T00:00:00-04:00',   // 21 nov 2026 (Diego): desde el lunes 30 nov no se vende la Ruta creativa en línea ni hay inscripción en línea al concurso; se consulta la disponibilidad en el evento
-  inventarioCSV: '',                        // 22 nov 2026 (Diego): pestaña «Inventario» del Sheet de pedidos publicada como CSV (columnas id · quedan). Vacío = se usan los números fijos de PRODUCTOS
+  inventarioCSV: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT_TQkWfk9iNvpJMbwrqfF5sJjWUHHTVbR_Z7uu3LcHF7i1UBXWO2GzcV1QWpabtnPQP-Qe3RC9nyHg/pub?gid=1751465250&single=true&output=csv',                        // 22 nov 2026 (Diego): pestaña «Inventario» del Sheet de pedidos publicada como CSV (columnas id · quedan). Vacío = se usan los números fijos de PRODUCTOS
   postEvento: '2026-12-06T00:00:00-04:00',  // desde esta fecha la web deja el festival atrás: sin concurso, «Bazar creativo» → «Planes de patrocinio» y todo apunta a la app
   premiosCSV2027: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6fo9pFeab6FLkjaZGivwzHtenKI-FiXMD8rLLoAvU1JlngyIN4aF5BHZ4wzpPy1HMJKQNyuzbA3Fp/pub?gid=1238618466&single=true&output=csv',   // «Así van los premios» del Tablero 2027 (3.ª temporada)
   premiosCSV2027Desde: '2026-12-29T21:30:00-04:00',   // desde aquí la web lee el Tablero 2027 (ya con el podio de la Semana 0). Antes mostraría los datos de 2026
