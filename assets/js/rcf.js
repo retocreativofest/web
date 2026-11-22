@@ -12,6 +12,7 @@ const CONFIG = {
   patreon: 'https://www.patreon.com/RetoMenteMilenial',
   app: '',                                  // enlace de la app (PWA). Vacío = «Llega en diciembre». Al lanzarla, pega aquí la URL y la web cambia sola a «Instálala».
   preventaFin: '2026-11-30T00:00:00-04:00',   // 21 nov 2026 (Diego): desde el lunes 30 nov no se vende la Ruta creativa en línea ni hay inscripción en línea al concurso; se consulta la disponibilidad en el evento
+  inventarioCSV: '',                        // 22 nov 2026 (Diego): pestaña «Inventario» del Sheet de pedidos publicada como CSV (columnas id · quedan). Vacío = se usan los números fijos de PRODUCTOS
   postEvento: '2026-12-06T00:00:00-04:00',  // desde esta fecha la web deja el festival atrás: sin concurso, «Bazar creativo» → «Planes de patrocinio» y todo apunta a la app
   premiosCSV2027: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6fo9pFeab6FLkjaZGivwzHtenKI-FiXMD8rLLoAvU1JlngyIN4aF5BHZ4wzpPy1HMJKQNyuzbA3Fp/pub?gid=1238618466&single=true&output=csv',   // «Así van los premios» del Tablero 2027 (3.ª temporada)
   premiosCSV2027Desde: '2026-12-29T21:30:00-04:00',   // desde aquí la web lee el Tablero 2027 (ya con el podio de la Semana 0). Antes mostraría los datos de 2026
@@ -24,8 +25,9 @@ if (CONFIG.premiosCSV2027 && Date.now() >= Date.parse(CONFIG.premiosCSV2027Desde
 
 const PRODUCTOS = [
   {id:'ruta', hasta:CONFIG.preventaFin, nombre:'Ruta creativa', desc:'Recorre el evento haciendo retos de dibujo y participa en un increíble sorteo con premios. Actividad apta para todo público.', precio:3, cat:'Actividades', modo:'disponible', color:'#FFFFFF', img:'assets/img/tienda-ruta-creativa-640.webp', imgStyle:'inset:auto;left:-4%;top:13%;width:92%;height:auto;object-fit:contain'},
-  /* 22 nov 2026 (Diego): kit de arte y stickers. «disponibles» es el inventario inicial: la web NO lo descuenta sola.
-     Cuando se vendan, baja el número a mano (o pon 0 y el producto sale como «Agotado»). */
+  /* 22 nov 2026 (Diego): kit de arte y stickers. «disponibles» es el número de respaldo. Si CONFIG.inventarioCSV tiene
+     la URL, la web toma «quedan» de la pestaña «Inventario» del Sheet de pedidos (baja sola al marcar «Pago confirmado»).
+     Si el Sheet no responde, se usa este número. Con 0 el producto sale como «Agotado». */
   {id:'kit', hasta:CONFIG.preventaFin, nombre:'Kit de arte', desc:'Block de 36 hojas de cartulina (29\u00a0×\u00a020,5\u00a0cm) y una totebag temática del evento del mismo tamaño. Además: un lápiz, una borra y 3 stickers aleatorios del\u00a0evento.', precio:8, cat:'Para dibujar', modo:'disponible', disponibles:15, color:'#FFFFFF', img:'assets/img/tienda-kit-de-arte-640.webp'},
   {id:'stickers', hasta:CONFIG.preventaFin, nombre:'Pack de 5 stickers holográficos', desc:'Cinco stickers holográficos del Reto Creativo Fest en una plancha de 12\u00a0×\u00a011\u00a0cm.', precio:3, cat:'Stickers', modo:'disponible', disponibles:40, color:'#FFFFFF', img:'assets/img/tienda-stickers-holograficos-640.webp'},
   /* 22 nov 2026 (Diego): guantes ocultos hasta nuevo aviso. Para que vuelvan, borra «oculto:true,». */
@@ -242,6 +244,24 @@ function wireCart(){
   if (location.hash === '#carrito') openCart();
 }
 
+/* ---------- inventario desde el Sheet de pedidos (22 nov 2026) ----------
+   La pestaña «Inventario» publicada como CSV tiene dos columnas: id (kit, stickers…) y quedan (número).
+   Solo se publica esa pestaña: las respuestas del formulario tienen datos personales y nunca se publican. */
+function wireInventario(){
+  if (!CONFIG.inventarioCSV) return;
+  fetch(CONFIG.inventarioCSV, {cache:'no-store'}).then(r => r.ok ? r.text() : Promise.reject()).then(t => {
+    let cambio = false;
+    t.split(/\r?\n/).forEach(linea => {
+      const [id, n] = linea.split(',').map(x => x.replace(/^"|"$/g, '').trim());
+      const p = byId(id), q = Number(n);
+      if (p && p.disponibles != null && n !== '' && Number.isInteger(q) && q >= 0 && q !== p.disponibles){ p.disponibles = q; cambio = true; }
+    });
+    if (!cambio) return;
+    cart = cart.map(l => ({...l, q:Math.min(l.q, tope(byId(l.id)))})).filter(l => l.q > 0);
+    save(); renderAll();
+  }).catch(() => {});   // si el Sheet no responde, quedan los números fijos de PRODUCTOS
+}
+
 /* ---------- botón flotante de WhatsApp ---------- */
 function wireFloat(){
   const a = document.createElement('a');
@@ -450,4 +470,4 @@ function wireTienda(){
   $$('.nav a[href="tienda.html"], .foot a[href="tienda.html"], .cartbtn, section[aria-label="Tienda"]').forEach(el => (el.closest('.foot li') || el).remove());
 }
 
-wirePlay(); wireTienda(); wirePostEvento(); wireMenu(); wireLinks(); wireFechas(); wireRetoWeb(); wireCuenta(); wireClics(); wireApp(); wireForms(); wireCart(); wireFloat(); wireCanal(); wireRedes(); renderAll();
+wirePlay(); wireTienda(); wirePostEvento(); wireMenu(); wireLinks(); wireFechas(); wireRetoWeb(); wireCuenta(); wireClics(); wireApp(); wireForms(); wireCart(); wireInventario(); wireFloat(); wireCanal(); wireRedes(); renderAll();
