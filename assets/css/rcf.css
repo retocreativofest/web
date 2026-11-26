@@ -725,3 +725,19 @@ html,body{overflow-x:clip}
 .reco .reco-h{font-size:16px;text-align:center;text-wrap:balance}
 .reco .add{padding:8px 14px;min-height:40px}
 .tot-bs{font-size:13px;color:var(--muted);margin:4px 0 0;text-wrap:balance}
+
+/* Cuatro patrocinantes principales y tres en la fila inferior. */
+.sponsor-tiers:not([hidden]) {
+  display: grid;
+  grid-template-columns: repeat(24, minmax(0, 1fr));
+  gap: clamp(4px, 1.4vw, 18px) 0;
+  max-width: 840px;
+  margin-inline: auto;
+}
+.sponsor-tiers > .patro-card {
+  grid-column: span 6;
+  width: calc(100% - clamp(4px, 1.4vw, 18px));
+  justify-self: center;
+  --pad: clamp(4px, 1.2vw, 16px);
+}
+.sponsor-tiers > .patro-card:nth-child(5) { grid-column: 4 / span 6; }
