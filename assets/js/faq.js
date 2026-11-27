@@ -1,7 +1,7 @@
 /* Preguntas frecuentes: para agregar o cambiar una pregunta, edita FAQ (hasta el festival) o FAQ_POST (desde el 6 dic, CONFIG.postEvento). */
 /* Precios de preventa de los stands hasta el 6 de noviembre; el 7 cambian solos al precio regular. */
 const PREVENTA = Date.now() < Date.parse('2026-11-07T00:00:00-04:00');
-/* 21 nov 2026 (Diego): desde el lunes 30 nov ya no hay Ruta creativa ni inscripción al concurso en línea (CONFIG.preventaFin en rcf.js). */
+/* 21 nov 2026 (Diego): desde el lunes 30 nov ya no hay Ruta creativa en línea (CONFIG.preventaFin en rcf.js). 27 nov: los cupos del concurso se agotaron (texto fijo en «¿Quién puede participar?»). */
 const EN_LINEA = Date.now() < Date.parse(CONFIG.preventaFin);
 /* Originalidad (15 nov 2026): criterios de los Guardianes del arte. Van en la sección «Reto semanal», antes y después del festival. */
 const ORIGINALIDAD = [
@@ -35,8 +35,7 @@ const FAQ_EVENTO = [
   ['¿Puedo ir con niños?', `<p>¡Claro! Los niños son bienvenidos, siempre que estén <b>supervisados por sus padres o representantes</b>. La Ruta creativa es una actividad apta para todo público.</p>`]
  ]},
  {id:'concurso', t:'Concurso en vivo', c:'#84D7DF', q:[
-  ['¿Quién puede participar?', EN_LINEA ? `<p>Personas de <b>15 años o más</b> que se inscriban en el formulario. Los menores de 18 necesitan la autorización de su representante.</p><a class="act" data-link="inscripcion" href="#">Inscribirme al concurso</a>`
-    : `<p>Personas de <b>15 años o más</b>. <b>La inscripción en línea cerró:</b> ven al evento y consulta si quedan cupos. Los menores de 18 necesitan la autorización de su representante.</p>`],
+  ['¿Quién puede participar?', `<p>Personas de <b>15 años o más</b> que ya estén inscritas. <b>Los cupos del concurso se agotaron</b> y ya no hay inscripciones para esta edición. Los menores de 18 necesitan la autorización de su representante.</p>`],
   ['¿Cómo funciona el concurso?', `<ul><li>Tienes <b>45 minutos</b> para hacer tu dibujo.</li><li>El check-in es de <b>9:00 a 9:50 a. m.</b> y hay <b>3 lotes de 12 personas</b>: 10:00 a. m., 11:00 a. m. y 12:00 p. m.</li><li>El jurado elige <b>4 ganadores</b>, que se anuncian en la premiación a las 3:00 p. m. en el Auditorio naranja.</li></ul>`],
   ['¿Qué técnicas se permiten?', `<p>Solo <b>técnica tradicional</b>, sin acuarelas ni acrílicos. La obra debe ser original, sin copias ni calcos, y no puedes usar el celular mientras dibujas.</p>`],
   ['¿Puedo llevar mis propios materiales?', `<p>Sí, y es lo recomendado: con tus propios materiales te sentirás más cómodo durante los 45 minutos. Recuerda que no se permiten acuarelas ni acrílicos.</p>`],
