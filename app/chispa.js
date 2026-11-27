@@ -625,6 +625,6 @@ export function bannerClub(titulo) {
     <h3 id="club-ban-t">${titulo || '¿Te quedaste con ganas de&nbsp;más?'}</h3>
     <p>Ve el reto <b>24 horas antes</b>, cuida tu racha con <b>2 protectores al mes</b> y desbloquea la Chispa Pro: cubeta, 3 tamaños y video&nbsp;acelerado.</p>
     <button type="button" class="btn amarillo chico" id="ch-club-b">★ CONOCER EL CLUB ESTRELLA</button>
-    <small>5,50 $ al mes · participar en el reto es gratis&nbsp;siempre</small>
+    <small>3 $ al mes · participar en el reto es gratis&nbsp;siempre</small>
   </section>`;
 }

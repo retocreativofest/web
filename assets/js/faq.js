@@ -113,7 +113,7 @@ const FAQ_POST = [
   ['¿Qué datos ven las otras personas?', `<p>Solo tu <b>nombre de pila, tu usuario y tu personaje</b>. En la app no hay fotos de perfil y nadie ve datos personales de otras personas. Nunca publiques tu colegio, tu dirección ni fotos tuyas.</p><a class="act" href="privacidad.html">Ver la política de privacidad</a>`]
  ]},
  {id:'club', t:'Club Estrella', c:'#F0479B', q:[
-  ['¿Qué es el Club Estrella?', `<p>Es la membresía del #RetoMenteMilenial. Cuesta <b>5,50 dólares al mes</b>, la cancelas cuando quieras y ayuda a que el reto y los premios sigan creciendo. Participar en el reto sigue siendo gratis.</p><a class="act" href="la-app.html#club">Ver el Club Estrella</a>`],
+  ['¿Qué es el Club Estrella?', `<p>Es la membresía del #RetoMenteMilenial. Cuesta <b>3 dólares al mes</b>, la cancelas cuando quieras y ayuda a que el reto y los premios sigan creciendo. Participar en el reto sigue siendo gratis.</p><a class="act" href="la-app.html#club">Ver el Club Estrella</a>`],
   ['¿Qué ventajas tiene?', `<ul><li>Ves el reto <b>24 horas antes</b> y puedes publicar primero (ventaja en el Relámpago creativo).</li><li>2 protectores de racha al mes.</li><li>Chispa del día Pro.</li><li>Personaje exclusivo.</li><li>Tu estrella en el ranking, que crece con los meses.</li><li>Discord privado.</li></ul>`],
   ['¿Cómo me uno y cómo pago?', `<p>Únete por <b>Patreon</b> y, en la app, entra a Club y toca «Vincular mi Patreon»: tus ventajas se activan solas. También puedes pagar por <b>Pago Móvil, Binance o Zinli</b> y te activamos a mano.</p><a class="act" data-link="patreon" href="#">Unirme por Patreon</a>`],
   ['¿Cómo entro al Discord?', `<p>El Discord de Mente Milenial es exclusivo para el Club Estrella. Al unirte por Patreon recibes el acceso.</p>`]

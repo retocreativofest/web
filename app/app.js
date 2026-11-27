@@ -1,7 +1,7 @@
 /* #RetoMenteMilenial · app: entrar, registro, Hoy, subir al Padlet, rachas, ranking, amigos, Chispa del día y Club Estrella */
 import * as PJ from './personaje.js?v=4';
 import { abrirRecorrido, festival } from './recorrido.js?v=1';
-import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe, rachaChispas, chispasDelAnio, ajustarHora, mostrarPromoClub, bannerClub, CANDADO } from './chispa.js?v=25';
+import { abrirChispa, chispaDeHoy, chispasDeLaSemana, chispaHechaHoy, adviento, navidadGanada, diasChispaSemana, fiestaDe, rachaChispas, chispasDelAnio, ajustarHora, mostrarPromoClub, bannerClub, CANDADO } from './chispa.js?v=26';
 const CONFIG = {
   api: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
@@ -69,7 +69,7 @@ const ICO = {
 /* Arriba a la derecha de las pantallas con barra (7 nov 2026): el personaje armado por la persona; si todavía no tiene, la cara de su guía. */
 const caraBarra = () => E.pj ? `<span class="cara pj" aria-hidden="true">${PJ.svg(E.pj)}</span>` : `<img class="cara" src="${caraGuia(E.guia)}" alt="">`;
 /* Versión visible en Yo (7 nov 2026): para saber si un teléfono ya tiene la app nueva. Cambiarla junto con la de sw.js. */
-const VERSION_APP = '113 · 21 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
+const VERSION_APP = '114 · 27 nov';   // súbela junto con app.js?v (se ve al final de «Yo»)
 /* Une las dos últimas palabras con un espacio que no se corta: nunca queda una palabra sola en la última línea. */
 const sinViuda = t => { const p = String(t).trim().split(' '); return p.length > 2 ? p.slice(0, -1).join(' ') + '\u00a0' + p[p.length - 1] : String(t); };
 
@@ -1718,7 +1718,7 @@ function vistaClub(error, escribiendo) {
   pintar(`
     <header class="barra club-barra">
       <button type="button" class="volver" id="v" aria-label="Volver">${ICO.volver}</button>
-      <div style="flex:1"><h1>Club Estrella</h1><span class="sub">${PLAY ? 'Para miembros del Club' : 'Apoya el reto y desbloquea más · 5,50 $ al mes'}</span></div>
+      <div style="flex:1"><h1>Club Estrella</h1><span class="sub">${PLAY ? 'Para miembros del Club' : 'Apoya el reto y desbloquea más · 3 $ al mes'}</span></div>
     </header>
     <main class="cont">
       <div class="estrellas" aria-label="Tu estrella crece con tus meses en el Club">
