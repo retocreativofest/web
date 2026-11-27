@@ -6,7 +6,7 @@ const CONFIG = {
   canalWhatsApp: 'https://whatsapp.com/channel/0029Vb0wgM92P59bPnVm2E2I',
   formularios: 'https://script.google.com/macros/s/AKfycbz7iiWdZ0010hK6RzA7ue_bhtcc1WKcoP6n_zEM4pW_QX4Itfimn_A1wtxXtmu3VLVK/exec',                          // URL de la Apps Script que guarda los formularios en Google Sheets
   premiosCSV: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRoZ3sjeDuqzJDcDGxVUPK02-uyf00qhaPcX6RXMR8n_ZcGunndTPLGgq5SRBAPp3bQrXWn3fa0nwFd/pub?gid=1238618466&single=true&output=csv',                           // hoja «Así van los premios» publicada como CSV en Google Sheets
-  inscripcion: 'https://forms.gle/i2NMCytXbv9Qxoen6',
+  inscripcion: '',   // 27 nov 2026 (Diego): cupos del concurso agotados; antes https://forms.gle/i2NMCytXbv9Qxoen6. Vacío = ningún botón lleva al formulario
   padlet: 'https://padlet.com/retocreativofest/retomentemilenial-de-ilustracion-semanal-fase-i-3ra-temporad-s024nmvzl4iygc78wdeu',
   padletCalentamiento: 'https://padlet.com/retocreativofest/retomentemilenial-calentamiento-de-la-app-diciembre-2026-s025gs38bxms3dtfy067',   // 14 nov 2026: retos de calentamiento (1–15 dic)
   autorizacion: 'https://docs.google.com/forms/d/e/1FAIpQLSeTf_vZNjg5LU_mMs1X9tqmrgBddUGMDKuzvqV9U7NuXeXW7A/viewform', // Google Forms «Autorización del representante»
