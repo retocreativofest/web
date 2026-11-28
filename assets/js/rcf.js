@@ -14,11 +14,13 @@ const CONFIG = {
   app: '',                                  // enlace de la app (PWA). Vacío = «Llega en diciembre». Al lanzarla, pega aquí la URL y la web cambia sola a «Instálala».
   preventaFin: '2026-11-30T00:00:00-04:00',   // 21 nov 2026 (Diego): desde el lunes 30 nov no se vende la Ruta creativa en línea ni hay inscripción en línea al concurso; se consulta la disponibilidad en el evento
   inventarioCSV: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT_TQkWfk9iNvpJMbwrqfF5sJjWUHHTVbR_Z7uu3LcHF7i1UBXWO2GzcV1QWpabtnPQP-Qe3RC9nyHg/pub?gid=1751465250&single=true&output=csv',                        // 22 nov 2026 (Diego): pestaña «Inventario» del Sheet de pedidos publicada como CSV (columnas id · quedan). Vacío = se usan los números fijos de PRODUCTOS
+  premiacionesEdad: false,                  // 28 nov 2026: true = la página Premiaciones muestra la edad de cada ganador. En false no se ve (hay menores: LOPNNA)
   postEvento: '2026-12-06T00:00:00-04:00',  // desde esta fecha la web deja el festival atrás: sin concurso, «Bazar creativo» → «Planes de patrocinio» y todo apunta a la app
   premiosCSV2027: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6fo9pFeab6FLkjaZGivwzHtenKI-FiXMD8rLLoAvU1JlngyIN4aF5BHZ4wzpPy1HMJKQNyuzbA3Fp/pub?gid=1238618466&single=true&output=csv',   // «Así van los premios» del Tablero 2027 (3.ª temporada)
   premiosCSV2027Desde: '2026-12-29T21:30:00-04:00',   // desde aquí la web lee el Tablero 2027 (ya con el podio de la Semana 0). Antes mostraría los datos de 2026
   retoWeb: 'https://script.google.com/macros/s/AKfycbxk2KkAccQuJHmErsKb8VTIrJtKTaiN3jgsIlue3S3hgVabA_BjcD3j8qQZ36hyBKzh4g/exec'                               // URL del Apps Script «Reto de la semana · web» (termina en /exec). Vacío = la tarjeta del reto no aparece.
 };
+if (CONFIG.premiacionesEdad) document.documentElement.classList.add('con-edad');
 const POST_EVENTO = Date.now() >= Date.parse(CONFIG.postEvento);
 /* 11 nov 2026 (Stefany): desde el 6 dic la página del concurso lleva directo al Inicio (el concurso es de cada edición). */
 if (POST_EVENTO && /(^|\/)concurso(\.html)?$/.test(location.pathname)) location.replace('index.html');
