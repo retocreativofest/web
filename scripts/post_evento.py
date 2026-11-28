@@ -19,6 +19,9 @@ CAMBIOS = {
     ],
     'sitemap.xml': [   # la página del concurso lleva al Inicio: sale del mapa del sitio para Google
         ('  <url><loc>https://retocreativofest.com/concurso.html</loc></url>\n', ''),
+        # 28 nov 2026 (Diego): la página Premiaciones aparece el 6 dic y entra al mapa del sitio ese día
+        ('  <url><loc>https://retocreativofest.com/reto-semanal.html</loc></url>\n',
+         '  <url><loc>https://retocreativofest.com/reto-semanal.html</loc></url>\n  <url><loc>https://retocreativofest.com/premiaciones.html</loc></url>\n'),
     ],
     'concurso.html': [
         ('Concurso de dibujo en vivo «Luces de Navidad en Venezuela». Sábado 5 de diciembre en el Sótano de FACES-UCV. Requisitos, programa y jurado.',
@@ -37,6 +40,7 @@ for nombre, pares in CAMBIOS.items():
     texto = archivo.read_text(encoding='utf-8')
     nuevo = texto
     for viejo, reemplazo in pares:
+        if reemplazo and viejo in reemplazo and reemplazo in nuevo: continue   # ya agregado (para no repetirlo cada día)
         nuevo = nuevo.replace(viejo, reemplazo)
     if nuevo != texto:
         archivo.write_text(nuevo, encoding='utf-8')

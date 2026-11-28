@@ -24,6 +24,8 @@ if (CONFIG.premiacionesEdad) document.documentElement.classList.add('con-edad');
 const POST_EVENTO = Date.now() >= Date.parse(CONFIG.postEvento);
 /* 11 nov 2026 (Stefany): desde el 6 dic la página del concurso lleva directo al Inicio (el concurso es de cada edición). */
 if (POST_EVENTO && /(^|\/)concurso(\.html)?$/.test(location.pathname)) location.replace('index.html');
+/* 28 nov 2026 (Diego): la página Premiaciones aparece el 6 dic; antes, su enlace directo lleva al Inicio (menú, pie y botón usan data-desde). */
+if (!POST_EVENTO && /(^|\/)premiaciones(\.html)?$/.test(location.pathname)) location.replace('index.html');
 if (CONFIG.premiosCSV2027 && Date.now() >= Date.parse(CONFIG.premiosCSV2027Desde)) CONFIG.premiosCSV = CONFIG.premiosCSV2027;   // 11 nov: cambio automático al Tablero 2027
 
 const PRODUCTOS = [
